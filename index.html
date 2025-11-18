@@ -332,6 +332,12 @@
       text-decoration: none;
       font-weight: 600;
     }
+
+    .no-results {
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
@@ -358,20 +364,20 @@
   <section class="search-section">
     <div class="search-row">
       <input type="text" id="searchInput" placeholder="Name, Branche oder Ortsteil suchen …">
-      <button type="button" onclick="alert('Die Suchfunktion ist aktuell nur eine Demo – kann später erweitert werden.')">
+      <button type="button" id="searchButton">
         🔍 Suchen
       </button>
     </div>
 
-    <div class="filter-row">
-      <div class="filter-chip active">Alle Kategorien</div>
-      <div class="filter-chip">Gastronomie</div>
-      <div class="filter-chip">Friseure & Kosmetik</div>
-      <div class="filter-chip">Handwerker</div>
-      <div class="filter-chip">Auto & Werkstatt</div>
-      <div class="filter-chip">Gesundheit</div>
-      <div class="filter-chip">Einkauf</div>
-      <div class="filter-chip">Dienstleistungen</div>
+    <div class="filter-row" id="categoryChips">
+      <div class="filter-chip active" data-cat="all">Alle Kategorien</div>
+      <div class="filter-chip" data-cat="gastronomie">Gastronomie</div>
+      <div class="filter-chip" data-cat="friseur">Friseure & Kosmetik</div>
+      <div class="filter-chip" data-cat="handwerk">Handwerker</div>
+      <div class="filter-chip" data-cat="auto">Auto & Werkstatt</div>
+      <div class="filter-chip" data-cat="gesundheit">Gesundheit</div>
+      <div class="filter-chip" data-cat="einkauf">Einkauf</div>
+      <div class="filter-chip" data-cat="dienstleistung">Dienstleistungen</div>
     </div>
 
     <div class="language-row">
@@ -388,7 +394,7 @@
     </div>
   </section>
 
-  <!-- Kategorien -->
+  <!-- Kategorien (Info) -->
   <section>
     <h2 class="section-title">Nach Kategorie entdecken</h2>
     <div class="categories-grid">
@@ -434,9 +440,12 @@
   <section>
     <h2 class="section-title">Einträge in Bad Berleburg</h2>
 
-    <div class="business-grid">
+    <div class="business-grid" id="businessGrid">
       <!-- REAL – Eiscafé San Remo -->
-      <article class="biz-card" data-langs="de,pt">
+      <article class="biz-card"
+               data-langs="de,pt"
+               data-cat="gastronomie"
+               data-text="eiscafe san remo italienisches eis hausbecher waffeln snacks kaffee bad berleburg sanremo">
         <div class="biz-top">
           <div class="biz-img">SR</div>
           <div class="biz-main">
@@ -454,20 +463,31 @@
           </div>
         </div>
         <div class="biz-actions">
-          <button class="btn-small btn-main" onclick="alert('Hier kann später der digitale Bestell-Link vom Eiscafé San Remo hinterlegt werden.')">
+          <!-- 1. Menu digital do San Remo (trocar o link quando tiveres o menu online) -->
+          <button class="btn-small btn-main"
+                  onclick="window.open('https://paulo35150.github.io/sanremo-menu/', '_blank')">
             📱 Digitale Speisekarte
           </button>
-          <button class="btn-small btn-whatsapp" onclick="window.open('https://wa.me/4917672809926','_blank')">
-            💬 WhatsApp
+
+          <!-- 2. WhatsApp com nome + morada obrigatórios -->
+          <button class="btn-small btn-whatsapp"
+                  onclick="sendWhatsAppOrder('Eiscafé San Remo','4917672809926')">
+            💬 WhatsApp-Bestellung
           </button>
-          <button class="btn-small btn-outline" onclick="window.open('tel:+4917672809926','_self')">
-            ☎ Anrufen
+
+          <!-- 3. Pagamento online próprio do San Remo (trocar o link para PayPal/SumUp) -->
+          <button class="btn-small btn-outline"
+                  onclick="window.open('https://dein-zahlungslink-hier.de', '_blank')">
+            💳 Online bezahlen
           </button>
         </div>
       </article>
 
       <!-- Platzhalter: Ihr Geschäft hier? -->
-      <article class="biz-card">
+      <article class="biz-card"
+               data-langs="de,pt,en"
+               data-cat="dienstleistung"
+               data-text="ihr geschaeft hier werbung lokale sichtbarkeit eintrag meine stadt bad berleburg wittgenstein">
         <div class="biz-top">
           <div class="biz-img">+</div>
           <div class="biz-main">
@@ -482,19 +502,119 @@
           </div>
         </div>
         <div class="biz-actions">
-          <button class="btn-small btn-main" onclick="window.open('mailto:paulo.sanremo@web.de','_self')">
+          <button class="btn-small btn-main"
+                  onclick="window.open('mailto:paulo.sanremo@web.de','_self')">
             ✉️ Kontakt per E-Mail
           </button>
-          <button class="btn-small btn-whatsapp" onclick="window.open('https://wa.me/4917672809926','_blank')">
+          <button class="btn-small btn-whatsapp"
+                  onclick="sendWhatsAppOrder('Meine Stadt – Bad Berleburg','4917672809926')">
             💬 WhatsApp Anfrage
           </button>
         </div>
       </article>
+    </div>
 
+    <div id="noResults" class="no-results" style="display:none;">
+      Keine Einträge gefunden. Bitte Filter oder Suche anpassen.
     </div>
   </section>
 
   <footer>
     Meine Stadt – Bad Berleburg · Lokale Unternehmen auf einen Blick.<br>
     Eintrag oder Werbung gewünscht? Kontakt:
-    <a href="mailto:paulo.sanremo@web.de">paulo.sanremo@web
+    <a href="mailto:paulo.sanremo@web.de">paulo.sanremo@web.de</a> · WhatsApp: 0176 72809926
+  </footer>
+</main>
+
+<script>
+  const searchInput = document.getElementById('searchInput');
+  const searchButton = document.getElementById('searchButton');
+  const languageFilter = document.getElementById('languageFilter');
+  const categoryChips = document.querySelectorAll('#categoryChips .filter-chip');
+  const bizCards = document.querySelectorAll('.biz-card');
+  const noResults = document.getElementById('noResults');
+
+  let activeCategory = 'all';
+
+  function applyFilters() {
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    const langValue = languageFilter.value;
+    let visibleCount = 0;
+
+    bizCards.forEach(card => {
+      const langs = (card.getAttribute('data-langs') || '').split(',').map(l => l.trim());
+      const cat = card.getAttribute('data-cat') || 'all';
+      const text = (card.getAttribute('data-text') || card.innerText || '').toLowerCase();
+
+      let show = true;
+
+      // idioma
+      if (langValue !== 'all' && !langs.includes(langValue)) {
+        show = false;
+      }
+
+      // categoria
+      if (activeCategory !== 'all' && cat !== activeCategory) {
+        show = false;
+      }
+
+      // texto de pesquisa
+      if (searchTerm && !text.includes(searchTerm)) {
+        show = false;
+      }
+
+      card.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
+    noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+  }
+
+  // eventos pesquisa/filtros
+  searchButton.addEventListener('click', applyFilters);
+  searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') applyFilters();
+  });
+
+  languageFilter.addEventListener('change', applyFilters);
+
+  categoryChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      categoryChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeCategory = chip.getAttribute('data-cat') || 'all';
+      applyFilters();
+    });
+  });
+
+  // função para pedidos por WhatsApp com nome + morada obrigatórios
+  function sendWhatsAppOrder(restaurantName, phone) {
+    const name = prompt("Bitte geben Sie Ihren Namen ein:");
+    if (!name || name.trim().length < 2) {
+      alert("Ohne Namen kann die Bestellung nicht gesendet werden.");
+      return;
+    }
+
+    const address = prompt("Bitte geben Sie Ihre vollständige Adresse ein (Straße, Hausnummer, PLZ, Ort):");
+    if (!address || address.trim().length < 5) {
+      alert("Ohne vollständige Adresse kann die Bestellung nicht gesendet werden.");
+      return;
+    }
+
+    const text =
+      'Online-Bestellung über "Meine Stadt – Bad Berleburg"\n' +
+      'Restaurant: ' + restaurantName + '\n' +
+      'Name: ' + name.trim() + '\n' +
+      'Adresse: ' + address.trim() + '\n\n' +
+      'Meine Bestellung: ';
+
+    const url = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(text);
+    window.open(url, '_blank');
+  }
+
+  // aplicar filtros no início
+  applyFilters();
+</script>
+
+</body>
+</html>
