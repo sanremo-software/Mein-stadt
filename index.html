@@ -1,620 +1,835 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Meine Stadt – Bad Berleburg | Lokale Geschäfte & Services</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sanremo – Supermarkt Bestellungen</title>
   <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      background: #f7f7fb;
-      color: #222;
+    :root { --bg:#0b0f17; --card:#121a26; --muted:#93a4bd; --text:#eaf0ff; --line:#233148; --btn:#1f6feb; }
+    *{ box-sizing:border-box; }
+    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#070a10, #0b0f17); color:var(--text); }
+    header{ position:sticky; top:0; z-index:10; background:rgba(11,15,23,.88); backdrop-filter: blur(8px); border-bottom:1px solid var(--line); }
+    .wrap{ max-width:1100px; margin:0 auto; padding:14px 14px; }
+    h1{ font-size:18px; margin:0; letter-spacing:.2px; }
+    .sub{ color:var(--muted); font-size:12px; margin-top:2px; }
+    nav{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .tab{ padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:#0f1622; color:var(--text); cursor:pointer; font-weight:600; font-size:13px; }
+    .tab.active{ background:var(--btn); border-color:transparent; }
+    main{ padding:18px 0 30px; }
+    .grid{ display:grid; grid-template-columns:1fr; gap:12px; }
+    @media (min-width:900px){ .grid.two{ grid-template-columns:1.1fr .9fr; } }
+    .card{ background:rgba(18,26,38,.9); border:1px solid var(--line); border-radius:18px; padding:14px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+    .card h2{ margin:0 0 10px; font-size:15px; }
+    .row{ display:grid; gap:10px; }
+    .row.cols{ grid-template-columns:1fr; }
+    @media (min-width:700px){ .row.cols{ grid-template-columns:1fr 1fr; } }
+    label{ font-size:12px; color:var(--muted); display:block; margin:0 0 6px; }
+    input, select, textarea{
+      width:100%; padding:10px 12px; border-radius:12px;
+      border:1px solid var(--line); background:#0f1622; color:var(--text);
+      outline:none;
     }
-
-    /* Header / Hero */
-    header {
-      background: linear-gradient(135deg, #ff8a5c, #ffcc66);
-      color: #fff;
-      padding: 18px 16px 24px 16px;
-      border-bottom-left-radius: 20px;
-      border-bottom-right-radius: 20px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    textarea{ min-height:70px; resize:vertical; }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      padding:10px 12px; border-radius:12px; border:1px solid var(--line);
+      background:#0f1622; color:var(--text); cursor:pointer; font-weight:700; font-size:13px;
     }
+    .btn.primary{ background:var(--btn); border-color:transparent; }
+    .btn.danger{ background:#b42318; border-color:transparent; }
+    .btn.small{ padding:8px 10px; font-size:12px; border-radius:10px; }
+    .muted{ color:var(--muted); font-size:12px; }
+    .hr{ height:1px; background:var(--line); margin:12px 0; }
+    table{ width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:14px; border:1px solid var(--line); }
+    th, td{ padding:10px 10px; font-size:13px; border-bottom:1px solid var(--line); }
+    th{ background:#0f1622; text-align:left; color:#cfe0ff; font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
+    tr:last-child td{ border-bottom:none; }
+    .right{ text-align:right; }
+    .pill{ display:inline-block; padding:6px 10px; border:1px solid var(--line); border-radius:999px; background:#0f1622; font-size:12px; color:#cfe0ff; }
+    .flex{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .hidden{ display:none !important; }
 
-    .hero-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .logo-circle {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      font-weight: 700;
-      border: 2px solid rgba(255,255,255,0.6);
-    }
-
-    .hero-text h1 {
-      margin: 0 0 4px 0;
-      font-size: 1.6rem;
-    }
-
-    .hero-text p {
-      margin: 0;
-      font-size: 0.95rem;
-      opacity: 0.95;
-    }
-
-    .hero-badges {
-      margin-top: 8px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 0.78rem;
-    }
-
-    .badge {
-      background: rgba(255,255,255,0.2);
-      border-radius: 999px;
-      padding: 4px 10px;
-      border: 1px solid rgba(255,255,255,0.5);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    main {
-      max-width: 1100px;
-      margin: 14px auto 40px auto;
-      padding: 0 12px;
-    }
-
-    /* Suche + Filter */
-    .search-section {
-      background: #fff;
-      padding: 10px;
-      border-radius: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      margin-bottom: 14px;
-    }
-
-    .search-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .search-row input[type="text"] {
-      flex: 1;
-      min-width: 160px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid #ddd;
-      font-size: 0.95rem;
-    }
-
-    .search-row button {
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: none;
-      background: #ff8a5c;
-      color: #fff;
-      font-size: 0.9rem;
-      cursor: pointer;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .filter-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 6px;
-    }
-
-    .filter-chip {
-      border-radius: 999px;
-      border: 1px solid #ddd;
-      padding: 5px 10px;
-      font-size: 0.8rem;
-      background: #fafafa;
-      cursor: pointer;
-    }
-
-    .filter-chip.active {
-      background: #ffcc66;
-      border-color: #ffb84d;
-    }
-
-    .language-row {
-      margin-top: 4px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      font-size: 0.8rem;
-    }
-
-    .language-row label {
-      font-weight: 600;
-    }
-
-    .language-row select {
-      padding: 5px 10px;
-      border-radius: 999px;
-      border: 1px solid #ddd;
-      font-size: 0.8rem;
-      min-width: 160px;
-    }
-
-    /* Kategorien */
-    .section-title {
-      margin-top: 16px;
-      margin-bottom: 8px;
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-
-    .categories-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-
-    .cat-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: transform 0.1s ease, box-shadow 0.1s ease, border 0.1s ease;
-    }
-
-    .cat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 3px 10px rgba(0,0,0,0.12);
-      border-color: #ffcc66;
-    }
-
-    .cat-emoji {
-      font-size: 1.4rem;
-    }
-
-    .cat-name {
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-
-    .cat-sub {
-      font-size: 0.78rem;
-      color: #666;
-    }
-
-    /* Einträge / Businesses */
-    .business-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    @media (min-width: 700px) {
-      .business-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    /* PRINT */
+    @media print{
+      body{ background:#fff; color:#000; }
+      header, .no-print{ display:none !important; }
+      .print-area{ display:block !important; }
+      .print-page{
+        page-break-after:always;
+        padding:18mm 16mm;
+        font-family: Arial, Helvetica, sans-serif;
       }
-    }
-
-    .biz-card {
-      background: #fff;
-      border-radius: 18px;
-      padding: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      border: 1px solid #eee;
-    }
-
-    .biz-top {
-      display: flex;
-      gap: 10px;
-    }
-
-    .biz-img {
-      width: 80px;
-      height: 80px;
-      border-radius: 14px;
-      background: linear-gradient(135deg,#ffcc66,#ff8a5c);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .biz-main h3 {
-      margin: 0;
-      font-size: 1rem;
-    }
-
-    .biz-main p {
-      margin: 2px 0;
-      font-size: 0.83rem;
-      color: #555;
-    }
-
-    .biz-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-top: 2px;
-    }
-
-    .biz-tag {
-      font-size: 0.72rem;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: #f1f1f7;
-      color: #555;
-    }
-
-    .biz-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    .btn-small {
-      flex: 1;
-      min-width: 90px;
-      border-radius: 999px;
-      border: none;
-      padding: 6px 8px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      white-space: nowrap;
-    }
-
-    .btn-outline {
-      background: #fff;
-      border: 1px solid #ddd;
-    }
-
-    .btn-whatsapp {
-      background: #25D366;
-      border: 1px solid #1faa52;
-      color: #fff;
-    }
-
-    .btn-main {
-      background: #ffcc66;
-      border: 1px solid #ffb84d;
-      color: #333;
-    }
-
-    footer {
-      margin-top: 24px;
-      padding: 14px 0 24px 0;
-      text-align: center;
-      font-size: 0.78rem;
-      color: #777;
-    }
-
-    footer a {
-      color: #ff8a5c;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .no-results {
-      font-size: 0.9rem;
-      color: #666;
-      margin-top: 8px;
+      .print-page:last-child{ page-break-after:auto; }
+      .p-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:10mm; }
+      .p-title{ font-size:18px; font-weight:800; margin:0; }
+      .p-sub{ font-size:12px; margin-top:4px; color:#333; }
+      .p-box{ border:1px solid #000; padding:10px; border-radius:8px; }
+      .p-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10mm; margin-top:8mm; }
+      .p-table{ width:100%; border-collapse:collapse; margin-top:8mm; }
+      .p-table th, .p-table td{ border:1px solid #000; padding:7px; font-size:12px; }
+      .p-table th{ background:#f2f2f2; }
+      .sign{ margin-top:10mm; display:flex; gap:12mm; }
+      .line{ flex:1; border-bottom:1px solid #000; height:18px; }
+      .small{ font-size:11px; color:#333; }
     }
   </style>
 </head>
 <body>
-
-<header>
-  <div class="hero-inner">
-    <div class="logo-circle">
-      MS
+  <header class="no-print">
+    <div class="wrap">
+      <h1>Supermarkt Bestellungen – Produktion & Lieferschein</h1>
+      <div class="sub">750g & 170g • Sorten verwalten • Drucken (A4)</div>
+      <nav>
+        <button class="tab active" data-view="bestellung">Bestellung</button>
+        <button class="tab" data-view="produktion">Produktion</button>
+        <button class="tab" data-view="kunden">Kunden</button>
+        <button class="tab" data-view="sorten">Sorten</button>
+        <button class="tab" data-view="history">Historie</button>
+      </nav>
     </div>
-    <div class="hero-text">
-      <h1>Meine Stadt – Bad Berleburg</h1>
-      <p>Alle Geschäfte, Restaurants & Dienstleistungen in deiner Stadt – schnell, einfach und übersichtlich.</p>
-      <div class="hero-badges">
-        <span class="badge">📍 Region Bad Berleburg / Wittgenstein</span>
-        <span class="badge">📱 Optimiert für Handy</span>
-        <span class="badge">🏙️ Lokale Unternehmen entdecken & unterstützen</span>
-      </div>
-    </div>
-  </div>
-</header>
+  </header>
 
-<main>
-  <!-- Suche + Filter -->
-  <section class="search-section">
-    <div class="search-row">
-      <input type="text" id="searchInput" placeholder="Name, Branche oder Ortsteil suchen …">
-      <button type="button" id="searchButton">
-        🔍 Suchen
-      </button>
-    </div>
+  <main class="wrap">
+    <!-- BESTELLUNG -->
+    <section id="view-bestellung" class="grid two">
+      <div class="card">
+        <h2>Neue Bestellung</h2>
 
-    <div class="filter-row" id="categoryChips">
-      <div class="filter-chip active" data-cat="all">Alle Kategorien</div>
-      <div class="filter-chip" data-cat="gastronomie">Gastronomie</div>
-      <div class="filter-chip" data-cat="friseur">Friseure & Kosmetik</div>
-      <div class="filter-chip" data-cat="handwerk">Handwerker</div>
-      <div class="filter-chip" data-cat="auto">Auto & Werkstatt</div>
-      <div class="filter-chip" data-cat="gesundheit">Gesundheit</div>
-      <div class="filter-chip" data-cat="einkauf">Einkauf</div>
-      <div class="filter-chip" data-cat="dienstleistung">Dienstleistungen</div>
-    </div>
-
-    <div class="language-row">
-      <label for="languageFilter">Sprache wählen:</label>
-      <select id="languageFilter">
-        <option value="all">Alle Sprachen</option>
-        <option value="de">Deutsch</option>
-        <option value="pt">Portugiesisch</option>
-        <option value="en">Englisch</option>
-        <option value="fr">Französisch</option>
-        <option value="es">Spanisch</option>
-        <option value="it">Italienisch</option>
-      </select>
-    </div>
-  </section>
-
-  <!-- Kategorien (Info) -->
-  <section>
-    <h2 class="section-title">Nach Kategorie entdecken</h2>
-    <div class="categories-grid">
-      <div class="cat-card">
-        <div class="cat-emoji">🍽️</div>
-        <div class="cat-name">Gastronomie</div>
-        <div class="cat-sub">Restaurants, Eiscafés, Imbisse & Cafés</div>
-      </div>
-      <div class="cat-card">
-        <div class="cat-emoji">💇‍♀️</div>
-        <div class="cat-name">Friseure & Kosmetik</div>
-        <div class="cat-sub">Haare, Nägel, Beauty & Wellness</div>
-      </div>
-      <div class="cat-card">
-        <div class="cat-emoji">🔧</div>
-        <div class="cat-name">Handwerker</div>
-        <div class="cat-sub">Bau, Elektro, Sanitär, Renovierung</div>
-      </div>
-      <div class="cat-card">
-        <div class="cat-emoji">🚗</div>
-        <div class="cat-name">Auto & Werkstatt</div>
-        <div class="cat-sub">Werkstätten, Reifen, Autohäuser</div>
-      </div>
-      <div class="cat-card">
-        <div class="cat-emoji">⚕️</div>
-        <div class="cat-name">Gesundheit</div>
-        <div class="cat-sub">Ärzte, Zahnärzte, Apotheken</div>
-      </div>
-      <div class="cat-card">
-        <div class="cat-emoji">🛍️</div>
-        <div class="cat-name">Einkauf</div>
-        <div class="cat-sub">Einzelhandel, Läden & Boutiquen</div>
-      </div>
-      <div class="cat-card">
-        <div class="cat-emoji">💼</div>
-        <div class="cat-name">Dienstleistungen</div>
-        <div class="cat-sub">Finanzen, Beratung & mehr</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Einträge -->
-  <section>
-    <h2 class="section-title">Einträge in Bad Berleburg</h2>
-
-    <div class="business-grid" id="businessGrid">
-      <!-- REAL – Eiscafé San Remo -->
-      <article class="biz-card"
-               data-langs="de,pt"
-               data-cat="gastronomie"
-               data-text="eiscafe san remo italienisches eis hausbecher waffeln snacks kaffee bad berleburg sanremo">
-        <div class="biz-top">
-          <div class="biz-img">SR</div>
-          <div class="biz-main">
-            <h3>Eiscafé San Remo</h3>
-            <p>Italienisches Eis, Hausbecher, Waffeln, Snacks & Kaffee.</p>
-            <p>📍 Fürst-Richard-Str. 1, 57319 Bad Berleburg</p>
-            <p>🕒 Öffnungszeiten: Saisonbetrieb – täglich geöffnet (Sommer)</p>
-            <p>🚪 Ruhetag: wird vor Ort ausgeschildert</p>
-            <p>🗣 Sprachen: Deutsch 🇩🇪 · Portugiesisch 🇵🇹</p>
-            <div class="biz-tags">
-              <span class="biz-tag">🍨 Eiscafé</span>
-              <span class="biz-tag">Familienfreundlich</span>
-              <span class="biz-tag">Innen & Terrasse</span>
-            </div>
+        <div class="row cols">
+          <div>
+            <label>Kunde (Supermarkt)</label>
+            <select id="orderCustomer"></select>
+          </div>
+          <div>
+            <label>Lieferdatum</label>
+            <input type="date" id="orderDate" />
           </div>
         </div>
-        <div class="biz-actions">
-          <!-- 1. Menu digital do San Remo (trocar o link quando tiveres o menu online) -->
-          <button class="btn-small btn-main"
-                  onclick="window.open('https://paulo35150.github.io/sanremo-menu/', '_blank')">
-            📱 Digitale Speisekarte
-          </button>
 
-          <!-- 2. WhatsApp com nome + morada obrigatórios -->
-          <button class="btn-small btn-whatsapp"
-                  onclick="sendWhatsAppOrder('Eiscafé San Remo','4917672809926')">
-            💬 WhatsApp-Bestellung
-          </button>
+        <div class="hr"></div>
 
-          <!-- 3. Pagamento online próprio do San Remo (trocar o link para PayPal/SumUp) -->
-          <button class="btn-small btn-outline"
-                  onclick="window.open('https://dein-zahlungslink-hier.de', '_blank')">
-            💳 Online bezahlen
-          </button>
+        <div class="flex">
+          <button class="btn primary" id="addLine">+ Position hinzufügen</button>
+          <span class="muted">Jede Position: Größe (750g/170g) + Sorte + Menge</span>
         </div>
-      </article>
 
-      <!-- Platzhalter: Ihr Geschäft hier? -->
-      <article class="biz-card"
-               data-langs="de,pt,en"
-               data-cat="dienstleistung"
-               data-text="ihr geschaeft hier werbung lokale sichtbarkeit eintrag meine stadt bad berleburg wittgenstein">
-        <div class="biz-top">
-          <div class="biz-img">+</div>
-          <div class="biz-main">
-            <h3>Ihr Geschäft hier?</h3>
-            <p>Sie möchten, dass Ihr Restaurant, Laden oder Service in „Meine Stadt – Bad Berleburg“ erscheint?</p>
-            <p>📍 Region Bad Berleburg / Wittgenstein</p>
-            <p>🗣 Sprachen möglich: Deutsch, Portugiesisch, Englisch u.v.m.</p>
-            <div class="biz-tags">
-              <span class="biz-tag">Werbefläche</span>
-              <span class="biz-tag">Lokale Sichtbarkeit</span>
-            </div>
+        <div style="margin-top:10px; overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:120px;">Größe</th>
+                <th>Sorte</th>
+                <th style="width:120px;" class="right">Menge</th>
+                <th style="width:90px;" class="right">Aktion</th>
+              </tr>
+            </thead>
+            <tbody id="linesTbody"></tbody>
+          </table>
+        </div>
+
+        <div class="hr"></div>
+
+        <label>Notizen (optional)</label>
+        <textarea id="orderNotes" placeholder="z.B. bitte bis 09:00 liefern, Hintereingang..."></textarea>
+
+        <div class="flex" style="margin-top:12px;">
+          <button class="btn primary" id="saveOrder">Bestellung speichern</button>
+          <button class="btn" id="clearOrder">Leeren</button>
+          <span id="saveHint" class="muted"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Heute / Ausgewähltes Datum – Überblick</h2>
+        <div class="muted">Automatisch aus allen Bestellungen für das Datum.</div>
+        <div class="hr"></div>
+        <div class="flex">
+          <span class="pill" id="tot750">750g: 0</span>
+          <span class="pill" id="tot170">170g: 0</span>
+          <span class="pill" id="totAll">Total: 0</span>
+        </div>
+
+        <div class="hr"></div>
+        <div class="flex">
+          <button class="btn" id="printProduktion">Drucken: Produktion</button>
+          <button class="btn" id="printLieferschein">Drucken: Lieferschein</button>
+        </div>
+
+        <div class="hr"></div>
+        <h2 style="margin-top:0;">Produktion nach Sorte</h2>
+        <div style="max-height:380px; overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Sorte</th>
+                <th class="right">750g</th>
+                <th class="right">170g</th>
+                <th class="right">Total</th>
+              </tr>
+            </thead>
+            <tbody id="prodTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUKTION VIEW -->
+    <section id="view-produktion" class="grid hidden">
+      <div class="card">
+        <h2>Produktion – Datum wählen</h2>
+        <div class="row cols">
+          <div>
+            <label>Datum</label>
+            <input type="date" id="prodDate" />
+          </div>
+          <div style="display:flex; align-items:end; gap:10px;">
+            <button class="btn primary" id="prodRefresh">Aktualisieren</button>
+            <button class="btn" id="prodPrint">Drucken: Produktion</button>
           </div>
         </div>
-        <div class="biz-actions">
-          <button class="btn-small btn-main"
-                  onclick="window.open('mailto:paulo.sanremo@web.de','_self')">
-            ✉️ Kontakt per E-Mail
-          </button>
-          <button class="btn-small btn-whatsapp"
-                  onclick="sendWhatsAppOrder('Meine Stadt – Bad Berleburg','4917672809926')">
-            💬 WhatsApp Anfrage
-          </button>
+        <div class="hr"></div>
+
+        <div class="flex">
+          <span class="pill" id="p_tot750">750g: 0</span>
+          <span class="pill" id="p_tot170">170g: 0</span>
+          <span class="pill" id="p_totAll">Total: 0</span>
         </div>
-      </article>
-    </div>
 
-    <div id="noResults" class="no-results" style="display:none;">
-      Keine Einträge gefunden. Bitte Filter oder Suche anpassen.
-    </div>
-  </section>
+        <div class="hr"></div>
+        <div style="overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Sorte</th>
+                <th class="right">750g</th>
+                <th class="right">170g</th>
+                <th class="right">Total</th>
+              </tr>
+            </thead>
+            <tbody id="prodTbody2"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-  <footer>
-    Meine Stadt – Bad Berleburg · Lokale Unternehmen auf einen Blick.<br>
-    Eintrag oder Werbung gewünscht? Kontakt:
-    <a href="mailto:paulo.sanremo@web.de">paulo.sanremo@web.de</a> · WhatsApp: 0176 72809926
-  </footer>
-</main>
+    <!-- KUNDEN -->
+    <section id="view-kunden" class="grid two hidden">
+      <div class="card">
+        <h2>Kunden verwalten</h2>
+        <div class="row cols">
+          <div>
+            <label>Kunde (Name)</label>
+            <input id="newCustomerName" placeholder="z.B. REWE Bad Berleburg" />
+          </div>
+          <div>
+            <label>Zusatz (optional)</label>
+            <input id="newCustomerNote" placeholder="z.B. Filiale, Ansprechpartner..." />
+          </div>
+        </div>
+        <div class="flex" style="margin-top:10px;">
+          <button class="btn primary" id="addCustomer">Kunde hinzufügen</button>
+          <span class="muted">Tipp: Du kannst später immer ändern/löschen.</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Bestehende Kunden</h2>
+        <div id="customersList"></div>
+      </div>
+    </section>
+
+    <!-- SORTEN -->
+    <section id="view-sorten" class="grid two hidden">
+      <div class="card">
+        <h2>Sorten verwalten</h2>
+        <div class="row cols">
+          <div>
+            <label>Neue Sorte</label>
+            <input id="newFlavor" placeholder="z.B. Haselnuss, Zitrone..." />
+          </div>
+          <div style="display:flex; align-items:end; gap:10px;">
+            <button class="btn primary" id="addFlavor">Sorte hinzufügen</button>
+            <button class="btn" id="resetDefaults">Standard wiederherstellen</button>
+          </div>
+        </div>
+        <div class="muted" style="margin-top:10px;">Alles wird lokal gespeichert (auf diesem Gerät/Browser).</div>
+      </div>
+
+      <div class="card">
+        <h2>Bestehende Sorten</h2>
+        <div id="flavorsList"></div>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="view-history" class="grid hidden">
+      <div class="card">
+        <h2>Historie (Bestellungen)</h2>
+        <div class="row cols">
+          <div>
+            <label>Suche (Kunde oder Datum)</label>
+            <input id="historySearch" placeholder="z.B. REWE oder 2025-12-16" />
+          </div>
+          <div style="display:flex; align-items:end; gap:10px;">
+            <button class="btn" id="historyRefresh">Aktualisieren</button>
+            <button class="btn danger" id="deleteAll">Alle löschen</button>
+          </div>
+        </div>
+        <div class="hr"></div>
+        <div id="historyList"></div>
+      </div>
+    </section>
+
+    <!-- PRINT AREA -->
+    <section class="print-area hidden" id="printArea"></section>
+  </main>
 
 <script>
-  const searchInput = document.getElementById('searchInput');
-  const searchButton = document.getElementById('searchButton');
-  const languageFilter = document.getElementById('languageFilter');
-  const categoryChips = document.querySelectorAll('#categoryChips .filter-chip');
-  const bizCards = document.querySelectorAll('.biz-card');
-  const noResults = document.getElementById('noResults');
+(() => {
+  const KEY = "sanremo_bestellungen_v1";
 
-  let activeCategory = 'all';
+  const defaultFlavors = [
+    "Stracciatella",
+    "Amarena Kirsch",
+    "Vanille",
+    "Spaghetti",
+    "Toffifee",
+    "Cookies",
+    "Weiß Schokolade Pistazien",
+    "Erdbeer",
+    "Joghurt Orange",
+    "Kinder Buenos",
+    "Kinder Riegel",
+    "Joghurete Schokolade",
+    "Mango",
+    "Hanutta"
+  ];
 
-  function applyFilters() {
-    const searchTerm = searchInput.value.trim().toLowerCase();
-    const langValue = languageFilter.value;
-    let visibleCount = 0;
+  const defaultCustomers = [
+    { id: uid(), name: "REWE", note: "" },
+    { id: uid(), name: "EDEKA", note: "" }
+  ];
 
-    bizCards.forEach(card => {
-      const langs = (card.getAttribute('data-langs') || '').split(',').map(l => l.trim());
-      const cat = card.getAttribute('data-cat') || 'all';
-      const text = (card.getAttribute('data-text') || card.innerText || '').toLowerCase();
+  function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
 
-      let show = true;
-
-      // idioma
-      if (langValue !== 'all' && !langs.includes(langValue)) {
-        show = false;
-      }
-
-      // categoria
-      if (activeCategory !== 'all' && cat !== activeCategory) {
-        show = false;
-      }
-
-      // texto de pesquisa
-      if (searchTerm && !text.includes(searchTerm)) {
-        show = false;
-      }
-
-      card.style.display = show ? '' : 'none';
-      if (show) visibleCount++;
-    });
-
-    noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+  function load(){
+    try{
+      const raw = localStorage.getItem(KEY);
+      if(!raw) return null;
+      return JSON.parse(raw);
+    }catch(e){ return null; }
   }
 
-  // eventos pesquisa/filtros
-  searchButton.addEventListener('click', applyFilters);
-  searchInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') applyFilters();
-  });
+  function save(state){
+    localStorage.setItem(KEY, JSON.stringify(state));
+  }
 
-  languageFilter.addEventListener('change', applyFilters);
+  let state = load() || {
+    flavors: [...defaultFlavors],
+    customers: [...defaultCustomers],
+    orders: [] // {id, date, customerId, notes, lines:[{size, flavor, qty}]}
+  };
 
-  categoryChips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      categoryChips.forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      activeCategory = chip.getAttribute('data-cat') || 'all';
-      applyFilters();
+  // ---------- UI HELPERS ----------
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+  function setTodayIfEmpty(el){
+    if(!el.value){
+      const d = new Date();
+      const tzOff = d.getTimezoneOffset()*60000;
+      el.value = new Date(Date.now()-tzOff).toISOString().slice(0,10);
+    }
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function renderTabs(active){
+    $$(".tab").forEach(b => b.classList.toggle("active", b.dataset.view === active));
+    $$("main section[id^='view-']").forEach(sec => sec.classList.add("hidden"));
+    $("#view-" + active).classList.remove("hidden");
+  }
+
+  // ---------- SORTEN ----------
+  function renderFlavors(){
+    const box = $("#flavorsList");
+    box.innerHTML = "";
+    const list = document.createElement("div");
+    list.className = "row";
+    state.flavors.forEach((f, idx) => {
+      const item = document.createElement("div");
+      item.className = "flex";
+      item.innerHTML = `
+        <span class="pill" style="font-weight:700;">${escapeHtml(f)}</span>
+        <button class="btn small danger" data-del-flavor="${idx}">Entfernen</button>
+      `;
+      list.appendChild(item);
     });
-  });
+    box.appendChild(list);
 
-  // função para pedidos por WhatsApp com nome + morada obrigatórios
-  function sendWhatsAppOrder(restaurantName, phone) {
-    const name = prompt("Bitte geben Sie Ihren Namen ein:");
-    if (!name || name.trim().length < 2) {
-      alert("Ohne Namen kann die Bestellung nicht gesendet werden.");
+    $$("[data-del-flavor]").forEach(btn => {
+      btn.onclick = () => {
+        const i = Number(btn.getAttribute("data-del-flavor"));
+        state.flavors.splice(i,1);
+        save(state);
+        renderAll();
+      };
+    });
+  }
+
+  $("#addFlavor").onclick = () => {
+    const v = $("#newFlavor").value.trim();
+    if(!v) return;
+    if(state.flavors.map(x=>x.toLowerCase()).includes(v.toLowerCase())){ $("#newFlavor").value=""; return; }
+    state.flavors.push(v);
+    $("#newFlavor").value = "";
+    save(state);
+    renderAll();
+  };
+
+  $("#resetDefaults").onclick = () => {
+    state.flavors = [...defaultFlavors];
+    save(state);
+    renderAll();
+  };
+
+  // ---------- KUNDEN ----------
+  function renderCustomers(){
+    const sel = $("#orderCustomer");
+    sel.innerHTML = "";
+    state.customers.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.note ? `${c.name} – ${c.note}` : c.name;
+      sel.appendChild(opt);
+    });
+
+    const box = $("#customersList");
+    box.innerHTML = "";
+    state.customers.forEach(c => {
+      const div = document.createElement("div");
+      div.className = "card";
+      div.style.marginBottom = "10px";
+      div.innerHTML = `
+        <div class="flex" style="justify-content:space-between;">
+          <div>
+            <div style="font-weight:900;">${escapeHtml(c.name)}</div>
+            <div class="muted">${escapeHtml(c.note || "")}</div>
+          </div>
+          <button class="btn small danger" data-del-customer="${c.id}">Löschen</button>
+        </div>
+      `;
+      box.appendChild(div);
+    });
+
+    $$("[data-del-customer]").forEach(btn => {
+      btn.onclick = () => {
+        const id = btn.getAttribute("data-del-customer");
+        // prevent delete if used by orders?
+        const used = state.orders.some(o => o.customerId === id);
+        if(used && !confirm("Dieser Kunde hat Bestellungen in der Historie. Trotzdem löschen?")) return;
+        state.customers = state.customers.filter(c => c.id !== id);
+        save(state);
+        renderAll();
+      };
+    });
+  }
+
+  $("#addCustomer").onclick = () => {
+    const name = $("#newCustomerName").value.trim();
+    const note = $("#newCustomerNote").value.trim();
+    if(!name) return;
+    state.customers.push({ id: uid(), name, note });
+    $("#newCustomerName").value = "";
+    $("#newCustomerNote").value = "";
+    save(state);
+    renderAll();
+  };
+
+  // ---------- ORDER LINES ----------
+  let currentLines = [];
+
+  function addLine(size="750g", flavor=null, qty=1){
+    currentLines.push({ size, flavor: flavor || (state.flavors[0] || ""), qty });
+    renderLines();
+  }
+
+  function renderLines(){
+    const tb = $("#linesTbody");
+    tb.innerHTML = "";
+    currentLines.forEach((ln, idx) => {
+      const tr = document.createElement("tr");
+
+      const sizeSel = document.createElement("select");
+      sizeSel.innerHTML = `<option value="750g">750g</option><option value="170g">170g</option>`;
+      sizeSel.value = ln.size;
+      sizeSel.onchange = () => { ln.size = sizeSel.value; };
+
+      const flavorSel = document.createElement("select");
+      flavorSel.innerHTML = state.flavors.map(f => `<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`).join("");
+      flavorSel.value = ln.flavor;
+      flavorSel.onchange = () => { ln.flavor = flavorSel.value; };
+
+      const qtyInp = document.createElement("input");
+      qtyInp.type = "number";
+      qtyInp.min = "0";
+      qtyInp.step = "1";
+      qtyInp.value = ln.qty;
+      qtyInp.oninput = () => { ln.qty = Math.max(0, parseInt(qtyInp.value || "0", 10)); refreshOverview(); };
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "btn small danger";
+      delBtn.textContent = "X";
+      delBtn.onclick = () => { currentLines.splice(idx,1); renderLines(); };
+
+      tr.innerHTML = `
+        <td></td><td></td><td class="right"></td><td class="right"></td>
+      `;
+      tr.children[0].appendChild(sizeSel);
+      tr.children[1].appendChild(flavorSel);
+      tr.children[2].appendChild(qtyInp);
+      tr.children[3].appendChild(delBtn);
+
+      tb.appendChild(tr);
+    });
+    refreshOverview();
+  }
+
+  $("#addLine").onclick = () => addLine();
+
+  $("#clearOrder").onclick = () => {
+    currentLines = [];
+    $("#orderNotes").value = "";
+    renderLines();
+  };
+
+  $("#saveOrder").onclick = () => {
+    const customerId = $("#orderCustomer").value;
+    const date = $("#orderDate").value;
+    const notes = $("#orderNotes").value.trim();
+    const lines = currentLines
+      .filter(l => l.flavor && Number(l.qty) > 0)
+      .map(l => ({ size:l.size, flavor:l.flavor, qty:Number(l.qty) }));
+
+    if(!customerId || !date || lines.length === 0){
+      $("#saveHint").textContent = "Bitte Kunde, Datum und mindestens 1 Position eingeben.";
       return;
     }
 
-    const address = prompt("Bitte geben Sie Ihre vollständige Adresse ein (Straße, Hausnummer, PLZ, Ort):");
-    if (!address || address.trim().length < 5) {
-      alert("Ohne vollständige Adresse kann die Bestellung nicht gesendet werden.");
+    state.orders.push({ id: uid(), date, customerId, notes, lines });
+    save(state);
+    $("#saveHint").textContent = "Gespeichert ✅";
+    setTimeout(()=> $("#saveHint").textContent="", 2000);
+    // reset for next order
+    currentLines = [];
+    $("#orderNotes").value = "";
+    renderLines();
+    renderHistory();
+    refreshOverview();
+  };
+
+  // ---------- PRODUCTION SUMMARY ----------
+  function ordersByDate(date){
+    return state.orders.filter(o => o.date === date);
+  }
+
+  function calcProduction(date){
+    const map = new Map(); // flavor -> {750,170}
+    let t750=0, t170=0;
+
+    ordersByDate(date).forEach(o => {
+      o.lines.forEach(l => {
+        const key = l.flavor;
+        if(!map.has(key)) map.set(key, {f:key, g750:0, g170:0});
+        const rec = map.get(key);
+        if(l.size === "750g"){ rec.g750 += l.qty; t750 += l.qty; }
+        if(l.size === "170g"){ rec.g170 += l.qty; t170 += l.qty; }
+      });
+    });
+
+    const rows = Array.from(map.values())
+      .map(r => ({...r, total: r.g750 + r.g170}))
+      .sort((a,b) => b.total - a.total || a.f.localeCompare(b.f));
+
+    return { rows, t750, t170, total: t750+t170 };
+  }
+
+  function refreshOverview(){
+    const date = $("#orderDate").value || $("#prodDate").value;
+    if(!date) return;
+
+    const prod = calcProduction(date);
+
+    // right panel in Bestellung view
+    $("#tot750").textContent = `750g: ${prod.t750}`;
+    $("#tot170").textContent = `170g: ${prod.t170}`;
+    $("#totAll").textContent = `Total: ${prod.total}`;
+
+    const tb = $("#prodTbody");
+    tb.innerHTML = prod.rows.map(r => `
+      <tr>
+        <td>${escapeHtml(r.f)}</td>
+        <td class="right">${r.g750}</td>
+        <td class="right">${r.g170}</td>
+        <td class="right"><b>${r.total}</b></td>
+      </tr>
+    `).join("") || `<tr><td colspan="4" class="muted">Keine Bestellungen für dieses Datum.</td></tr>`;
+
+    // production page
+    $("#p_tot750").textContent = `750g: ${prod.t750}`;
+    $("#p_tot170").textContent = `170g: ${prod.t170}`;
+    $("#p_totAll").textContent = `Total: ${prod.total}`;
+
+    const tb2 = $("#prodTbody2");
+    tb2.innerHTML = tb.innerHTML;
+  }
+
+  $("#prodRefresh").onclick = () => refreshOverview();
+  $("#prodPrint").onclick = () => printProduktion($("#prodDate").value);
+
+  // ---------- HISTORY ----------
+  function customerName(id){
+    const c = state.customers.find(x => x.id === id);
+    return c ? (c.note ? `${c.name} – ${c.note}` : c.name) : "Unbekannt";
+  }
+
+  function renderHistory(){
+    const q = ($("#historySearch").value || "").trim().toLowerCase();
+    const box = $("#historyList");
+    const orders = [...state.orders].reverse().filter(o => {
+      const cn = customerName(o.customerId).toLowerCase();
+      return !q || o.date.includes(q) || cn.includes(q);
+    });
+
+    if(orders.length === 0){
+      box.innerHTML = `<div class="muted">Keine Bestellungen gespeichert.</div>`;
       return;
     }
 
-    const text =
-      'Online-Bestellung über "Meine Stadt – Bad Berleburg"\n' +
-      'Restaurant: ' + restaurantName + '\n' +
-      'Name: ' + name.trim() + '\n' +
-      'Adresse: ' + address.trim() + '\n\n' +
-      'Meine Bestellung: ';
+    box.innerHTML = orders.map(o => {
+      const lines = o.lines.map(l => `${escapeHtml(l.size)} • ${escapeHtml(l.flavor)} • <b>${l.qty}</b>`).join("<br>");
+      return `
+        <div class="card" style="margin-bottom:10px;">
+          <div class="flex" style="justify-content:space-between;">
+            <div>
+              <div style="font-weight:900;">${escapeHtml(o.date)} – ${escapeHtml(customerName(o.customerId))}</div>
+              <div class="muted">${escapeHtml(o.notes || "")}</div>
+            </div>
+            <div class="flex">
+              <button class="btn small" data-copy="${o.id}">Duplizieren</button>
+              <button class="btn small danger" data-del-order="${o.id}">Löschen</button>
+            </div>
+          </div>
+          <div class="hr"></div>
+          <div style="font-size:13px;">${lines}</div>
+        </div>
+      `;
+    }).join("");
 
-    const url = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(text);
-    window.open(url, '_blank');
+    $$("[data-del-order]").forEach(btn => {
+      btn.onclick = () => {
+        const id = btn.getAttribute("data-del-order");
+        state.orders = state.orders.filter(o => o.id !== id);
+        save(state);
+        renderHistory();
+        refreshOverview();
+      };
+    });
+
+    $$("[data-copy]").forEach(btn => {
+      btn.onclick = () => {
+        const id = btn.getAttribute("data-copy");
+        const o = state.orders.find(x => x.id === id);
+        if(!o) return;
+        $("#orderCustomer").value = o.customerId;
+        $("#orderDate").value = o.date;
+        $("#orderNotes").value = o.notes || "";
+        currentLines = o.lines.map(l => ({...l}));
+        renderLines();
+        renderTabs("bestellung");
+      };
+    });
   }
 
-  // aplicar filtros no início
-  applyFilters();
+  $("#historyRefresh").onclick = () => renderHistory();
+  $("#historySearch").oninput = () => renderHistory();
+
+  $("#deleteAll").onclick = () => {
+    if(!confirm("Wirklich ALLE Bestellungen löschen?")) return;
+    state.orders = [];
+    save(state);
+    renderHistory();
+    refreshOverview();
+  };
+
+  // ---------- PRINT ----------
+  function companyBlock(){
+    // Podes mudar estes dados como quiseres:
+    return `
+      <div class="p-box">
+        <div style="font-weight:800;">Eiscafé Sanremo</div>
+        <div class="small">Bad Berleburg</div>
+        <div class="small">Tel.: 0176 72809926</div>
+      </div>
+    `;
+  }
+
+  function printProduktion(date){
+    if(!date){ alert("Bitte Datum wählen."); return; }
+    const prod = calcProduction(date);
+    const html = `
+      <div class="print-page">
+        <div class="p-head">
+          <div>
+            <h2 class="p-title">Produktion – ${escapeHtml(date)}</h2>
+            <div class="p-sub">Zusammenfassung nach Sorte (750g & 170g)</div>
+          </div>
+          ${companyBlock()}
+        </div>
+
+        <table class="p-table">
+          <thead>
+            <tr>
+              <th>Sorte</th>
+              <th>750g</th>
+              <th>170g</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${prod.rows.map(r => `
+              <tr>
+                <td>${escapeHtml(r.f)}</td>
+                <td>${r.g750}</td>
+                <td>${r.g170}</td>
+                <td><b>${r.total}</b></td>
+              </tr>
+            `).join("") || `<tr><td colspan="4">Keine Bestellungen.</td></tr>`}
+          </tbody>
+        </table>
+
+        <div style="margin-top:8mm;" class="small">
+          Totals: 750g = <b>${prod.t750}</b> • 170g = <b>${prod.t170}</b> • Gesamt = <b>${prod.total}</b>
+        </div>
+      </div>
+    `;
+    $("#printArea").innerHTML = html;
+    $("#printArea").classList.remove("hidden");
+    window.print();
+    $("#printArea").classList.add("hidden");
+  }
+
+  function printLieferschein(date){
+    if(!date){ alert("Bitte Datum wählen."); return; }
+    const orders = ordersByDate(date);
+    if(orders.length === 0){ alert("Keine Bestellungen für dieses Datum."); return; }
+
+    const pages = orders.map(o => {
+      const cname = customerName(o.customerId);
+      return `
+        <div class="print-page">
+          <div class="p-head">
+            <div>
+              <h2 class="p-title">Lieferschein (ohne Preise)</h2>
+              <div class="p-sub">Datum: <b>${escapeHtml(o.date)}</b></div>
+            </div>
+            ${companyBlock()}
+          </div>
+
+          <div class="p-grid">
+            <div class="p-box">
+              <div style="font-weight:800;">Kunde</div>
+              <div style="margin-top:4px;">${escapeHtml(cname)}</div>
+            </div>
+            <div class="p-box">
+              <div style="font-weight:800;">Notizen</div>
+              <div style="margin-top:4px;">${escapeHtml(o.notes || "-")}</div>
+            </div>
+          </div>
+
+          <table class="p-table">
+            <thead>
+              <tr>
+                <th>Größe</th>
+                <th>Sorte</th>
+                <th>Menge</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${o.lines.map(l => `
+                <tr>
+                  <td>${escapeHtml(l.size)}</td>
+                  <td>${escapeHtml(l.flavor)}</td>
+                  <td><b>${l.qty}</b></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+
+          <div class="sign">
+            <div style="flex:1;">
+              <div class="small">Unterschrift Kunde</div>
+              <div class="line"></div>
+            </div>
+            <div style="flex:1;">
+              <div class="small">Unterschrift Lieferant</div>
+              <div class="line"></div>
+            </div>
+          </div>
+
+          <div style="margin-top:6mm;" class="small">Hinweis: Lieferschein ohne Preise – nur Mengen/Sorten.</div>
+        </div>
+      `;
+    }).join("");
+
+    $("#printArea").innerHTML = pages;
+    $("#printArea").classList.remove("hidden");
+    window.print();
+    $("#printArea").classList.add("hidden");
+  }
+
+  $("#printProduktion").onclick = () => printProduktion($("#orderDate").value);
+  $("#printLieferschein").onclick = () => printLieferschein($("#orderDate").value);
+
+  // ---------- NAV ----------
+  $$(".tab").forEach(btn => {
+    btn.onclick = () => {
+      const v = btn.dataset.view;
+      renderTabs(v);
+      if(v === "produktion") refreshOverview();
+      if(v === "history") renderHistory();
+      if(v === "kunden") renderCustomers();
+      if(v === "sorten") renderFlavors();
+    };
+  });
+
+  $("#prodDate").onchange = () => refreshOverview();
+  $("#orderDate").onchange = () => refreshOverview();
+
+  // ---------- INIT ----------
+  function renderAll(){
+    renderCustomers();
+    renderFlavors();
+    renderHistory();
+    renderLines();
+    refreshOverview();
+  }
+
+  setTodayIfEmpty($("#orderDate"));
+  setTodayIfEmpty($("#prodDate"));
+
+  // ensure at least one line initially
+  if(currentLines.length === 0) addLine("750g", state.flavors[0] || "", 1);
+
+  renderAll();
+
+  // expose print helpers for buttons
+  window._printProduktion = printProduktion;
+  window._printLieferschein = printLieferschein;
+})();
 </script>
-
 </body>
 </html>
