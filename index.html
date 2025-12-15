@@ -1,56 +1,193 @@
 
+
 <!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Sanremo – Supermarkt Bestellungen</title>
   <style>
-    :root { --bg:#0b0f17; --card:#121a26; --muted:#93a4bd; --text:#eaf0ff; --line:#233148; --btn:#1f6feb; }
+    :root{
+      --bg0:#070A12; --bg1:#0A1120;
+      --card:#0F1B2E; --card2:#0C1626;
+      --muted:#9DB2D0; --text:#EAF2FF;
+      --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.14);
+      --accent:#2F7CF6; --ok:#22C55E; --danger:#EF4444;
+      --shadow: 0 18px 55px rgba(0,0,0,.40);
+      --radius:18px; --radius2:14px; --tap:46px;
+    }
     *{ box-sizing:border-box; }
-    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#070a10, #0b0f17); color:var(--text); }
-    header{ position:sticky; top:0; z-index:10; background:rgba(11,15,23,.88); backdrop-filter: blur(8px); border-bottom:1px solid var(--line); }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 550px at 20% -10%, rgba(47,124,246,.22), transparent 55%),
+        radial-gradient(900px 550px at 90% 10%, rgba(34,197,94,.10), transparent 60%),
+        linear-gradient(180deg,var(--bg0),var(--bg1));
+      overflow-x:hidden;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    header{
+      position:sticky; top:0; z-index:20;
+      background:rgba(7,10,18,.72);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+      padding-top: env(safe-area-inset-top);
+    }
     .wrap{ max-width:1100px; margin:0 auto; padding:14px 14px; }
-    h1{ font-size:18px; margin:0; letter-spacing:.2px; }
-    .sub{ color:var(--muted); font-size:12px; margin-top:2px; }
-    nav{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
-    .tab{ padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:#0f1622; color:var(--text); cursor:pointer; font-weight:600; font-size:13px; }
-    .tab.active{ background:var(--btn); border-color:transparent; }
-    main{ padding:18px 0 30px; }
+    h1{ margin:0; font-size:16px; letter-spacing:.2px; }
+    .sub{ margin-top:4px; font-size:12px; color:var(--muted); }
+    nav{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; padding-bottom:2px; }
+    .tab{
+      min-height:42px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:900;
+      font-size:13px;
+      transition:transform .06s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab:active{ transform:scale(.98); }
+    .tab.active{
+      background:linear-gradient(180deg, rgba(47,124,246,.95), rgba(47,124,246,.70));
+      border-color:transparent;
+      box-shadow:0 10px 28px rgba(47,124,246,.22);
+    }
+    main{ padding:16px 0 30px; }
     .grid{ display:grid; grid-template-columns:1fr; gap:12px; }
-    @media (min-width:900px){ .grid.two{ grid-template-columns:1.1fr .9fr; } }
-    .card{ background:rgba(18,26,38,.9); border:1px solid var(--line); border-radius:18px; padding:14px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
-    .card h2{ margin:0 0 10px; font-size:15px; }
+    @media (min-width:900px){ .grid.two{ grid-template-columns:1.08fr .92fr; } }
+
+    .card{
+      background:linear-gradient(180deg, rgba(15,27,46,.92), rgba(12,22,38,.92));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      padding:14px;
+      box-shadow: var(--shadow);
+    }
+    .card h2{ margin:0 0 10px; font-size:14px; letter-spacing:.2px; }
+
     .row{ display:grid; gap:10px; }
     .row.cols{ grid-template-columns:1fr; }
     @media (min-width:700px){ .row.cols{ grid-template-columns:1fr 1fr; } }
+
     label{ font-size:12px; color:var(--muted); display:block; margin:0 0 6px; }
+
     input, select, textarea{
-      width:100%; padding:10px 12px; border-radius:12px;
-      border:1px solid var(--line); background:#0f1622; color:var(--text);
+      width:100%;
+      min-height: var(--tap);
+      padding:12px 12px;
+      border-radius: var(--radius2);
+      border:1px solid var(--line2);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
       outline:none;
+      transition:border-color .15s ease, box-shadow .15s ease;
     }
-    textarea{ min-height:70px; resize:vertical; }
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(47,124,246,.75);
+      box-shadow:0 0 0 3px rgba(47,124,246,.18);
+    }
+    textarea{ min-height:92px; resize:vertical; }
+
     .btn{
-      display:inline-flex; align-items:center; justify-content:center; gap:8px;
-      padding:10px 12px; border-radius:12px; border:1px solid var(--line);
-      background:#0f1622; color:var(--text); cursor:pointer; font-weight:700; font-size:13px;
+      min-height: var(--tap);
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:12px 14px;
+      border-radius: var(--radius2);
+      border:1px solid var(--line2);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:950;
+      font-size:13px;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .06s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
     }
-    .btn.primary{ background:var(--btn); border-color:transparent; }
-    .btn.danger{ background:#b42318; border-color:transparent; }
-    .btn.small{ padding:8px 10px; font-size:12px; border-radius:10px; }
+    .btn:active{ transform:scale(.985); }
+    .btn.primary{
+      background:linear-gradient(180deg, rgba(47,124,246,.95), rgba(47,124,246,.70));
+      border-color: transparent;
+      box-shadow:0 12px 30px rgba(47,124,246,.18);
+    }
+    .btn.ok{
+      background:linear-gradient(180deg, rgba(34,197,94,.92), rgba(34,197,94,.66));
+      border-color: transparent;
+      box-shadow:0 12px 30px rgba(34,197,94,.12);
+    }
+    .btn.danger{
+      background:linear-gradient(180deg, rgba(239,68,68,.90), rgba(239,68,68,.62));
+      border-color: transparent;
+      box-shadow:0 12px 30px rgba(239,68,68,.14);
+    }
+    .btn.small{ min-height:38px; padding:8px 10px; font-size:12px; border-radius:12px; }
     .muted{ color:var(--muted); font-size:12px; }
     .hr{ height:1px; background:var(--line); margin:12px 0; }
-    table{ width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:14px; border:1px solid var(--line); }
-    th, td{ padding:10px 10px; font-size:13px; border-bottom:1px solid var(--line); }
-    th{ background:#0f1622; text-align:left; color:#cfe0ff; font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
-    tr:last-child td{ border-bottom:none; }
-    .right{ text-align:right; }
-    .pill{ display:inline-block; padding:6px 10px; border:1px solid var(--line); border-radius:999px; background:#0f1622; font-size:12px; color:#cfe0ff; }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:rgba(255,255,255,.03);
+      font-size:12px; color:#D7E6FF;
+      font-weight:900;
+    }
+    .pill.ok{ border-color: rgba(34,197,94,.35); }
+    .pill.wait{ border-color: rgba(47,124,246,.30); }
     .flex{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
     .hidden{ display:none !important; }
 
-    /* PRINT */
+    .scrollBox{
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: var(--radius2);
+    }
+    .maxH-420{ max-height:420px; }
+    .maxH-520{ max-height:520px; }
+    @media (max-width:520px){
+      .maxH-420{ max-height: 44vh; }
+      .maxH-520{ max-height: 52vh; }
+    }
+
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      overflow:hidden;
+      background:rgba(0,0,0,.08);
+    }
+    thead th{
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: rgba(10,17,32,.92);
+      backdrop-filter: blur(6px);
+      color:#CFE0FF;
+      text-align:left;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      border-bottom:1px solid var(--line);
+      padding:10px;
+    }
+    tbody td{
+      padding:10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      font-size:13px;
+    }
+    tbody tr:last-child td{ border-bottom:none; }
+    .right{ text-align:right; }
+
     @media print{
       body{ background:#fff; color:#000; }
       header, .no-print{ display:none !important; }
@@ -72,238 +209,328 @@
       .sign{ margin-top:10mm; display:flex; gap:12mm; }
       .line{ flex:1; border-bottom:1px solid #000; height:18px; }
       .small{ font-size:11px; color:#333; }
+      .section-title{ font-weight:800; margin-top:8mm; }
     }
   </style>
 </head>
 <body>
-  <header class="no-print">
-    <div class="wrap">
-      <h1>Supermarkt Bestellungen – Produktion & Lieferschein</h1>
-      <div class="sub">750g & 170g • Sorten verwalten • Drucken (A4)</div>
-      <nav>
-        <button class="tab active" data-view="bestellung">Bestellung</button>
-        <button class="tab" data-view="produktion">Produktion</button>
-        <button class="tab" data-view="kunden">Kunden</button>
-        <button class="tab" data-view="sorten">Sorten</button>
-        <button class="tab" data-view="history">Historie</button>
-      </nav>
+<header class="no-print">
+  <div class="wrap">
+    <h1>Supermarkt Bestellungen – Produktion, Lieferschein, Pick-List & Statistik</h1>
+    <div class="sub">750g & 170g • Statistik conta SÓ o que foi IMPRESSO • Mobile/Tablet</div>
+    <nav>
+      <button class="tab active" data-view="bestellung">Bestellung</button>
+      <button class="tab" data-view="produktion">Produktion</button>
+      <button class="tab" data-view="statistik">Statistik</button>
+      <button class="tab" data-view="kunden">Kunden</button>
+      <button class="tab" data-view="sorten">Sorten</button>
+      <button class="tab" data-view="history">Historie</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- BESTELLUNG -->
+  <section id="view-bestellung" class="grid two">
+    <div class="card">
+      <h2>Neue Bestellung</h2>
+
+      <div class="row cols">
+        <div>
+          <label>Kunde (Supermarkt)</label>
+          <select id="orderCustomer"></select>
+        </div>
+        <div>
+          <label>Lieferdatum</label>
+          <input type="date" id="orderDate" />
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="flex">
+        <button class="btn primary" id="addLine">+ Position hinzufügen</button>
+        <button class="btn" id="clearOrder">Leeren</button>
+        <span id="saveHint" class="muted"></span>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="scrollBox maxH-420" style="border:1px solid var(--line);">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:120px;">Größe</th>
+              <th>Sorte</th>
+              <th style="width:120px;" class="right">Menge</th>
+              <th style="width:90px;" class="right">Aktion</th>
+            </tr>
+          </thead>
+          <tbody id="linesTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="flex">
+        <span class="pill" id="ord_flavors">Sorten: 0</span>
+        <span class="pill" id="ord_750">750g: 0</span>
+        <span class="pill" id="ord_170">170g: 0</span>
+        <span class="pill" id="ord_total">Total: 0</span>
+      </div>
+
+      <div class="hr"></div>
+
+      <label>Notizen (optional)</label>
+      <textarea id="orderNotes" placeholder="z.B. bitte bis 09:00 liefern, Hintereingang..."></textarea>
+
+      <div class="flex" style="margin-top:12px;">
+        <button class="btn ok" id="saveOrder">Bestellung speichern</button>
+        <button class="btn" id="printProduktion">Drucken: Produktion</button>
+        <button class="btn" id="printLieferschein">Drucken: Lieferschein</button>
+        <button class="btn" id="printPicklist">Drucken: Pick-List</button>
+      </div>
+
+      <div class="muted" style="margin-top:8px;">
+        ⚠️ Para a <b>Statistik</b> contar, tens de imprimir (Produktion / Lieferschein / Pick-List).
+      </div>
     </div>
-  </header>
 
-  <main class="wrap">
-    <!-- BESTELLUNG -->
-    <section id="view-bestellung" class="grid two">
-      <div class="card">
-        <h2>Neue Bestellung</h2>
+    <div class="card">
+      <h2>Überblick – Produktion für Datum</h2>
+      <div class="muted">Soma automática das encomendas do dia. (Conta nas estatísticas só após imprimir.)</div>
 
-        <div class="row cols">
-          <div>
-            <label>Kunde (Supermarkt)</label>
-            <select id="orderCustomer"></select>
-          </div>
-          <div>
-            <label>Lieferdatum</label>
-            <input type="date" id="orderDate" />
-          </div>
+      <div class="hr"></div>
+      <div class="flex">
+        <span class="pill" id="tot750">750g: 0</span>
+        <span class="pill" id="tot170">170g: 0</span>
+        <span class="pill" id="totAll">Total: 0</span>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2 style="margin:0 0 8px;">Produktion nach Sorte</h2>
+      <div class="scrollBox maxH-520" style="border:1px solid var(--line);">
+        <table>
+          <thead>
+            <tr>
+              <th>Sorte</th>
+              <th class="right">750g</th>
+              <th class="right">170g</th>
+              <th class="right">Total</th>
+            </tr>
+          </thead>
+          <tbody id="prodTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUKTION -->
+  <section id="view-produktion" class="grid hidden">
+    <div class="card">
+      <h2>Produktion – Datum wählen</h2>
+      <div class="row cols">
+        <div>
+          <label>Datum</label>
+          <input type="date" id="prodDate" />
         </div>
-
-        <div class="hr"></div>
-
-        <div class="flex">
-          <button class="btn primary" id="addLine">+ Position hinzufügen</button>
-          <span class="muted">Jede Position: Größe (750g/170g) + Sorte + Menge</span>
-        </div>
-
-        <div style="margin-top:10px; overflow:auto;">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:120px;">Größe</th>
-                <th>Sorte</th>
-                <th style="width:120px;" class="right">Menge</th>
-                <th style="width:90px;" class="right">Aktion</th>
-              </tr>
-            </thead>
-            <tbody id="linesTbody"></tbody>
-          </table>
-        </div>
-
-        <div class="hr"></div>
-
-        <label>Notizen (optional)</label>
-        <textarea id="orderNotes" placeholder="z.B. bitte bis 09:00 liefern, Hintereingang..."></textarea>
-
-        <div class="flex" style="margin-top:12px;">
-          <button class="btn primary" id="saveOrder">Bestellung speichern</button>
-          <button class="btn" id="clearOrder">Leeren</button>
-          <span id="saveHint" class="muted"></span>
+        <div class="flex" style="align-items:end;">
+          <button class="btn primary" id="prodRefresh">Aktualisieren</button>
+          <button class="btn" id="prodPrint">Drucken: Produktion</button>
+          <button class="btn" id="prodPick">Drucken: Pick-List</button>
         </div>
       </div>
 
-      <div class="card">
-        <h2>Heute / Ausgewähltes Datum – Überblick</h2>
-        <div class="muted">Automatisch aus allen Bestellungen für das Datum.</div>
-        <div class="hr"></div>
-        <div class="flex">
-          <span class="pill" id="tot750">750g: 0</span>
-          <span class="pill" id="tot170">170g: 0</span>
-          <span class="pill" id="totAll">Total: 0</span>
-        </div>
-
-        <div class="hr"></div>
-        <div class="flex">
-          <button class="btn" id="printProduktion">Drucken: Produktion</button>
-          <button class="btn" id="printLieferschein">Drucken: Lieferschein</button>
-        </div>
-
-        <div class="hr"></div>
-        <h2 style="margin-top:0;">Produktion nach Sorte</h2>
-        <div style="max-height:380px; overflow:auto;">
-          <table>
-            <thead>
-              <tr>
-                <th>Sorte</th>
-                <th class="right">750g</th>
-                <th class="right">170g</th>
-                <th class="right">Total</th>
-              </tr>
-            </thead>
-            <tbody id="prodTbody"></tbody>
-          </table>
-        </div>
+      <div class="hr"></div>
+      <div class="flex">
+        <span class="pill" id="p_tot750">750g: 0</span>
+        <span class="pill" id="p_tot170">170g: 0</span>
+        <span class="pill" id="p_totAll">Total: 0</span>
       </div>
-    </section>
 
-    <!-- PRODUKTION VIEW -->
-    <section id="view-produktion" class="grid hidden">
-      <div class="card">
-        <h2>Produktion – Datum wählen</h2>
-        <div class="row cols">
-          <div>
-            <label>Datum</label>
-            <input type="date" id="prodDate" />
-          </div>
-          <div style="display:flex; align-items:end; gap:10px;">
-            <button class="btn primary" id="prodRefresh">Aktualisieren</button>
-            <button class="btn" id="prodPrint">Drucken: Produktion</button>
-          </div>
-        </div>
-        <div class="hr"></div>
-
-        <div class="flex">
-          <span class="pill" id="p_tot750">750g: 0</span>
-          <span class="pill" id="p_tot170">170g: 0</span>
-          <span class="pill" id="p_totAll">Total: 0</span>
-        </div>
-
-        <div class="hr"></div>
-        <div style="overflow:auto;">
-          <table>
-            <thead>
-              <tr>
-                <th>Sorte</th>
-                <th class="right">750g</th>
-                <th class="right">170g</th>
-                <th class="right">Total</th>
-              </tr>
-            </thead>
-            <tbody id="prodTbody2"></tbody>
-          </table>
-        </div>
+      <div class="hr"></div>
+      <div class="scrollBox maxH-520" style="border:1px solid var(--line);">
+        <table>
+          <thead>
+            <tr>
+              <th>Sorte</th>
+              <th class="right">750g</th>
+              <th class="right">170g</th>
+              <th class="right">Total</th>
+            </tr>
+          </thead>
+          <tbody id="prodTbody2"></tbody>
+        </table>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- KUNDEN -->
-    <section id="view-kunden" class="grid two hidden">
-      <div class="card">
-        <h2>Kunden verwalten</h2>
-        <div class="row cols">
-          <div>
-            <label>Kunde (Name)</label>
-            <input id="newCustomerName" placeholder="z.B. REWE Bad Berleburg" />
-          </div>
-          <div>
-            <label>Zusatz (optional)</label>
-            <input id="newCustomerNote" placeholder="z.B. Filiale, Ansprechpartner..." />
-          </div>
+  <!-- STATISTIK -->
+  <section id="view-statistik" class="grid two hidden">
+    <div class="card">
+      <h2>Statistik – Monat</h2>
+      <div class="row cols">
+        <div>
+          <label>Monat wählen</label>
+          <input type="month" id="statMonth" />
         </div>
-        <div class="flex" style="margin-top:10px;">
-          <button class="btn primary" id="addCustomer">Kunde hinzufügen</button>
-          <span class="muted">Tipp: Du kannst später immer ändern/löschen.</span>
+        <div class="flex" style="align-items:end;">
+          <button class="btn primary" id="statMonthRefresh">Anzeigen</button>
         </div>
       </div>
 
-      <div class="card">
-        <h2>Bestehende Kunden</h2>
+      <div class="hr"></div>
+      <div class="flex">
+        <span class="pill ok" id="sm_tot750">750g: 0</span>
+        <span class="pill ok" id="sm_tot170">170g: 0</span>
+        <span class="pill ok" id="sm_totAll">Total: 0</span>
+      </div>
+      <div class="muted" style="margin-top:8px;">Conta somente encomendas <b>impressas</b>.</div>
+
+      <div class="hr"></div>
+      <div class="scrollBox maxH-520" style="border:1px solid var(--line);">
+        <table>
+          <thead>
+            <tr>
+              <th>Sorte</th>
+              <th class="right">750g</th>
+              <th class="right">170g</th>
+              <th class="right">Total</th>
+            </tr>
+          </thead>
+          <tbody id="statMonthBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Statistik – Jahr</h2>
+      <div class="row cols">
+        <div>
+          <label>Ano</label>
+          <input type="number" id="statYear" min="2020" step="1" />
+        </div>
+        <div class="flex" style="align-items:end;">
+          <button class="btn primary" id="statYearRefresh">Anzeigen</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+      <div class="flex">
+        <span class="pill ok" id="sy_tot750">750g: 0</span>
+        <span class="pill ok" id="sy_tot170">170g: 0</span>
+        <span class="pill ok" id="sy_totAll">Total: 0</span>
+      </div>
+      <div class="muted" style="margin-top:8px;">Conta somente encomendas <b>impressas</b>.</div>
+
+      <div class="hr"></div>
+      <div class="scrollBox maxH-520" style="border:1px solid var(--line);">
+        <table>
+          <thead>
+            <tr>
+              <th>Sorte</th>
+              <th class="right">750g</th>
+              <th class="right">170g</th>
+              <th class="right">Total</th>
+            </tr>
+          </thead>
+          <tbody id="statYearBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- KUNDEN -->
+  <section id="view-kunden" class="grid two hidden">
+    <div class="card">
+      <h2>Kunden verwalten</h2>
+      <div class="row cols">
+        <div>
+          <label>Kunde (Name)</label>
+          <input id="newCustomerName" placeholder="z.B. REWE Bad Berleburg" />
+        </div>
+        <div>
+          <label>Zusatz (optional)</label>
+          <input id="newCustomerNote" placeholder="z.B. Filiale, Ansprechpartner..." />
+        </div>
+      </div>
+      <div class="flex" style="margin-top:10px;">
+        <button class="btn ok" id="addCustomer">Kunde hinzufügen</button>
+        <span class="muted">Podes apagar depois, se quiseres.</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Bestehende Kunden</h2>
+      <div class="scrollBox maxH-520" style="border:1px solid var(--line); padding:10px;">
         <div id="customersList"></div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- SORTEN -->
-    <section id="view-sorten" class="grid two hidden">
-      <div class="card">
-        <h2>Sorten verwalten</h2>
-        <div class="row cols">
-          <div>
-            <label>Neue Sorte</label>
-            <input id="newFlavor" placeholder="z.B. Haselnuss, Zitrone..." />
-          </div>
-          <div style="display:flex; align-items:end; gap:10px;">
-            <button class="btn primary" id="addFlavor">Sorte hinzufügen</button>
-            <button class="btn" id="resetDefaults">Standard wiederherstellen</button>
-          </div>
+  <!-- SORTEN -->
+  <section id="view-sorten" class="grid two hidden">
+    <div class="card">
+      <h2>Sorten verwalten</h2>
+      <div class="row cols">
+        <div>
+          <label>Neue Sorte</label>
+          <input id="newFlavor" placeholder="z.B. Haselnuss, Zitrone..." />
         </div>
-        <div class="muted" style="margin-top:10px;">Alles wird lokal gespeichert (auf diesem Gerät/Browser).</div>
+        <div class="flex" style="align-items:end;">
+          <button class="btn ok" id="addFlavor">Sorte hinzufügen</button>
+          <button class="btn" id="resetDefaults">Standard wiederherstellen</button>
+        </div>
       </div>
+      <div class="muted" style="margin-top:10px;">Tudo fica guardado neste dispositivo (browser).</div>
+    </div>
 
-      <div class="card">
-        <h2>Bestehende Sorten</h2>
+    <div class="card">
+      <h2>Bestehende Sorten</h2>
+      <div class="scrollBox maxH-520" style="border:1px solid var(--line); padding:10px;">
         <div id="flavorsList"></div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- HISTORY -->
-    <section id="view-history" class="grid hidden">
-      <div class="card">
-        <h2>Historie (Bestellungen)</h2>
-        <div class="row cols">
-          <div>
-            <label>Suche (Kunde oder Datum)</label>
-            <input id="historySearch" placeholder="z.B. REWE oder 2025-12-16" />
-          </div>
-          <div style="display:flex; align-items:end; gap:10px;">
-            <button class="btn" id="historyRefresh">Aktualisieren</button>
-            <button class="btn danger" id="deleteAll">Alle löschen</button>
-          </div>
+  <!-- HISTORY -->
+  <section id="view-history" class="grid hidden">
+    <div class="card">
+      <h2>Historie (Bestellungen)</h2>
+      <div class="row cols">
+        <div>
+          <label>Suche (Kunde oder Datum)</label>
+          <input id="historySearch" placeholder="z.B. REWE ou 2025-12-16" />
         </div>
-        <div class="hr"></div>
+        <div class="flex" style="align-items:end;">
+          <button class="btn primary" id="historyRefresh">Aktualisieren</button>
+          <button class="btn danger" id="deleteAll">Alle löschen</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+      <div class="scrollBox maxH-520" style="border:1px solid var(--line); padding:10px;">
         <div id="historyList"></div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- PRINT AREA -->
-    <section class="print-area hidden" id="printArea"></section>
-  </main>
+  <!-- PRINT AREA -->
+  <section class="print-area hidden" id="printArea"></section>
+</main>
 
 <script>
 (() => {
-  const KEY = "sanremo_bestellungen_v1";
+  const KEY_V4 = "sanremo_bestellungen_v4";
+  const KEY_V3 = "sanremo_bestellungen_v3";
+  const KEY_V2 = "sanremo_bestellungen_v2";
+  const KEY_V1 = "sanremo_bestellungen_v1";
 
   const defaultFlavors = [
-    "Stracciatella",
-    "Amarena Kirsch",
-    "Vanille",
-    "Spaghetti",
-    "Toffifee",
-    "Cookies",
-    "Weiß Schokolade Pistazien",
-    "Erdbeer",
-    "Joghurt Orange",
-    "Kinder Buenos",
-    "Kinder Riegel",
-    "Joghurete Schokolade",
-    "Mango",
-    "Hanutta"
+    "Stracciatella","Amarena Kirsch","Vanille","Spaghetti","Toffifee","Cookies",
+    "Weiß Schokolade Pistazien","Erdbeer","Joghurt Orange","Kinder Buenos",
+    "Kinder Riegel","Joghurete Schokolade","Mango","Hanutta"
   ];
 
   const defaultCustomers = [
@@ -313,111 +540,88 @@
 
   function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
 
-  function load(){
-    try{
-      const raw = localStorage.getItem(KEY);
-      if(!raw) return null;
-      return JSON.parse(raw);
-    }catch(e){ return null; }
+  function loadAny(){
+    const tryKeys = [KEY_V4, KEY_V3, KEY_V2, KEY_V1];
+    for(const k of tryKeys){
+      try{
+        const raw = localStorage.getItem(k);
+        if(!raw) continue;
+        const obj = JSON.parse(raw);
+        if(obj && typeof obj === "object") return obj;
+      }catch(e){}
+    }
+    return null;
   }
 
-  function save(state){
-    localStorage.setItem(KEY, JSON.stringify(state));
-  }
+  function save(state){ localStorage.setItem(KEY_V4, JSON.stringify(state)); }
 
-  let state = load() || {
-    flavors: [...defaultFlavors],
-    customers: [...defaultCustomers],
-    orders: [] // {id, date, customerId, notes, lines:[{size, flavor, qty}]}
-  };
+  let state = loadAny() || { flavors:[...defaultFlavors], customers:[...defaultCustomers], orders:[] };
 
-  // ---------- UI HELPERS ----------
-  const $ = (sel) => document.querySelector(sel);
-  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+  // migrate/ensure fields
+  state.flavors = Array.isArray(state.flavors) ? state.flavors : [...defaultFlavors];
+  state.customers = Array.isArray(state.customers) ? state.customers : [...defaultCustomers];
+  state.orders = Array.isArray(state.orders) ? state.orders : [];
+  state.orders = state.orders.map(o => ({
+    id: o.id || uid(),
+    date: o.date || "",
+    customerId: o.customerId || "",
+    notes: o.notes || "",
+    lines: Array.isArray(o.lines) ? o.lines : [],
+    countedAt: o.countedAt || null
+  }));
+  save(state);
+
+  const $ = (s)=>document.querySelector(s);
+  const $$ = (s)=>Array.from(document.querySelectorAll(s));
 
   function setTodayIfEmpty(el){
-    if(!el.value){
-      const d = new Date();
-      const tzOff = d.getTimezoneOffset()*60000;
-      el.value = new Date(Date.now()-tzOff).toISOString().slice(0,10);
-    }
+    if(el.value) return;
+    const d=new Date();
+    const tzOff=d.getTimezoneOffset()*60000;
+    el.value=new Date(Date.now()-tzOff).toISOString().slice(0,10);
   }
-
+  function setCurrentMonthIfEmpty(el){
+    if(el.value) return;
+    const d=new Date();
+    const y=d.getFullYear();
+    const m=String(d.getMonth()+1).padStart(2,"0");
+    el.value = `${y}-${m}`;
+  }
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
-
   function renderTabs(active){
-    $$(".tab").forEach(b => b.classList.toggle("active", b.dataset.view === active));
-    $$("main section[id^='view-']").forEach(sec => sec.classList.add("hidden"));
-    $("#view-" + active).classList.remove("hidden");
+    $$(".tab").forEach(b=>b.classList.toggle("active", b.dataset.view===active));
+    $$("main section[id^='view-']").forEach(sec=>sec.classList.add("hidden"));
+    $("#view-"+active).classList.remove("hidden");
   }
 
-  // ---------- SORTEN ----------
-  function renderFlavors(){
-    const box = $("#flavorsList");
-    box.innerHTML = "";
-    const list = document.createElement("div");
-    list.className = "row";
-    state.flavors.forEach((f, idx) => {
-      const item = document.createElement("div");
-      item.className = "flex";
-      item.innerHTML = `
-        <span class="pill" style="font-weight:700;">${escapeHtml(f)}</span>
-        <button class="btn small danger" data-del-flavor="${idx}">Entfernen</button>
-      `;
-      list.appendChild(item);
-    });
-    box.appendChild(list);
-
-    $$("[data-del-flavor]").forEach(btn => {
-      btn.onclick = () => {
-        const i = Number(btn.getAttribute("data-del-flavor"));
-        state.flavors.splice(i,1);
-        save(state);
-        renderAll();
-      };
-    });
+  // customers
+  function customerName(id){
+    const c=state.customers.find(x=>x.id===id);
+    return c ? (c.note?`${c.name} – ${c.note}`:c.name) : "Unbekannt";
   }
-
-  $("#addFlavor").onclick = () => {
-    const v = $("#newFlavor").value.trim();
-    if(!v) return;
-    if(state.flavors.map(x=>x.toLowerCase()).includes(v.toLowerCase())){ $("#newFlavor").value=""; return; }
-    state.flavors.push(v);
-    $("#newFlavor").value = "";
-    save(state);
-    renderAll();
-  };
-
-  $("#resetDefaults").onclick = () => {
-    state.flavors = [...defaultFlavors];
-    save(state);
-    renderAll();
-  };
-
-  // ---------- KUNDEN ----------
   function renderCustomers(){
-    const sel = $("#orderCustomer");
-    sel.innerHTML = "";
-    state.customers.forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c.id;
-      opt.textContent = c.note ? `${c.name} – ${c.note}` : c.name;
+    const sel=$("#orderCustomer");
+    sel.innerHTML="";
+    state.customers.forEach(c=>{
+      const opt=document.createElement("option");
+      opt.value=c.id;
+      opt.textContent=c.note?`${c.name} – ${c.note}`:c.name;
       sel.appendChild(opt);
     });
 
-    const box = $("#customersList");
-    box.innerHTML = "";
-    state.customers.forEach(c => {
-      const div = document.createElement("div");
-      div.className = "card";
-      div.style.marginBottom = "10px";
-      div.innerHTML = `
+    const box=$("#customersList");
+    box.innerHTML="";
+    state.customers.forEach(c=>{
+      const div=document.createElement("div");
+      div.className="card";
+      div.style.marginBottom="10px";
+      div.innerHTML=`
         <div class="flex" style="justify-content:space-between;">
           <div>
-            <div style="font-weight:900;">${escapeHtml(c.name)}</div>
-            <div class="muted">${escapeHtml(c.note || "")}</div>
+            <div style="font-weight:950;">${escapeHtml(c.name)}</div>
+            <div class="muted">${escapeHtml(c.note||"")}</div>
           </div>
           <button class="btn small danger" data-del-customer="${c.id}">Löschen</button>
         </div>
@@ -425,151 +629,181 @@
       box.appendChild(div);
     });
 
-    $$("[data-del-customer]").forEach(btn => {
-      btn.onclick = () => {
-        const id = btn.getAttribute("data-del-customer");
-        // prevent delete if used by orders?
-        const used = state.orders.some(o => o.customerId === id);
-        if(used && !confirm("Dieser Kunde hat Bestellungen in der Historie. Trotzdem löschen?")) return;
-        state.customers = state.customers.filter(c => c.id !== id);
+    $$("[data-del-customer]").forEach(btn=>{
+      btn.onclick=()=>{
+        const id=btn.getAttribute("data-del-customer");
+        const used=state.orders.some(o=>o.customerId===id);
+        if(used && !confirm("Este cliente tem encomendas no histórico. Apagar na mesma?")) return;
+        state.customers=state.customers.filter(c=>c.id!==id);
         save(state);
         renderAll();
       };
     });
   }
-
-  $("#addCustomer").onclick = () => {
-    const name = $("#newCustomerName").value.trim();
-    const note = $("#newCustomerNote").value.trim();
+  $("#addCustomer").onclick=()=>{
+    const name=$("#newCustomerName").value.trim();
+    const note=$("#newCustomerNote").value.trim();
     if(!name) return;
-    state.customers.push({ id: uid(), name, note });
-    $("#newCustomerName").value = "";
-    $("#newCustomerNote").value = "";
+    state.customers.push({id:uid(), name, note});
+    $("#newCustomerName").value="";
+    $("#newCustomerNote").value="";
     save(state);
     renderAll();
   };
 
-  // ---------- ORDER LINES ----------
-  let currentLines = [];
+  // flavors
+  function renderFlavors(){
+    const box=$("#flavorsList");
+    box.innerHTML="";
+    const list=document.createElement("div");
+    list.className="row";
+    state.flavors.forEach((f,idx)=>{
+      const item=document.createElement("div");
+      item.className="flex";
+      item.style.justifyContent="space-between";
+      item.innerHTML=`
+        <span class="pill" style="font-weight:950;">${escapeHtml(f)}</span>
+        <button class="btn small danger" data-del-flavor="${idx}">Entfernen</button>
+      `;
+      list.appendChild(item);
+    });
+    box.appendChild(list);
 
+    $$("[data-del-flavor]").forEach(btn=>{
+      btn.onclick=()=>{
+        const i=Number(btn.getAttribute("data-del-flavor"));
+        state.flavors.splice(i,1);
+        save(state);
+        renderAll();
+      };
+    });
+  }
+  $("#addFlavor").onclick=()=>{
+    const v=$("#newFlavor").value.trim();
+    if(!v) return;
+    if(state.flavors.map(x=>x.toLowerCase()).includes(v.toLowerCase())){ $("#newFlavor").value=""; return; }
+    state.flavors.push(v);
+    $("#newFlavor").value="";
+    save(state);
+    renderAll();
+  };
+  $("#resetDefaults").onclick=()=>{
+    state.flavors=[...defaultFlavors];
+    save(state);
+    renderAll();
+  };
+
+  // order lines
+  let currentLines=[];
   function addLine(size="750g", flavor=null, qty=1){
-    currentLines.push({ size, flavor: flavor || (state.flavors[0] || ""), qty });
+    currentLines.push({ size, flavor: flavor || (state.flavors[0]||""), qty });
     renderLines();
   }
-
   function renderLines(){
-    const tb = $("#linesTbody");
-    tb.innerHTML = "";
-    currentLines.forEach((ln, idx) => {
-      const tr = document.createElement("tr");
+    const tb=$("#linesTbody");
+    tb.innerHTML="";
+    currentLines.forEach((ln,idx)=>{
+      const tr=document.createElement("tr");
 
-      const sizeSel = document.createElement("select");
-      sizeSel.innerHTML = `<option value="750g">750g</option><option value="170g">170g</option>`;
-      sizeSel.value = ln.size;
-      sizeSel.onchange = () => { ln.size = sizeSel.value; };
+      const sizeSel=document.createElement("select");
+      sizeSel.innerHTML=`<option value="750g">750g</option><option value="170g">170g</option>`;
+      sizeSel.value=ln.size;
+      sizeSel.onchange=()=>{ ln.size=sizeSel.value; refreshOrderDraftSummary(); };
 
-      const flavorSel = document.createElement("select");
-      flavorSel.innerHTML = state.flavors.map(f => `<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`).join("");
-      flavorSel.value = ln.flavor;
-      flavorSel.onchange = () => { ln.flavor = flavorSel.value; };
+      const flavorSel=document.createElement("select");
+      flavorSel.innerHTML=state.flavors.map(f=>`<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`).join("");
+      flavorSel.value=ln.flavor;
+      flavorSel.onchange=()=>{ ln.flavor=flavorSel.value; refreshOrderDraftSummary(); };
 
-      const qtyInp = document.createElement("input");
-      qtyInp.type = "number";
-      qtyInp.min = "0";
-      qtyInp.step = "1";
-      qtyInp.value = ln.qty;
-      qtyInp.oninput = () => { ln.qty = Math.max(0, parseInt(qtyInp.value || "0", 10)); refreshOverview(); };
+      const qtyInp=document.createElement("input");
+      qtyInp.type="number"; qtyInp.min="0"; qtyInp.step="1";
+      qtyInp.value=ln.qty;
+      qtyInp.oninput=()=>{ ln.qty=Math.max(0, parseInt(qtyInp.value||"0",10)); refreshOrderDraftSummary(); };
 
-      const delBtn = document.createElement("button");
-      delBtn.className = "btn small danger";
-      delBtn.textContent = "X";
-      delBtn.onclick = () => { currentLines.splice(idx,1); renderLines(); };
+      const delBtn=document.createElement("button");
+      delBtn.className="btn small danger";
+      delBtn.textContent="X";
+      delBtn.onclick=()=>{ currentLines.splice(idx,1); renderLines(); };
 
-      tr.innerHTML = `
-        <td></td><td></td><td class="right"></td><td class="right"></td>
-      `;
+      tr.innerHTML=`<td></td><td></td><td class="right"></td><td class="right"></td>`;
       tr.children[0].appendChild(sizeSel);
       tr.children[1].appendChild(flavorSel);
       tr.children[2].appendChild(qtyInp);
       tr.children[3].appendChild(delBtn);
-
       tb.appendChild(tr);
     });
-    refreshOverview();
+    refreshOrderDraftSummary();
   }
-
-  $("#addLine").onclick = () => addLine();
-
-  $("#clearOrder").onclick = () => {
-    currentLines = [];
-    $("#orderNotes").value = "";
+  $("#addLine").onclick=()=>addLine();
+  $("#clearOrder").onclick=()=>{
+    currentLines=[];
+    $("#orderNotes").value="";
     renderLines();
   };
 
-  $("#saveOrder").onclick = () => {
-    const customerId = $("#orderCustomer").value;
-    const date = $("#orderDate").value;
-    const notes = $("#orderNotes").value.trim();
-    const lines = currentLines
-      .filter(l => l.flavor && Number(l.qty) > 0)
-      .map(l => ({ size:l.size, flavor:l.flavor, qty:Number(l.qty) }));
+  $("#saveOrder").onclick=()=>{
+    const customerId=$("#orderCustomer").value;
+    const date=$("#orderDate").value;
+    const notes=$("#orderNotes").value.trim();
 
-    if(!customerId || !date || lines.length === 0){
-      $("#saveHint").textContent = "Bitte Kunde, Datum und mindestens 1 Position eingeben.";
+    const lines=currentLines
+      .filter(l=>l.flavor && Number(l.qty)>0)
+      .map(l=>({size:l.size, flavor:l.flavor, qty:Number(l.qty)}));
+
+    if(!customerId || !date || lines.length===0){
+      $("#saveHint").textContent="Bitte Kunde, Datum und mindestens 1 Position eingeben.";
       return;
     }
 
-    state.orders.push({ id: uid(), date, customerId, notes, lines });
+    state.orders.push({ id:uid(), date, customerId, notes, lines, countedAt:null });
     save(state);
-    $("#saveHint").textContent = "Gespeichert ✅";
-    setTimeout(()=> $("#saveHint").textContent="", 2000);
-    // reset for next order
-    currentLines = [];
-    $("#orderNotes").value = "";
+
+    $("#saveHint").textContent="Gespeichert ✅";
+    setTimeout(()=>$("#saveHint").textContent="", 1600);
+
+    currentLines=[];
+    $("#orderNotes").value="";
     renderLines();
     renderHistory();
     refreshOverview();
+    refreshStats();
   };
 
-  // ---------- PRODUCTION SUMMARY ----------
-  function ordersByDate(date){
-    return state.orders.filter(o => o.date === date);
-  }
+  // production helpers
+  function ordersByDate(date){ return state.orders.filter(o=>o.date===date); }
 
-  function calcProduction(date){
-    const map = new Map(); // flavor -> {750,170}
-    let t750=0, t170=0;
-
-    ordersByDate(date).forEach(o => {
-      o.lines.forEach(l => {
-        const key = l.flavor;
-        if(!map.has(key)) map.set(key, {f:key, g750:0, g170:0});
-        const rec = map.get(key);
-        if(l.size === "750g"){ rec.g750 += l.qty; t750 += l.qty; }
-        if(l.size === "170g"){ rec.g170 += l.qty; t170 += l.qty; }
+  function calcProductionFromOrders(orders){
+    const map=new Map();
+    let t750=0,t170=0;
+    orders.forEach(o=>{
+      o.lines.forEach(l=>{
+        const key=l.flavor;
+        if(!map.has(key)) map.set(key,{f:key,g750:0,g170:0});
+        const rec=map.get(key);
+        if(l.size==="750g"){ rec.g750+=l.qty; t750+=l.qty; }
+        if(l.size==="170g"){ rec.g170+=l.qty; t170+=l.qty; }
       });
     });
-
-    const rows = Array.from(map.values())
-      .map(r => ({...r, total: r.g750 + r.g170}))
-      .sort((a,b) => b.total - a.total || a.f.localeCompare(b.f));
-
-    return { rows, t750, t170, total: t750+t170 };
+    const rows=Array.from(map.values())
+      .map(r=>({...r,total:r.g750+r.g170}))
+      .sort((a,b)=>b.total-a.total || a.f.localeCompare(b.f));
+    return { rows, t750, t170, total:t750+t170 };
   }
 
   function refreshOverview(){
-    const date = $("#orderDate").value || $("#prodDate").value;
+    const date=$("#orderDate").value || $("#prodDate").value;
     if(!date) return;
 
-    const prod = calcProduction(date);
+    const prod=calcProductionFromOrders(ordersByDate(date));
+    $("#tot750").textContent=`750g: ${prod.t750}`;
+    $("#tot170").textContent=`170g: ${prod.t170}`;
+    $("#totAll").textContent=`Total: ${prod.total}`;
 
-    // right panel in Bestellung view
-    $("#tot750").textContent = `750g: ${prod.t750}`;
-    $("#tot170").textContent = `170g: ${prod.t170}`;
-    $("#totAll").textContent = `Total: ${prod.total}`;
+    $("#p_tot750").textContent=`750g: ${prod.t750}`;
+    $("#p_tot170").textContent=`170g: ${prod.t170}`;
+    $("#p_totAll").textContent=`Total: ${prod.total}`;
 
-    const tb = $("#prodTbody");
-    tb.innerHTML = prod.rows.map(r => `
+    const rowsHtml = prod.rows.map(r=>`
       <tr>
         <td>${escapeHtml(r.f)}</td>
         <td class="right">${r.g750}</td>
@@ -578,48 +812,61 @@
       </tr>
     `).join("") || `<tr><td colspan="4" class="muted">Keine Bestellungen für dieses Datum.</td></tr>`;
 
-    // production page
-    $("#p_tot750").textContent = `750g: ${prod.t750}`;
-    $("#p_tot170").textContent = `170g: ${prod.t170}`;
-    $("#p_totAll").textContent = `Total: ${prod.total}`;
+    $("#prodTbody").innerHTML=rowsHtml;
+    $("#prodTbody2").innerHTML=rowsHtml;
+  }
+  $("#prodRefresh").onclick=()=>refreshOverview();
+  $("#orderDate").onchange=()=>refreshOverview();
+  $("#prodDate").onchange=()=>refreshOverview();
 
-    const tb2 = $("#prodTbody2");
-    tb2.innerHTML = tb.innerHTML;
+  // draft summary (per order being created)
+  function refreshOrderDraftSummary(){
+    let t750=0,t170=0;
+    const flavors = new Set();
+    currentLines.forEach(l=>{
+      const q = Number(l.qty)||0;
+      if(q>0 && l.flavor) flavors.add(l.flavor);
+      if(l.size==="750g") t750 += q;
+      if(l.size==="170g") t170 += q;
+    });
+    $("#ord_flavors").textContent = `Sorten: ${flavors.size}`;
+    $("#ord_750").textContent = `750g: ${t750}`;
+    $("#ord_170").textContent = `170g: ${t170}`;
+    $("#ord_total").textContent = `Total: ${t750+t170}`;
+    refreshOverview();
   }
 
-  $("#prodRefresh").onclick = () => refreshOverview();
-  $("#prodPrint").onclick = () => printProduktion($("#prodDate").value);
-
-  // ---------- HISTORY ----------
-  function customerName(id){
-    const c = state.customers.find(x => x.id === id);
-    return c ? (c.note ? `${c.name} – ${c.note}` : c.name) : "Unbekannt";
-  }
-
+  // HISTORY
   function renderHistory(){
-    const q = ($("#historySearch").value || "").trim().toLowerCase();
-    const box = $("#historyList");
-    const orders = [...state.orders].reverse().filter(o => {
-      const cn = customerName(o.customerId).toLowerCase();
+    const q=($("#historySearch").value||"").trim().toLowerCase();
+    const box=$("#historyList");
+    const orders=[...state.orders].reverse().filter(o=>{
+      const cn=customerName(o.customerId).toLowerCase();
       return !q || o.date.includes(q) || cn.includes(q);
     });
 
-    if(orders.length === 0){
-      box.innerHTML = `<div class="muted">Keine Bestellungen gespeichert.</div>`;
+    if(orders.length===0){
+      box.innerHTML=`<div class="muted">Keine Bestellungen gespeichert.</div>`;
       return;
     }
 
-    box.innerHTML = orders.map(o => {
-      const lines = o.lines.map(l => `${escapeHtml(l.size)} • ${escapeHtml(l.flavor)} • <b>${l.qty}</b>`).join("<br>");
+    box.innerHTML=orders.map(o=>{
+      const status = o.countedAt
+        ? `<span class="pill ok">✅ Contado</span>`
+        : `<span class="pill wait">⏳ Não contado</span>`;
+
+      const lines=o.lines.map(l=>`${escapeHtml(l.size)} • ${escapeHtml(l.flavor)} • <b>${l.qty}</b>`).join("<br>");
       return `
         <div class="card" style="margin-bottom:10px;">
-          <div class="flex" style="justify-content:space-between;">
+          <div class="flex" style="justify-content:space-between; align-items:flex-start;">
             <div>
-              <div style="font-weight:900;">${escapeHtml(o.date)} – ${escapeHtml(customerName(o.customerId))}</div>
-              <div class="muted">${escapeHtml(o.notes || "")}</div>
+              <div style="font-weight:950;">${escapeHtml(o.date)} – ${escapeHtml(customerName(o.customerId))}</div>
+              <div class="muted">${escapeHtml(o.notes||"")}</div>
+              <div style="margin-top:8px;">${status}</div>
             </div>
             <div class="flex">
               <button class="btn small" data-copy="${o.id}">Duplizieren</button>
+              <button class="btn small" data-uncount="${o.id}">Uncount</button>
               <button class="btn small danger" data-del-order="${o.id}">Löschen</button>
             </div>
           </div>
@@ -629,45 +876,62 @@
       `;
     }).join("");
 
-    $$("[data-del-order]").forEach(btn => {
-      btn.onclick = () => {
-        const id = btn.getAttribute("data-del-order");
-        state.orders = state.orders.filter(o => o.id !== id);
+    $$("[data-del-order]").forEach(btn=>{
+      btn.onclick=()=>{
+        const id=btn.getAttribute("data-del-order");
+        state.orders=state.orders.filter(o=>o.id!==id);
         save(state);
-        renderHistory();
-        refreshOverview();
+        renderHistory(); refreshOverview(); refreshStats();
       };
     });
 
-    $$("[data-copy]").forEach(btn => {
-      btn.onclick = () => {
-        const id = btn.getAttribute("data-copy");
-        const o = state.orders.find(x => x.id === id);
+    $$("[data-copy]").forEach(btn=>{
+      btn.onclick=()=>{
+        const id=btn.getAttribute("data-copy");
+        const o=state.orders.find(x=>x.id===id);
         if(!o) return;
-        $("#orderCustomer").value = o.customerId;
-        $("#orderDate").value = o.date;
-        $("#orderNotes").value = o.notes || "";
-        currentLines = o.lines.map(l => ({...l}));
+        $("#orderCustomer").value=o.customerId;
+        $("#orderDate").value=o.date;
+        $("#orderNotes").value=o.notes||"";
+        currentLines=o.lines.map(l=>({...l}));
         renderLines();
         renderTabs("bestellung");
       };
     });
+
+    $$("[data-uncount]").forEach(btn=>{
+      btn.onclick=()=>{
+        const id=btn.getAttribute("data-uncount");
+        const o=state.orders.find(x=>x.id===id);
+        if(!o) return;
+        if(!confirm("Remover 'Contado'? Usa isto só se imprimiste por engano.")) return;
+        o.countedAt = null;
+        save(state);
+        renderHistory(); refreshStats();
+      };
+    });
   }
-
-  $("#historyRefresh").onclick = () => renderHistory();
-  $("#historySearch").oninput = () => renderHistory();
-
-  $("#deleteAll").onclick = () => {
+  $("#historyRefresh").onclick=()=>renderHistory();
+  $("#historySearch").oninput=()=>renderHistory();
+  $("#deleteAll").onclick=()=>{
     if(!confirm("Wirklich ALLE Bestellungen löschen?")) return;
-    state.orders = [];
+    state.orders=[];
     save(state);
-    renderHistory();
-    refreshOverview();
+    renderHistory(); refreshOverview(); refreshStats();
   };
 
-  // ---------- PRINT ----------
+  // COUNTING (only when printed)
+  function markCountedForDate(date){
+    const now = new Date().toISOString();
+    const list = ordersByDate(date);
+    list.forEach(o => { if(!o.countedAt) o.countedAt = now; });
+    save(state);
+    renderHistory();
+    refreshStats();
+  }
+
+  // PRINT helpers
   function companyBlock(){
-    // Podes mudar estes dados como quiseres:
     return `
       <div class="p-box">
         <div style="font-weight:800;">Eiscafé Sanremo</div>
@@ -677,10 +941,15 @@
     `;
   }
 
+  // ---- Produktion print
   function printProduktion(date){
     if(!date){ alert("Bitte Datum wählen."); return; }
-    const prod = calcProduction(date);
-    const html = `
+    const all = ordersByDate(date);
+    if(all.length===0){ alert("Keine Bestellungen für dieses Datum."); return; }
+    markCountedForDate(date);
+
+    const prod=calcProductionFromOrders(all);
+    const html=`
       <div class="print-page">
         <div class="p-head">
           <div>
@@ -691,23 +960,15 @@
         </div>
 
         <table class="p-table">
-          <thead>
-            <tr>
-              <th>Sorte</th>
-              <th>750g</th>
-              <th>170g</th>
-              <th>Total</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Sorte</th><th>750g</th><th>170g</th><th>Total</th></tr></thead>
           <tbody>
-            ${prod.rows.map(r => `
+            ${prod.rows.map(r=>`
               <tr>
                 <td>${escapeHtml(r.f)}</td>
                 <td>${r.g750}</td>
                 <td>${r.g170}</td>
                 <td><b>${r.total}</b></td>
-              </tr>
-            `).join("") || `<tr><td colspan="4">Keine Bestellungen.</td></tr>`}
+              </tr>`).join("")}
           </tbody>
         </table>
 
@@ -716,19 +977,21 @@
         </div>
       </div>
     `;
-    $("#printArea").innerHTML = html;
+    $("#printArea").innerHTML=html;
     $("#printArea").classList.remove("hidden");
     window.print();
     $("#printArea").classList.add("hidden");
   }
 
+  // ---- Lieferschein print
   function printLieferschein(date){
     if(!date){ alert("Bitte Datum wählen."); return; }
-    const orders = ordersByDate(date);
-    if(orders.length === 0){ alert("Keine Bestellungen für dieses Datum."); return; }
+    const orders=ordersByDate(date);
+    if(orders.length===0){ alert("Keine Bestellungen für dieses Datum."); return; }
+    markCountedForDate(date);
 
-    const pages = orders.map(o => {
-      const cname = customerName(o.customerId);
+    const pages=orders.map(o=>{
+      const cname=customerName(o.customerId);
       return `
         <div class="print-page">
           <div class="p-head">
@@ -740,44 +1003,25 @@
           </div>
 
           <div class="p-grid">
-            <div class="p-box">
-              <div style="font-weight:800;">Kunde</div>
-              <div style="margin-top:4px;">${escapeHtml(cname)}</div>
-            </div>
-            <div class="p-box">
-              <div style="font-weight:800;">Notizen</div>
-              <div style="margin-top:4px;">${escapeHtml(o.notes || "-")}</div>
-            </div>
+            <div class="p-box"><div style="font-weight:800;">Kunde</div><div style="margin-top:4px;">${escapeHtml(cname)}</div></div>
+            <div class="p-box"><div style="font-weight:800;">Notizen</div><div style="margin-top:4px;">${escapeHtml(o.notes||"-")}</div></div>
           </div>
 
           <table class="p-table">
-            <thead>
-              <tr>
-                <th>Größe</th>
-                <th>Sorte</th>
-                <th>Menge</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Größe</th><th>Sorte</th><th>Menge</th></tr></thead>
             <tbody>
-              ${o.lines.map(l => `
+              ${o.lines.map(l=>`
                 <tr>
                   <td>${escapeHtml(l.size)}</td>
                   <td>${escapeHtml(l.flavor)}</td>
                   <td><b>${l.qty}</b></td>
-                </tr>
-              `).join("")}
+                </tr>`).join("")}
             </tbody>
           </table>
 
           <div class="sign">
-            <div style="flex:1;">
-              <div class="small">Unterschrift Kunde</div>
-              <div class="line"></div>
-            </div>
-            <div style="flex:1;">
-              <div class="small">Unterschrift Lieferant</div>
-              <div class="line"></div>
-            </div>
+            <div style="flex:1;"><div class="small">Unterschrift Kunde</div><div class="line"></div></div>
+            <div style="flex:1;"><div class="small">Unterschrift Lieferant</div><div class="line"></div></div>
           </div>
 
           <div style="margin-top:6mm;" class="small">Hinweis: Lieferschein ohne Preise – nur Mengen/Sorten.</div>
@@ -785,51 +1029,194 @@
       `;
     }).join("");
 
-    $("#printArea").innerHTML = pages;
+    $("#printArea").innerHTML=pages;
     $("#printArea").classList.remove("hidden");
     window.print();
     $("#printArea").classList.add("hidden");
   }
 
-  $("#printProduktion").onclick = () => printProduktion($("#orderDate").value);
-  $("#printLieferschein").onclick = () => printLieferschein($("#orderDate").value);
+  // ---- Pick-List print (NEW)
+  // Pick-List = lista para carregar (por cliente + geral)
+  function summarizeOrderLines(lines){
+    // returns { key:"flavor|size" -> qty }
+    const map = new Map();
+    lines.forEach(l=>{
+      const key = `${l.flavor}||${l.size}`;
+      map.set(key, (map.get(key)||0) + Number(l.qty||0));
+    });
+    return map;
+  }
 
-  // ---------- NAV ----------
-  $$(".tab").forEach(btn => {
-    btn.onclick = () => {
-      const v = btn.dataset.view;
+  function pickListTableFromMap(map){
+    // map key: flavor||size -> qty
+    const rows = Array.from(map.entries())
+      .map(([k,qty])=>{
+        const [flavor,size]=k.split("||");
+        return { flavor, size, qty:Number(qty||0) };
+      })
+      .filter(r=>r.qty>0)
+      .sort((a,b)=> a.flavor.localeCompare(b.flavor) || (a.size==="750g"?-1:1));
+    const htmlRows = rows.map(r=>`
+      <tr>
+        <td>${escapeHtml(r.flavor)}</td>
+        <td>${escapeHtml(r.size)}</td>
+        <td><b>${r.qty}</b></td>
+      </tr>
+    `).join("");
+    return `
+      <table class="p-table">
+        <thead><tr><th>Sorte</th><th>Größe</th><th>Menge</th></tr></thead>
+        <tbody>${htmlRows || `<tr><td colspan="3">Keine Daten</td></tr>`}</tbody>
+      </table>
+    `;
+  }
+
+  function printPickList(date){
+    if(!date){ alert("Bitte Datum wählen."); return; }
+    const orders = ordersByDate(date);
+    if(orders.length===0){ alert("Keine Bestellungen für dieses Datum."); return; }
+
+    // printing counts
+    markCountedForDate(date);
+
+    // 1) General pick list (all customers)
+    const allMap = new Map();
+    orders.forEach(o=>{
+      o.lines.forEach(l=>{
+        const key = `${l.flavor}||${l.size}`;
+        allMap.set(key, (allMap.get(key)||0) + Number(l.qty||0));
+      });
+    });
+
+    const generalPage = `
+      <div class="print-page">
+        <div class="p-head">
+          <div>
+            <h2 class="p-title">Pick-List (Gesamt) – ${escapeHtml(date)}</h2>
+            <div class="p-sub">Alles zusammen (für Laden / Kühlraum / Transport)</div>
+          </div>
+          ${companyBlock()}
+        </div>
+        <div class="section-title">Gesamt</div>
+        ${pickListTableFromMap(allMap)}
+      </div>
+    `;
+
+    // 2) Per customer pick lists
+    const customerPages = orders.map(o=>{
+      const cname = customerName(o.customerId);
+      const m = summarizeOrderLines(o.lines);
+      return `
+        <div class="print-page">
+          <div class="p-head">
+            <div>
+              <h2 class="p-title">Pick-List – ${escapeHtml(date)}</h2>
+              <div class="p-sub">Kunde: <b>${escapeHtml(cname)}</b></div>
+            </div>
+            ${companyBlock()}
+          </div>
+
+          ${pickListTableFromMap(m)}
+
+          <div style="margin-top:8mm;" class="small">
+            Notizen: ${escapeHtml(o.notes||"-")}
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    $("#printArea").innerHTML = generalPage + customerPages;
+    $("#printArea").classList.remove("hidden");
+    window.print();
+    $("#printArea").classList.add("hidden");
+  }
+
+  // Buttons
+  $("#printProduktion").onclick=()=>printProduktion($("#orderDate").value);
+  $("#printLieferschein").onclick=()=>printLieferschein($("#orderDate").value);
+  $("#printPicklist").onclick=()=>printPickList($("#orderDate").value);
+
+  $("#prodPrint").onclick=()=>printProduktion($("#prodDate").value);
+  $("#prodPick").onclick=()=>printPickList($("#prodDate").value);
+
+  // STATISTICS (only counted orders)
+  function getCountedOrders(){ return state.orders.filter(o => !!o.countedAt); }
+  function calcStatsForMonth(yyyyMm){
+    const orders = getCountedOrders().filter(o => o.date.startsWith(yyyyMm));
+    return calcProductionFromOrders(orders);
+  }
+  function calcStatsForYear(year){
+    const y = String(year);
+    const orders = getCountedOrders().filter(o => o.date.startsWith(y + "-"));
+    return calcProductionFromOrders(orders);
+  }
+  function renderStatsTables(){
+    const m = $("#statMonth").value;
+    if(m){
+      const prod = calcStatsForMonth(m);
+      $("#sm_tot750").textContent = `750g: ${prod.t750}`;
+      $("#sm_tot170").textContent = `170g: ${prod.t170}`;
+      $("#sm_totAll").textContent = `Total: ${prod.total}`;
+      $("#statMonthBody").innerHTML = prod.rows.map(r=>`
+        <tr>
+          <td>${escapeHtml(r.f)}</td>
+          <td class="right">${r.g750}</td>
+          <td class="right">${r.g170}</td>
+          <td class="right"><b>${r.total}</b></td>
+        </tr>
+      `).join("") || `<tr><td colspan="4" class="muted">Sem dados (ainda não imprimiste neste mês).</td></tr>`;
+    }
+    const y = parseInt($("#statYear").value || "", 10);
+    if(y){
+      const prod = calcStatsForYear(y);
+      $("#sy_tot750").textContent = `750g: ${prod.t750}`;
+      $("#sy_tot170").textContent = `170g: ${prod.t170}`;
+      $("#sy_totAll").textContent = `Total: ${prod.total}`;
+      $("#statYearBody").innerHTML = prod.rows.map(r=>`
+        <tr>
+          <td>${escapeHtml(r.f)}</td>
+          <td class="right">${r.g750}</td>
+          <td class="right">${r.g170}</td>
+          <td class="right"><b>${r.total}</b></td>
+        </tr>
+      `).join("") || `<tr><td colspan="4" class="muted">Sem dados (ainda não imprimiste neste ano).</td></tr>`;
+    }
+  }
+  function refreshStats(){ renderStatsTables(); }
+  $("#statMonthRefresh").onclick=()=>refreshStats();
+  $("#statYearRefresh").onclick=()=>refreshStats();
+
+  // NAV
+  $$(".tab").forEach(btn=>{
+    btn.onclick=()=>{
+      const v=btn.dataset.view;
       renderTabs(v);
-      if(v === "produktion") refreshOverview();
-      if(v === "history") renderHistory();
-      if(v === "kunden") renderCustomers();
-      if(v === "sorten") renderFlavors();
+      if(v==="produktion") refreshOverview();
+      if(v==="history") renderHistory();
+      if(v==="kunden") renderCustomers();
+      if(v==="sorten") renderFlavors();
+      if(v==="statistik") refreshStats();
     };
   });
 
-  $("#prodDate").onchange = () => refreshOverview();
-  $("#orderDate").onchange = () => refreshOverview();
-
-  // ---------- INIT ----------
+  // init
   function renderAll(){
     renderCustomers();
     renderFlavors();
     renderHistory();
     renderLines();
     refreshOverview();
+    refreshStats();
   }
 
   setTodayIfEmpty($("#orderDate"));
   setTodayIfEmpty($("#prodDate"));
+  setCurrentMonthIfEmpty($("#statMonth"));
+  $("#statYear").value = $("#statYear").value || String(new Date().getFullYear());
 
-  // ensure at least one line initially
-  if(currentLines.length === 0) addLine("750g", state.flavors[0] || "", 1);
-
+  if(currentLines.length===0) addLine("750g", state.flavors[0]||"", 1);
   renderAll();
-
-  // expose print helpers for buttons
-  window._printProduktion = printProduktion;
-  window._printLieferschein = printLieferschein;
 })();
 </script>
 </body>
-</html>
+  </html>
