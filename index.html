@@ -1,5 +1,4 @@
 
-
 <!doctype html>
 <html lang="de">
 <head>
@@ -209,18 +208,20 @@
       .sign{ margin-top:10mm; display:flex; gap:12mm; }
       .line{ flex:1; border-bottom:1px solid #000; height:18px; }
       .small{ font-size:11px; color:#333; }
-      .section-title{ font-weight:800; margin-top:8mm; }
+      .p-pills{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6mm; }
+      .p-pill{ border:1px solid #000; padding:6px 8px; border-radius:999px; font-size:12px; }
     }
   </style>
 </head>
 <body>
 <header class="no-print">
   <div class="wrap">
-    <h1>Supermarkt Bestellungen – Produktion, Lieferschein, Pick-List & Statistik</h1>
-    <div class="sub">750g & 170g • Statistik conta SÓ o que foi IMPRESSO • Mobile/Tablet</div>
+    <h1>Supermarkt Bestellungen – Produktion, Lieferschein, Pick-List, Baldes-Plan & Statistik</h1>
+    <div class="sub">750g & 170g • KG + Baldes 6kg por sabor + total • Statistik conta SÓ o que foi IMPRESSO</div>
     <nav>
       <button class="tab active" data-view="bestellung">Bestellung</button>
       <button class="tab" data-view="produktion">Produktion</button>
+      <button class="tab" data-view="plan">Baldes-Plan</button>
       <button class="tab" data-view="statistik">Statistik</button>
       <button class="tab" data-view="kunden">Kunden</button>
       <button class="tab" data-view="sorten">Sorten</button>
@@ -230,6 +231,7 @@
 </header>
 
 <main class="wrap">
+
   <!-- BESTELLUNG -->
   <section id="view-bestellung" class="grid two">
     <div class="card">
@@ -289,10 +291,11 @@
         <button class="btn" id="printProduktion">Drucken: Produktion</button>
         <button class="btn" id="printLieferschein">Drucken: Lieferschein</button>
         <button class="btn" id="printPicklist">Drucken: Pick-List</button>
+        <button class="btn" id="printPlan">Drucken: Baldes-Plan</button>
       </div>
 
       <div class="muted" style="margin-top:8px;">
-        ⚠️ Para a <b>Statistik</b> contar, tens de imprimir (Produktion / Lieferschein / Pick-List).
+        ⚠️ Para a <b>Statistik</b> contar, tens de imprimir (Produktion / Lieferschein / Pick-List / Baldes-Plan).
       </div>
     </div>
 
@@ -305,6 +308,8 @@
         <span class="pill" id="tot750">750g: 0</span>
         <span class="pill" id="tot170">170g: 0</span>
         <span class="pill" id="totAll">Total: 0</span>
+        <span class="pill" id="totKg">KG: 0</span>
+        <span class="pill" id="totBuckets">Baldes: 0</span>
       </div>
 
       <div class="hr"></div>
@@ -317,7 +322,9 @@
               <th>Sorte</th>
               <th class="right">750g</th>
               <th class="right">170g</th>
-              <th class="right">Total</th>
+              <th class="right">KG</th>
+              <th class="right">Baldes</th>
+              <th class="right">Baldes (fazer)</th>
             </tr>
           </thead>
           <tbody id="prodTbody"></tbody>
@@ -339,6 +346,7 @@
           <button class="btn primary" id="prodRefresh">Aktualisieren</button>
           <button class="btn" id="prodPrint">Drucken: Produktion</button>
           <button class="btn" id="prodPick">Drucken: Pick-List</button>
+          <button class="btn" id="prodPlan">Drucken: Baldes-Plan</button>
         </div>
       </div>
 
@@ -347,6 +355,8 @@
         <span class="pill" id="p_tot750">750g: 0</span>
         <span class="pill" id="p_tot170">170g: 0</span>
         <span class="pill" id="p_totAll">Total: 0</span>
+        <span class="pill" id="p_totKg">KG: 0</span>
+        <span class="pill" id="p_totBuckets">Baldes: 0</span>
       </div>
 
       <div class="hr"></div>
@@ -357,10 +367,61 @@
               <th>Sorte</th>
               <th class="right">750g</th>
               <th class="right">170g</th>
-              <th class="right">Total</th>
+              <th class="right">KG</th>
+              <th class="right">Baldes</th>
+              <th class="right">Baldes (fazer)</th>
             </tr>
           </thead>
           <tbody id="prodTbody2"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- BALDES-PLAN (SCREEN) -->
+  <section id="view-plan" class="grid hidden">
+    <div class="card">
+      <h2>Baldes-Plan (6kg) – Bildschirm</h2>
+      <div class="muted">Planeamento por sabor • Marcar baldes feitos • Guardado por data</div>
+
+      <div class="hr"></div>
+
+      <div class="row cols">
+        <div>
+          <label>Datum</label>
+          <input type="date" id="planDate" />
+        </div>
+        <div class="flex" style="align-items:end;">
+          <button class="btn primary" id="planRefresh">Anzeigen</button>
+          <button class="btn" id="planPrint">Drucken: Baldes-Plan</button>
+          <button class="btn danger" id="planReset">Reset (dia)</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="flex">
+        <span class="pill" id="plan_totKg">KG: 0</span>
+        <span class="pill" id="plan_totBuckets">Baldes: 0</span>
+        <span class="pill ok" id="plan_done">Feitos: 0</span>
+        <span class="pill wait" id="plan_left">Faltam: 0</span>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="scrollBox maxH-520" style="border:1px solid var(--line);">
+        <table>
+          <thead>
+            <tr>
+              <th>Sorte</th>
+              <th class="right">KG</th>
+              <th class="right">Baldes (fazer)</th>
+              <th class="right">Feitos</th>
+              <th class="right">Faltam</th>
+              <th class="right">Aktion</th>
+            </tr>
+          </thead>
+          <tbody id="planBody"></tbody>
         </table>
       </div>
     </div>
@@ -385,6 +446,8 @@
         <span class="pill ok" id="sm_tot750">750g: 0</span>
         <span class="pill ok" id="sm_tot170">170g: 0</span>
         <span class="pill ok" id="sm_totAll">Total: 0</span>
+        <span class="pill ok" id="sm_totKg">KG: 0</span>
+        <span class="pill ok" id="sm_totBuckets">Baldes: 0</span>
       </div>
       <div class="muted" style="margin-top:8px;">Conta somente encomendas <b>impressas</b>.</div>
 
@@ -396,7 +459,9 @@
               <th>Sorte</th>
               <th class="right">750g</th>
               <th class="right">170g</th>
-              <th class="right">Total</th>
+              <th class="right">KG</th>
+              <th class="right">Baldes</th>
+              <th class="right">Baldes (fazer)</th>
             </tr>
           </thead>
           <tbody id="statMonthBody"></tbody>
@@ -421,6 +486,8 @@
         <span class="pill ok" id="sy_tot750">750g: 0</span>
         <span class="pill ok" id="sy_tot170">170g: 0</span>
         <span class="pill ok" id="sy_totAll">Total: 0</span>
+        <span class="pill ok" id="sy_totKg">KG: 0</span>
+        <span class="pill ok" id="sy_totBuckets">Baldes: 0</span>
       </div>
       <div class="muted" style="margin-top:8px;">Conta somente encomendas <b>impressas</b>.</div>
 
@@ -432,7 +499,9 @@
               <th>Sorte</th>
               <th class="right">750g</th>
               <th class="right">170g</th>
-              <th class="right">Total</th>
+              <th class="right">KG</th>
+              <th class="right">Baldes</th>
+              <th class="right">Baldes (fazer)</th>
             </tr>
           </thead>
           <tbody id="statYearBody"></tbody>
@@ -522,17 +591,21 @@
 
 <script>
 (() => {
-  const KEY_V4 = "sanremo_bestellungen_v4";
-  const KEY_V3 = "sanremo_bestellungen_v3";
-  const KEY_V2 = "sanremo_bestellungen_v2";
-  const KEY_V1 = "sanremo_bestellungen_v1";
+  const KEY_V6 = "sanremo_bestellungen_v6";
+  const KEY_TRY = [
+    "sanremo_bestellungen_v6","sanremo_bestellungen_v5","sanremo_bestellungen_v4",
+    "sanremo_bestellungen_v3","sanremo_bestellungen_v2","sanremo_bestellungen_v1"
+  ];
+
+  const KG_750 = 0.75;
+  const KG_170 = 0.17;
+  const BUCKET_KG = 6;
 
   const defaultFlavors = [
     "Stracciatella","Amarena Kirsch","Vanille","Spaghetti","Toffifee","Cookies",
     "Weiß Schokolade Pistazien","Erdbeer","Joghurt Orange","Kinder Buenos",
     "Kinder Riegel","Joghurete Schokolade","Mango","Hanutta"
   ];
-
   const defaultCustomers = [
     { id: uid(), name: "REWE", note: "" },
     { id: uid(), name: "EDEKA", note: "" }
@@ -541,8 +614,7 @@
   function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
 
   function loadAny(){
-    const tryKeys = [KEY_V4, KEY_V3, KEY_V2, KEY_V1];
-    for(const k of tryKeys){
+    for(const k of KEY_TRY){
       try{
         const raw = localStorage.getItem(k);
         if(!raw) continue;
@@ -552,12 +624,9 @@
     }
     return null;
   }
-
-  function save(state){ localStorage.setItem(KEY_V4, JSON.stringify(state)); }
+  function save(state){ localStorage.setItem(KEY_V6, JSON.stringify(state)); }
 
   let state = loadAny() || { flavors:[...defaultFlavors], customers:[...defaultCustomers], orders:[] };
-
-  // migrate/ensure fields
   state.flavors = Array.isArray(state.flavors) ? state.flavors : [...defaultFlavors];
   state.customers = Array.isArray(state.customers) ? state.customers : [...defaultCustomers];
   state.orders = Array.isArray(state.orders) ? state.orders : [];
@@ -575,13 +644,13 @@
   const $$ = (s)=>Array.from(document.querySelectorAll(s));
 
   function setTodayIfEmpty(el){
-    if(el.value) return;
+    if(!el || el.value) return;
     const d=new Date();
     const tzOff=d.getTimezoneOffset()*60000;
     el.value=new Date(Date.now()-tzOff).toISOString().slice(0,10);
   }
   function setCurrentMonthIfEmpty(el){
-    if(el.value) return;
+    if(!el || el.value) return;
     const d=new Date();
     const y=d.getFullYear();
     const m=String(d.getMonth()+1).padStart(2,"0");
@@ -596,11 +665,12 @@
     $("#view-"+active).classList.remove("hidden");
   }
 
-  // customers
   function customerName(id){
     const c=state.customers.find(x=>x.id===id);
     return c ? (c.note?`${c.name} – ${c.note}`:c.name) : "Unbekannt";
   }
+
+  // ---------------- Customers
   function renderCustomers(){
     const sel=$("#orderCustomer");
     sel.innerHTML="";
@@ -640,6 +710,7 @@
       };
     });
   }
+
   $("#addCustomer").onclick=()=>{
     const name=$("#newCustomerName").value.trim();
     const note=$("#newCustomerNote").value.trim();
@@ -651,7 +722,7 @@
     renderAll();
   };
 
-  // flavors
+  // ---------------- Flavors
   function renderFlavors(){
     const box=$("#flavorsList");
     box.innerHTML="";
@@ -678,6 +749,7 @@
       };
     });
   }
+
   $("#addFlavor").onclick=()=>{
     const v=$("#newFlavor").value.trim();
     if(!v) return;
@@ -693,7 +765,7 @@
     renderAll();
   };
 
-  // order lines
+  // ---------------- Orders
   let currentLines=[];
   function addLine(size="750g", flavor=null, qty=1){
     currentLines.push({ size, flavor: flavor || (state.flavors[0]||""), qty });
@@ -734,6 +806,7 @@
     });
     refreshOrderDraftSummary();
   }
+
   $("#addLine").onclick=()=>addLine();
   $("#clearOrder").onclick=()=>{
     currentLines=[];
@@ -767,14 +840,16 @@
     renderHistory();
     refreshOverview();
     refreshStats();
+    renderPlanScreen(); // para atualizar se estiver aberto
   };
 
-  // production helpers
   function ordersByDate(date){ return state.orders.filter(o=>o.date===date); }
 
+  // ---------------- Production calc (KG + buckets)
   function calcProductionFromOrders(orders){
     const map=new Map();
     let t750=0,t170=0;
+
     orders.forEach(o=>{
       o.lines.forEach(l=>{
         const key=l.flavor;
@@ -784,42 +859,73 @@
         if(l.size==="170g"){ rec.g170+=l.qty; t170+=l.qty; }
       });
     });
+
     const rows=Array.from(map.values())
-      .map(r=>({...r,total:r.g750+r.g170}))
-      .sort((a,b)=>b.total-a.total || a.f.localeCompare(b.f));
-    return { rows, t750, t170, total:t750+t170 };
+      .map(r=>{
+        const total = r.g750 + r.g170;
+        const kg = (r.g750*KG_750) + (r.g170*KG_170);
+        const bucketsExact = kg / BUCKET_KG;
+        const bucketsToMake = Math.ceil(bucketsExact);
+        return {
+          ...r, total,
+          kg: Math.round(kg*100)/100,
+          bucketsExact: Math.round(bucketsExact*100)/100,
+          bucketsToMake
+        };
+      })
+      .sort((a,b)=> (b.kg-a.kg) || (b.total-a.total) || a.f.localeCompare(b.f));
+
+    const totalKg = rows.reduce((s,r)=>s+r.kg,0);
+    const totalBucketsExact = totalKg / BUCKET_KG;
+
+    return {
+      rows,
+      t750, t170, total: t750+t170,
+      totalKg: Math.round(totalKg*100)/100,
+      totalBucketsExact: Math.round(totalBucketsExact*100)/100,
+      totalBucketsToMake: Math.ceil(totalBucketsExact)
+    };
   }
 
+  // ---------------- Overview refresh
   function refreshOverview(){
     const date=$("#orderDate").value || $("#prodDate").value;
     if(!date) return;
 
     const prod=calcProductionFromOrders(ordersByDate(date));
+
     $("#tot750").textContent=`750g: ${prod.t750}`;
     $("#tot170").textContent=`170g: ${prod.t170}`;
     $("#totAll").textContent=`Total: ${prod.total}`;
+    $("#totKg").textContent=`KG: ${prod.totalKg.toFixed(2)}`;
+    $("#totBuckets").textContent=`Baldes: ${prod.totalBucketsExact.toFixed(2)} (~${prod.totalBucketsToMake})`;
 
     $("#p_tot750").textContent=`750g: ${prod.t750}`;
     $("#p_tot170").textContent=`170g: ${prod.t170}`;
     $("#p_totAll").textContent=`Total: ${prod.total}`;
+    $("#p_totKg").textContent=`KG: ${prod.totalKg.toFixed(2)}`;
+    $("#p_totBuckets").textContent=`Baldes: ${prod.totalBucketsExact.toFixed(2)} (~${prod.totalBucketsToMake})`;
 
     const rowsHtml = prod.rows.map(r=>`
       <tr>
         <td>${escapeHtml(r.f)}</td>
         <td class="right">${r.g750}</td>
         <td class="right">${r.g170}</td>
-        <td class="right"><b>${r.total}</b></td>
+        <td class="right">${r.kg.toFixed(2)}</td>
+        <td class="right">${r.bucketsExact.toFixed(2)}</td>
+        <td class="right"><b>${r.bucketsToMake}</b></td>
       </tr>
-    `).join("") || `<tr><td colspan="4" class="muted">Keine Bestellungen für dieses Datum.</td></tr>`;
+    `).join("") || `<tr><td colspan="6" class="muted">Keine Bestellungen für dieses Datum.</td></tr>`;
 
     $("#prodTbody").innerHTML=rowsHtml;
     $("#prodTbody2").innerHTML=rowsHtml;
   }
-  $("#prodRefresh").onclick=()=>refreshOverview();
-  $("#orderDate").onchange=()=>refreshOverview();
-  $("#prodDate").onchange=()=>refreshOverview();
 
-  // draft summary (per order being created)
+  $("#prodRefresh").onclick=()=>{ refreshOverview(); renderPlanScreen(); };
+  $("#orderDate").onchange=()=>{ refreshOverview(); renderPlanScreen(); };
+  $("#prodDate").onchange=()=>{ refreshOverview(); renderPlanScreen(); };
+
+  // ---------------- Draft summary
   function refreshOrderDraftSummary(){
     let t750=0,t170=0;
     const flavors = new Set();
@@ -836,7 +942,7 @@
     refreshOverview();
   }
 
-  // HISTORY
+  // ---------------- History
   function renderHistory(){
     const q=($("#historySearch").value||"").trim().toLowerCase();
     const box=$("#historyList");
@@ -881,7 +987,7 @@
         const id=btn.getAttribute("data-del-order");
         state.orders=state.orders.filter(o=>o.id!==id);
         save(state);
-        renderHistory(); refreshOverview(); refreshStats();
+        renderHistory(); refreshOverview(); refreshStats(); renderPlanScreen();
       };
     });
 
@@ -907,20 +1013,21 @@
         if(!confirm("Remover 'Contado'? Usa isto só se imprimiste por engano.")) return;
         o.countedAt = null;
         save(state);
-        renderHistory(); refreshStats();
+        renderHistory(); refreshStats(); renderPlanScreen();
       };
     });
   }
+
   $("#historyRefresh").onclick=()=>renderHistory();
   $("#historySearch").oninput=()=>renderHistory();
   $("#deleteAll").onclick=()=>{
     if(!confirm("Wirklich ALLE Bestellungen löschen?")) return;
     state.orders=[];
     save(state);
-    renderHistory(); refreshOverview(); refreshStats();
+    renderHistory(); refreshOverview(); refreshStats(); renderPlanScreen();
   };
 
-  // COUNTING (only when printed)
+  // ---------------- Counting (only when printed)
   function markCountedForDate(date){
     const now = new Date().toISOString();
     const list = ordersByDate(date);
@@ -930,7 +1037,7 @@
     refreshStats();
   }
 
-  // PRINT helpers
+  // ---------------- Print helpers
   function companyBlock(){
     return `
       <div class="p-box">
@@ -940,8 +1047,19 @@
       </div>
     `;
   }
+  function printTotalsPills(prod){
+    return `
+      <div class="p-pills">
+        <div class="p-pill">750g: <b>${prod.t750}</b></div>
+        <div class="p-pill">170g: <b>${prod.t170}</b></div>
+        <div class="p-pill">Total: <b>${prod.total}</b></div>
+        <div class="p-pill">KG: <b>${prod.totalKg.toFixed(2)}</b></div>
+        <div class="p-pill">Baldes: <b>${prod.totalBucketsExact.toFixed(2)}</b> (~<b>${prod.totalBucketsToMake}</b>)</div>
+      </div>
+    `;
+  }
 
-  // ---- Produktion print
+  // ---------------- Print: Produktion
   function printProduktion(date){
     if(!date){ alert("Bitte Datum wählen."); return; }
     const all = ordersByDate(date);
@@ -954,27 +1072,29 @@
         <div class="p-head">
           <div>
             <h2 class="p-title">Produktion – ${escapeHtml(date)}</h2>
-            <div class="p-sub">Zusammenfassung nach Sorte (750g & 170g)</div>
+            <div class="p-sub">Nach Sorte (750g & 170g) + KG + Baldes (6kg)</div>
           </div>
           ${companyBlock()}
         </div>
 
+        ${printTotalsPills(prod)}
+
         <table class="p-table">
-          <thead><tr><th>Sorte</th><th>750g</th><th>170g</th><th>Total</th></tr></thead>
+          <thead>
+            <tr><th>Sorte</th><th>750g</th><th>170g</th><th>KG</th><th>Baldes</th><th>Baldes (fazer)</th></tr>
+          </thead>
           <tbody>
             ${prod.rows.map(r=>`
               <tr>
                 <td>${escapeHtml(r.f)}</td>
                 <td>${r.g750}</td>
                 <td>${r.g170}</td>
-                <td><b>${r.total}</b></td>
+                <td>${r.kg.toFixed(2)}</td>
+                <td>${r.bucketsExact.toFixed(2)}</td>
+                <td><b>${r.bucketsToMake}</b></td>
               </tr>`).join("")}
           </tbody>
         </table>
-
-        <div style="margin-top:8mm;" class="small">
-          Totals: 750g = <b>${prod.t750}</b> • 170g = <b>${prod.t170}</b> • Gesamt = <b>${prod.total}</b>
-        </div>
       </div>
     `;
     $("#printArea").innerHTML=html;
@@ -983,7 +1103,7 @@
     $("#printArea").classList.add("hidden");
   }
 
-  // ---- Lieferschein print
+  // ---------------- Print: Lieferschein (no prices)
   function printLieferschein(date){
     if(!date){ alert("Bitte Datum wählen."); return; }
     const orders=ordersByDate(date);
@@ -992,6 +1112,7 @@
 
     const pages=orders.map(o=>{
       const cname=customerName(o.customerId);
+      const prod = calcProductionFromOrders([o]);
       return `
         <div class="print-page">
           <div class="p-head">
@@ -1006,6 +1127,8 @@
             <div class="p-box"><div style="font-weight:800;">Kunde</div><div style="margin-top:4px;">${escapeHtml(cname)}</div></div>
             <div class="p-box"><div style="font-weight:800;">Notizen</div><div style="margin-top:4px;">${escapeHtml(o.notes||"-")}</div></div>
           </div>
+
+          ${printTotalsPills(prod)}
 
           <table class="p-table">
             <thead><tr><th>Größe</th><th>Sorte</th><th>Menge</th></tr></thead>
@@ -1023,8 +1146,6 @@
             <div style="flex:1;"><div class="small">Unterschrift Kunde</div><div class="line"></div></div>
             <div style="flex:1;"><div class="small">Unterschrift Lieferant</div><div class="line"></div></div>
           </div>
-
-          <div style="margin-top:6mm;" class="small">Hinweis: Lieferschein ohne Preise – nur Mengen/Sorten.</div>
         </div>
       `;
     }).join("");
@@ -1035,38 +1156,60 @@
     $("#printArea").classList.add("hidden");
   }
 
-  // ---- Pick-List print (NEW)
-  // Pick-List = lista para carregar (por cliente + geral)
-  function summarizeOrderLines(lines){
-    // returns { key:"flavor|size" -> qty }
-    const map = new Map();
-    lines.forEach(l=>{
-      const key = `${l.flavor}||${l.size}`;
-      map.set(key, (map.get(key)||0) + Number(l.qty||0));
+  // ---------------- Pick-List (Flavor summary) + totals
+  function summarizeLinesToFlavor(orders){
+    const map = new Map(); // flavor -> {g750,g170}
+    orders.forEach(o=>{
+      o.lines.forEach(l=>{
+        if(!map.has(l.flavor)) map.set(l.flavor, {f:l.flavor, g750:0, g170:0});
+        const rec = map.get(l.flavor);
+        if(l.size==="750g") rec.g750 += Number(l.qty||0);
+        if(l.size==="170g") rec.g170 += Number(l.qty||0);
+      });
     });
-    return map;
+    return Array.from(map.values()).map(r=>{
+      const kg = (r.g750*KG_750) + (r.g170*KG_170);
+      const bucketsExact = kg / BUCKET_KG;
+      const bucketsToMake = Math.ceil(bucketsExact);
+      const total = r.g750 + r.g170;
+      return {
+        ...r, total,
+        kg: Math.round(kg*100)/100,
+        bucketsExact: Math.round(bucketsExact*100)/100,
+        bucketsToMake
+      };
+    }).sort((a,b)=> (b.kg-a.kg) || (b.total-a.total) || a.f.localeCompare(b.f));
   }
 
-  function pickListTableFromMap(map){
-    // map key: flavor||size -> qty
-    const rows = Array.from(map.entries())
-      .map(([k,qty])=>{
-        const [flavor,size]=k.split("||");
-        return { flavor, size, qty:Number(qty||0) };
-      })
-      .filter(r=>r.qty>0)
-      .sort((a,b)=> a.flavor.localeCompare(b.flavor) || (a.size==="750g"?-1:1));
-    const htmlRows = rows.map(r=>`
+  function totalsFromRows(rows){
+    const t750 = rows.reduce((s,r)=>s+r.g750,0);
+    const t170 = rows.reduce((s,r)=>s+r.g170,0);
+    const total = t750+t170;
+    const totalKg = rows.reduce((s,r)=>s+r.kg,0);
+    const totalBucketsExact = totalKg / BUCKET_KG;
+    return {
+      t750,t170,total,
+      totalKg: Math.round(totalKg*100)/100,
+      totalBucketsExact: Math.round(totalBucketsExact*100)/100,
+      totalBucketsToMake: Math.ceil(totalBucketsExact)
+    };
+  }
+
+  function pickListTableFlavor(rows){
+    const body = rows.map(r=>`
       <tr>
-        <td>${escapeHtml(r.flavor)}</td>
-        <td>${escapeHtml(r.size)}</td>
-        <td><b>${r.qty}</b></td>
+        <td>${escapeHtml(r.f)}</td>
+        <td class="right">${r.g750}</td>
+        <td class="right">${r.g170}</td>
+        <td class="right">${r.kg.toFixed(2)}</td>
+        <td class="right">${r.bucketsExact.toFixed(2)}</td>
+        <td class="right"><b>${r.bucketsToMake}</b></td>
       </tr>
-    `).join("");
+    `).join("") || `<tr><td colspan="6">Keine Daten</td></tr>`;
     return `
       <table class="p-table">
-        <thead><tr><th>Sorte</th><th>Größe</th><th>Menge</th></tr></thead>
-        <tbody>${htmlRows || `<tr><td colspan="3">Keine Daten</td></tr>`}</tbody>
+        <thead><tr><th>Sorte</th><th>750g</th><th>170g</th><th>KG</th><th>Baldes</th><th>Baldes (fazer)</th></tr></thead>
+        <tbody>${body}</tbody>
       </table>
     `;
   }
@@ -1075,37 +1218,31 @@
     if(!date){ alert("Bitte Datum wählen."); return; }
     const orders = ordersByDate(date);
     if(orders.length===0){ alert("Keine Bestellungen für dieses Datum."); return; }
-
-    // printing counts
     markCountedForDate(date);
 
-    // 1) General pick list (all customers)
-    const allMap = new Map();
-    orders.forEach(o=>{
-      o.lines.forEach(l=>{
-        const key = `${l.flavor}||${l.size}`;
-        allMap.set(key, (allMap.get(key)||0) + Number(l.qty||0));
-      });
-    });
+    // general
+    const allRows = summarizeLinesToFlavor(orders);
+    const allTotals = totalsFromRows(allRows);
 
     const generalPage = `
       <div class="print-page">
         <div class="p-head">
           <div>
             <h2 class="p-title">Pick-List (Gesamt) – ${escapeHtml(date)}</h2>
-            <div class="p-sub">Alles zusammen (für Laden / Kühlraum / Transport)</div>
+            <div class="p-sub">Por sabor + KG + Baldes (6kg)</div>
           </div>
           ${companyBlock()}
         </div>
-        <div class="section-title">Gesamt</div>
-        ${pickListTableFromMap(allMap)}
+        ${printTotalsPills(allTotals)}
+        ${pickListTableFlavor(allRows)}
       </div>
     `;
 
-    // 2) Per customer pick lists
+    // per customer
     const customerPages = orders.map(o=>{
       const cname = customerName(o.customerId);
-      const m = summarizeOrderLines(o.lines);
+      const rows = summarizeLinesToFlavor([o]);
+      const totals = totalsFromRows(rows);
       return `
         <div class="print-page">
           <div class="p-head">
@@ -1115,12 +1252,9 @@
             </div>
             ${companyBlock()}
           </div>
-
-          ${pickListTableFromMap(m)}
-
-          <div style="margin-top:8mm;" class="small">
-            Notizen: ${escapeHtml(o.notes||"-")}
-          </div>
+          ${printTotalsPills(totals)}
+          ${pickListTableFlavor(rows)}
+          <div style="margin-top:8mm;" class="small">Notizen: ${escapeHtml(o.notes||"-")}</div>
         </div>
       `;
     }).join("");
@@ -1131,15 +1265,69 @@
     $("#printArea").classList.add("hidden");
   }
 
-  // Buttons
-  $("#printProduktion").onclick=()=>printProduktion($("#orderDate").value);
-  $("#printLieferschein").onclick=()=>printLieferschein($("#orderDate").value);
-  $("#printPicklist").onclick=()=>printPickList($("#orderDate").value);
+  // ---------------- Print: Baldes-Plan (simple sheet)
+  function printBucketsPlan(date){
+    if(!date){ alert("Bitte Datum wählen."); return; }
+    const orders = ordersByDate(date);
+    if(orders.length===0){ alert("Keine Bestellungen für dieses Datum."); return; }
+    markCountedForDate(date);
 
-  $("#prodPrint").onclick=()=>printProduktion($("#prodDate").value);
-  $("#prodPick").onclick=()=>printPickList($("#prodDate").value);
+    const prod = calcProductionFromOrders(orders);
+    const rows = [...prod.rows]
+      .filter(r => r.bucketsToMake > 0)
+      .sort((a,b)=> (b.bucketsToMake - a.bucketsToMake) || (b.kg - a.kg) || a.f.localeCompare(b.f));
 
-  // STATISTICS (only counted orders)
+    const listHtml = rows.map(r=>{
+      const checks = Array.from({length: Math.min(r.bucketsToMake, 20)}, () => "☐").join(" ");
+      return `
+        <tr>
+          <td><b>${escapeHtml(r.f)}</b></td>
+          <td class="right">${r.kg.toFixed(2)}</td>
+          <td class="right"><b>${r.bucketsToMake}</b></td>
+          <td style="font-size:14px;">${checks}</td>
+        </tr>
+      `;
+    }).join("") || `<tr><td colspan="4">Keine Daten</td></tr>`;
+
+    const html = `
+      <div class="print-page">
+        <div class="p-head">
+          <div>
+            <h2 class="p-title">Baldes-Plan (6kg) – ${escapeHtml(date)}</h2>
+            <div class="p-sub">Planeamento por sabor (baldes a fazer) + checkboxes</div>
+          </div>
+          ${companyBlock()}
+        </div>
+
+        ${printTotalsPills(prod)}
+
+        <table class="p-table">
+          <thead>
+            <tr>
+              <th>Sorte</th>
+              <th>KG</th>
+              <th>Baldes (fazer)</th>
+              <th>Check</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${listHtml}
+          </tbody>
+        </table>
+
+        <div style="margin-top:8mm;" class="small">
+          “Baldes (fazer)” é arredondado para cima para não faltar.
+        </div>
+      </div>
+    `;
+
+    $("#printArea").innerHTML = html;
+    $("#printArea").classList.remove("hidden");
+    window.print();
+    $("#printArea").classList.add("hidden");
+  }
+
+  // ---------------- Statistics (counted only)
   function getCountedOrders(){ return state.orders.filter(o => !!o.countedAt); }
   function calcStatsForMonth(yyyyMm){
     const orders = getCountedOrders().filter(o => o.date.startsWith(yyyyMm));
@@ -1150,6 +1338,7 @@
     const orders = getCountedOrders().filter(o => o.date.startsWith(y + "-"));
     return calcProductionFromOrders(orders);
   }
+
   function renderStatsTables(){
     const m = $("#statMonth").value;
     if(m){
@@ -1157,41 +1346,173 @@
       $("#sm_tot750").textContent = `750g: ${prod.t750}`;
       $("#sm_tot170").textContent = `170g: ${prod.t170}`;
       $("#sm_totAll").textContent = `Total: ${prod.total}`;
+      $("#sm_totKg").textContent = `KG: ${prod.totalKg.toFixed(2)}`;
+      $("#sm_totBuckets").textContent = `Baldes: ${prod.totalBucketsExact.toFixed(2)} (~${prod.totalBucketsToMake})`;
+
       $("#statMonthBody").innerHTML = prod.rows.map(r=>`
         <tr>
           <td>${escapeHtml(r.f)}</td>
           <td class="right">${r.g750}</td>
           <td class="right">${r.g170}</td>
-          <td class="right"><b>${r.total}</b></td>
+          <td class="right">${r.kg.toFixed(2)}</td>
+          <td class="right">${r.bucketsExact.toFixed(2)}</td>
+          <td class="right"><b>${r.bucketsToMake}</b></td>
         </tr>
-      `).join("") || `<tr><td colspan="4" class="muted">Sem dados (ainda não imprimiste neste mês).</td></tr>`;
+      `).join("") || `<tr><td colspan="6" class="muted">Sem dados (ainda não imprimiste neste mês).</td></tr>`;
     }
+
     const y = parseInt($("#statYear").value || "", 10);
     if(y){
       const prod = calcStatsForYear(y);
       $("#sy_tot750").textContent = `750g: ${prod.t750}`;
       $("#sy_tot170").textContent = `170g: ${prod.t170}`;
       $("#sy_totAll").textContent = `Total: ${prod.total}`;
+      $("#sy_totKg").textContent = `KG: ${prod.totalKg.toFixed(2)}`;
+      $("#sy_totBuckets").textContent = `Baldes: ${prod.totalBucketsExact.toFixed(2)} (~${prod.totalBucketsToMake})`;
+
       $("#statYearBody").innerHTML = prod.rows.map(r=>`
         <tr>
           <td>${escapeHtml(r.f)}</td>
           <td class="right">${r.g750}</td>
           <td class="right">${r.g170}</td>
-          <td class="right"><b>${r.total}</b></td>
+          <td class="right">${r.kg.toFixed(2)}</td>
+          <td class="right">${r.bucketsExact.toFixed(2)}</td>
+          <td class="right"><b>${r.bucketsToMake}</b></td>
         </tr>
-      `).join("") || `<tr><td colspan="4" class="muted">Sem dados (ainda não imprimiste neste ano).</td></tr>`;
+      `).join("") || `<tr><td colspan="6" class="muted">Sem dados (ainda não imprimiste neste ano).</td></tr>`;
     }
   }
   function refreshStats(){ renderStatsTables(); }
   $("#statMonthRefresh").onclick=()=>refreshStats();
   $("#statYearRefresh").onclick=()=>refreshStats();
 
-  // NAV
+  // ---------------- Baldes-Plan screen progress
+  const PLAN_KEY = "sanremo_plan_progress_v1";
+  function loadPlanProgress(){
+    try{ return JSON.parse(localStorage.getItem(PLAN_KEY) || "{}"); }catch(e){ return {}; }
+  }
+  function savePlanProgress(obj){
+    localStorage.setItem(PLAN_KEY, JSON.stringify(obj));
+  }
+  function getPlanForDate(date){
+    const all = loadPlanProgress();
+    return all[date] || {};
+  }
+  function setPlanForDate(date, planObj){
+    const all = loadPlanProgress();
+    all[date] = planObj;
+    savePlanProgress(all);
+  }
+  function resetPlanForDate(date){
+    const all = loadPlanProgress();
+    delete all[date];
+    savePlanProgress(all);
+  }
+
+  function renderPlanScreen(){
+    const date = $("#planDate").value;
+    if(!date) return;
+
+    const orders = ordersByDate(date);
+    const tbody = $("#planBody");
+
+    if(!orders.length){
+      tbody.innerHTML = `<tr><td colspan="6" class="muted">Keine Bestellungen für dieses Datum.</td></tr>`;
+      $("#plan_totKg").textContent = `KG: 0`;
+      $("#plan_totBuckets").textContent = `Baldes: 0`;
+      $("#plan_done").textContent = `Feitos: 0`;
+      $("#plan_left").textContent = `Faltam: 0`;
+      return;
+    }
+
+    const prod = calcProductionFromOrders(orders);
+    const progress = getPlanForDate(date);
+
+    const rows = [...prod.rows]
+      .filter(r => r.bucketsToMake > 0)
+      .sort((a,b)=> (b.bucketsToMake - a.bucketsToMake) || (b.kg - a.kg) || a.f.localeCompare(b.f));
+
+    let totalToMake = 0;
+    let totalDone = 0;
+
+    tbody.innerHTML = rows.map(r=>{
+      const key = r.f;
+      const done = Math.max(0, Math.min(r.bucketsToMake, Number(progress[key] || 0)));
+      const left = Math.max(0, r.bucketsToMake - done);
+
+      totalToMake += r.bucketsToMake;
+      totalDone += done;
+
+      return `
+        <tr>
+          <td><b>${escapeHtml(r.f)}</b></td>
+          <td class="right">${r.kg.toFixed(2)}</td>
+          <td class="right"><b>${r.bucketsToMake}</b></td>
+          <td class="right">${done}</td>
+          <td class="right"><b>${left}</b></td>
+          <td class="right">
+            <button class="btn small ok" data-done="${escapeHtml(r.f)}">+1</button>
+            <button class="btn small" data-undo="${escapeHtml(r.f)}">-1</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    const totalLeft = Math.max(0, totalToMake - totalDone);
+
+    $("#plan_totKg").textContent = `KG: ${prod.totalKg.toFixed(2)}`;
+    $("#plan_totBuckets").textContent = `Baldes: ${prod.totalBucketsExact.toFixed(2)} (~${prod.totalBucketsToMake})`;
+    $("#plan_done").textContent = `Feitos: ${totalDone}`;
+    $("#plan_left").textContent = `Faltam: ${totalLeft}`;
+
+    $$("[data-done]").forEach(btn=>{
+      btn.onclick = ()=>{
+        const f = btn.getAttribute("data-done");
+        const p = getPlanForDate(date);
+        p[f] = (Number(p[f]||0) + 1);
+        setPlanForDate(date, p);
+        renderPlanScreen();
+      };
+    });
+    $$("[data-undo]").forEach(btn=>{
+      btn.onclick = ()=>{
+        const f = btn.getAttribute("data-undo");
+        const p = getPlanForDate(date);
+        p[f] = Math.max(0, Number(p[f]||0) - 1);
+        setPlanForDate(date, p);
+        renderPlanScreen();
+      };
+    });
+  }
+
+  $("#planRefresh").onclick = ()=>renderPlanScreen();
+  $("#planDate").onchange = ()=>renderPlanScreen();
+  $("#planReset").onclick = ()=>{
+    const date = $("#planDate").value;
+    if(!date) return;
+    if(!confirm("Reset do plano deste dia?")) return;
+    resetPlanForDate(date);
+    renderPlanScreen();
+  };
+  $("#planPrint").onclick = ()=>printBucketsPlan($("#planDate").value);
+
+  // ---------------- Buttons print
+  $("#printProduktion").onclick=()=>printProduktion($("#orderDate").value);
+  $("#printLieferschein").onclick=()=>printLieferschein($("#orderDate").value);
+  $("#printPicklist").onclick=()=>printPickList($("#orderDate").value);
+  $("#printPlan").onclick=()=>printBucketsPlan($("#orderDate").value);
+
+  $("#prodPrint").onclick=()=>printProduktion($("#prodDate").value);
+  $("#prodPick").onclick=()=>printPickList($("#prodDate").value);
+  $("#prodPlan").onclick=()=>printBucketsPlan($("#prodDate").value);
+
+  // ---------------- NAV
   $$(".tab").forEach(btn=>{
     btn.onclick=()=>{
       const v=btn.dataset.view;
       renderTabs(v);
       if(v==="produktion") refreshOverview();
+      if(v==="plan") renderPlanScreen();
       if(v==="history") renderHistory();
       if(v==="kunden") renderCustomers();
       if(v==="sorten") renderFlavors();
@@ -1199,7 +1520,7 @@
     };
   });
 
-  // init
+  // ---------------- init
   function renderAll(){
     renderCustomers();
     renderFlavors();
@@ -1207,10 +1528,12 @@
     renderLines();
     refreshOverview();
     refreshStats();
+    renderPlanScreen();
   }
 
   setTodayIfEmpty($("#orderDate"));
   setTodayIfEmpty($("#prodDate"));
+  setTodayIfEmpty($("#planDate"));
   setCurrentMonthIfEmpty($("#statMonth"));
   $("#statYear").value = $("#statYear").value || String(new Date().getFullYear());
 
