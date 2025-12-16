@@ -3,2169 +3,1534 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Bestellung REWE</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nährwert & Etikett Generator – Eiscafé Sanremo</title>
+  <meta name="color-scheme" content="light dark" />
   <style>
     :root{
-      --bg:#f3f4f6; --card:#fff; --text:#0f172a; --muted:#64748b;
-      --line:#e5e7eb; --line2:#d1d5db; --accent:#2563eb;
-      --ok:#16a34a; --danger:#dc2626; --warn:#f59e0b;
-      --shadow:0 14px 40px rgba(15,23,42,.10);
-      --r:16px; --r2:14px; --tap:46px;
+      --bg:#0b0d12; --card:#121623; --muted:#9aa6bf; --text:#eef2ff;
+      --accent:#7c3aed; --accent2:#22c55e; --danger:#ef4444; --warn:#f59e0b;
+      --line:rgba(255,255,255,.08); --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius:18px; --radius2:26px; --pad:14px;
+      --xl: 1; /* produção XL toggle */
     }
-    *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#f8fafc,#f3f4f6);color:var(--text)}
-    header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
-    .wrap{max-width:1150px;margin:0 auto;padding:12px 14px}
-    .head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    h1{margin:0;font-size:18px;font-weight:900}
-    .btn{min-height:var(--tap);display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 14px;border-radius:var(--r2);border:1px solid var(--line2);background:#fff;color:var(--text);cursor:pointer;font-weight:900;font-size:13px;user-select:none;-webkit-tap-highlight-color:transparent}
-    .btn:active{transform:scale(.985)}
-    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-    .btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
-    .btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
-    .btn.warn{background:var(--warn);border-color:var(--warn);color:#111}
-    .btn.small{min-height:38px;padding:8px 10px;font-size:12px;border-radius:12px}
-    nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .tab{min-height:40px;padding:9px 12px;border:1px solid var(--line2);border-radius:999px;background:#fff;color:var(--text);cursor:pointer;font-weight:850;font-size:13px}
-    .tab.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 10px 24px rgba(37,99,235,.18)}
-    main{padding:16px 0 30px}
-    .grid{display:grid;grid-template-columns:1fr;gap:12px}
-    @media(min-width:920px){.grid.two{grid-template-columns:1.08fr .92fr}}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
-    .card h2{margin:0 0 10px;font-size:14px}
-    label{font-size:12px;color:var(--muted);display:block;margin:0 0 6px;font-weight:800}
-    input,select,textarea{width:100%;min-height:var(--tap);padding:12px 12px;border-radius:var(--r2);border:1px solid var(--line2);background:#fff;color:var(--text);outline:none;font-size:15px}
-    textarea{min-height:92px;resize:vertical}
-    .row{display:grid;gap:10px}
-    .row.cols{grid-template-columns:1fr}
-    @media(min-width:720px){.row.cols{grid-template-columns:1fr 1fr}}
-    .flex{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .muted{color:var(--muted);font-size:12px}
-    .hr{height:1px;background:var(--line);margin:12px 0}
-    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line2);border-radius:999px;background:#fff;font-size:12px;color:var(--text);font-weight:900}
-    .scroll{overflow:auto;-webkit-overflow-scrolling:touch;border-radius:var(--r2)}
-    .maxH{max-height:520px}
-    @media(max-width:520px){.maxH{max-height:52vh}}
-    table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;background:#fff}
-    thead th{position:sticky;top:0;z-index:2;background:#f8fafc;color:#334155;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line);padding:10px}
-    tbody td{padding:10px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:top}
-    tbody tr:last-child td{border-bottom:none}
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f6f7fb; --card:#ffffff; --muted:#53627a; --text:#0f172a;
+        --line:rgba(15,23,42,.08); --shadow: 0 10px 26px rgba(2,6,23,.08);
+      }
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1100px 700px at 20% -10%, rgba(124,58,237,.35), transparent 60%),
+                  radial-gradient(900px 600px at 110% 10%, rgba(34,197,94,.25), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    a{color:inherit}
+    .wrap{max-width:1200px; margin:0 auto; padding:18px}
+    header{
+      display:flex; gap:14px; align-items:center; justify-content:space-between;
+      padding:14px 14px; border:1px solid var(--line); background:rgba(255,255,255,.03);
+      border-radius: var(--radius2); box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    .brand{display:flex; gap:12px; align-items:center}
+    .logo{
+      width:46px; height:46px; border-radius:14px;
+      background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(34,197,94,.9));
+      display:grid; place-items:center; box-shadow: 0 10px 22px rgba(0,0,0,.25);
+      flex:0 0 auto;
+    }
+    .logo svg{width:24px; height:24px; opacity:.95}
+    .title{display:flex; flex-direction:column; line-height:1.15}
+    .title b{font-size: calc(16px * var(--xl)); letter-spacing:.2px}
+    .title span{color:var(--muted); font-size: calc(12.5px * var(--xl))}
+    .head-actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
+    .pill{
+      display:flex; gap:8px; align-items:center; padding:10px 12px;
+      border:1px solid var(--line); border-radius:999px; background:rgba(255,255,255,.03);
+      font-size: calc(12.5px * var(--xl)); color: var(--muted);
+    }
+    .btn{
+      border:1px solid var(--line); background:rgba(255,255,255,.04);
+      color:var(--text); padding: 10px 12px;
+      border-radius: 14px; cursor:pointer; font-weight:600;
+      font-size: calc(13px * var(--xl));
+      transition:.15s transform ease, .15s background ease, .15s border-color ease;
+      display:inline-flex; gap:8px; align-items:center;
+      user-select:none;
+    }
+    .btn:hover{transform: translateY(-1px); background:rgba(255,255,255,.07)}
+    .btn.primary{background:rgba(124,58,237,.18); border-color: rgba(124,58,237,.35)}
+    .btn.good{background:rgba(34,197,94,.16); border-color: rgba(34,197,94,.33)}
+    .btn.danger{background:rgba(239,68,68,.14); border-color: rgba(239,68,68,.32)}
+    .btn.warn{background:rgba(245,158,11,.14); border-color: rgba(245,158,11,.32)}
+    .btn:active{transform: translateY(0)}
+    .grid{
+      display:grid; grid-template-columns: 320px 1fr; gap:16px; margin-top:16px;
+    }
+    @media (max-width: 980px){ .grid{grid-template-columns: 1fr} }
+    .card{
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card h2{
+      margin:0; padding:14px 14px; font-size: calc(14.5px * var(--xl));
+      border-bottom: 1px solid var(--line);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .card h2 small{color:var(--muted); font-weight:500}
+    .card .body{padding:14px}
+    .tabs{
+      display:flex; gap:8px; padding:10px; border-bottom:1px solid var(--line);
+      flex-wrap:wrap;
+    }
+    .tab{
+      padding:10px 12px; border:1px solid var(--line); border-radius: 999px;
+      cursor:pointer; font-weight:700; color:var(--muted);
+      font-size: calc(13px * var(--xl));
+      background:rgba(255,255,255,.03);
+      user-select:none;
+    }
+    .tab.active{color:var(--text); border-color: rgba(124,58,237,.45); background:rgba(124,58,237,.16)}
+    .row{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
+    @media (max-width: 680px){ .row{grid-template-columns:1fr} }
+    label{display:block; font-size: calc(12.5px * var(--xl)); color:var(--muted); margin:0 0 6px}
+    input, select, textarea{
+      width:100%; padding: 10px 12px; border-radius: 14px;
+      border:1px solid var(--line); background:rgba(0,0,0,.14);
+      color:var(--text); outline:none; font-size: calc(13.5px * var(--xl));
+    }
+    @media (prefers-color-scheme: light){
+      input,select,textarea{background: rgba(2,6,23,.03)}
+    }
+    textarea{min-height: 90px; resize: vertical}
+    .help{color:var(--muted); font-size: calc(12px * var(--xl)); line-height:1.35; margin-top:8px}
+    .list{
+      display:flex; flex-direction:column; gap:10px;
+      max-height: 62vh; overflow:auto; padding-right: 4px;
+    }
+    .item{
+      border:1px solid var(--line);
+      border-radius: 18px;
+      padding: 10px 10px;
+      background: rgba(255,255,255,.02);
+    }
+    .item .top{
+      display:flex; gap:10px; align-items:flex-start; justify-content:space-between;
+    }
+    .item b{font-size: calc(13.5px * var(--xl))}
+    .item .meta{color:var(--muted); font-size: calc(12px * var(--xl)); margin-top:4px}
+    .item .actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+    .tag{
+      display:inline-flex; gap:6px; align-items:center;
+      padding: 6px 10px; border-radius:999px; border:1px solid var(--line);
+      color:var(--muted); font-size: calc(11.5px * var(--xl));
+      background: rgba(255,255,255,.02);
+      margin:6px 6px 0 0;
+    }
+    .badge{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding: 6px 10px; border-radius:999px;
+      background: rgba(124,58,237,.16); border: 1px solid rgba(124,58,237,.35);
+      font-size: calc(11.5px * var(--xl)); font-weight:800;
+    }
+    .split{
+      display:grid; grid-template-columns: 1.2fr .8fr; gap:14px;
+    }
+    @media (max-width: 980px){ .split{grid-template-columns:1fr} }
+    table{width:100%; border-collapse:collapse}
+    th,td{
+      border-bottom:1px solid var(--line);
+      padding:10px 8px; text-align:left;
+      font-size: calc(13px * var(--xl));
+      vertical-align:top;
+    }
+    th{color:var(--muted); font-weight:800}
     .right{text-align:right}
-    .hidden{display:none!important}
-
-    /* XL */
-    .xlGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:14px}
-    .xlTile{border:2px solid var(--line2);border-radius:18px;background:#fff;box-shadow:0 10px 24px rgba(15,23,42,.08);padding:14px;min-height:170px;display:flex;flex-direction:column;justify-content:space-between}
-    .xlFlavor{font-weight:1000;font-size:18px;line-height:1.15}
-    .xlNumbers{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:10px}
-    .xlLeft{font-size:54px;font-weight:1100;letter-spacing:-1px}
-    .xlMeta{text-align:right;color:var(--muted);font-weight:900;font-size:12px}
-    .xlActions{display:flex;gap:10px;margin-top:12px}
-    .xlBtn{flex:1;min-height:70px;border-radius:16px;border:2px solid var(--line2);background:#fff;font-weight:1000;font-size:18px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-    .xlBtn.plus{background:var(--ok);border-color:var(--ok);color:#fff}
-
-    @media print{
-      body{background:#fff;color:#000}
-      header,.no-print{display:none!important}
-      .print-area{display:block!important}
-      .print-page{page-break-after:always;padding:14mm 12mm;font-family:Arial,Helvetica,sans-serif}
-      .print-page:last-child{page-break-after:auto}
-      .p-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10mm}
-      .p-title{font-size:18px;font-weight:800;margin:0}
-      .p-sub{font-size:12px;margin-top:4px;color:#333}
-      .p-box{border:1px solid #000;padding:10px;border-radius:8px}
-      .p-table{width:100%;border-collapse:collapse;margin-top:8mm}
-      .p-table th,.p-table td{border:1px solid #000;padding:7px;font-size:12px;vertical-align:top}
-      .p-table th{background:#f2f2f2}
-      .p-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:6mm}
-      .p-pill{border:1px solid #000;padding:6px 8px;border-radius:999px;font-size:12px}
-      .small{font-size:11px;color:#333}
-      .sign{margin-top:10mm;display:flex;gap:12mm}
-      .line{flex:1;border-bottom:1px solid #000;height:18px}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;}
+    .muted{color:var(--muted)}
+    .kpi{
+      display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;
+      margin-top:10px;
     }
+    @media (max-width: 680px){ .kpi{grid-template-columns:1fr} }
+    .kpi .box{
+      border:1px solid var(--line); border-radius: 18px; padding:12px;
+      background: rgba(255,255,255,.02);
+    }
+    .kpi .box b{display:block; font-size: calc(13px * var(--xl))}
+    .kpi .box span{color:var(--muted); font-size: calc(12px * var(--xl))}
+    .notice{
+      border:1px dashed rgba(245,158,11,.55);
+      background: rgba(245,158,11,.10);
+      border-radius: 18px;
+      padding:12px; margin-top:12px;
+      font-size: calc(12.5px * var(--xl)); color: var(--text);
+      line-height:1.35;
+    }
+
+    /* LABEL PREVIEW */
+    .labelWrap{
+      border:1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,.02);
+      padding: 14px;
+    }
+    .label{
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 16px;
+      background: #fff;
+      color:#111827;
+      padding: 14px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.15);
+    }
+    .label .lhead{
+      display:flex; justify-content:space-between; gap:10px;
+      border-bottom: 1px solid rgba(17,24,39,.10);
+      padding-bottom: 10px; margin-bottom: 10px;
+    }
+    .label .lhead b{font-size: 16px}
+    .label .lhead small{color:#374151}
+    .label .lsort{font-weight:800; font-size: 15px; margin: 6px 0 10px}
+    .label .block{margin: 10px 0}
+    .label .block .cap{font-weight:900; font-size: 12px; color:#111827; margin-bottom:4px}
+    .label .block p{margin:0; font-size: 12px; line-height:1.25}
+    .label .ing strong{font-weight:900; text-decoration: underline;}
+    .label .foot{
+      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid rgba(17,24,39,.10);
+      font-size: 11px; color:#374151;
+    }
+    .label table{
+      width:100%; border-collapse:collapse; margin-top:6px;
+      font-size: 11.5px;
+    }
+    .label th,.label td{
+      border-bottom: 1px solid rgba(17,24,39,.10);
+      padding: 6px 6px;
+    }
+    .label th{color:#374151}
+    .label .small{font-size: 11px; color:#374151}
+
+    /* PRINT */
+    @media print{
+      body{background:#fff !important}
+      header,.grid,.tabs,.no-print{display:none !important}
+      #printArea{display:block !important}
+      #printArea .label{box-shadow:none !important}
+      #printArea{padding:0; margin:0}
+      @page{ margin: 10mm; }
+    }
+    #printArea{display:none}
+    .flex{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .spacer{height:10px}
+    .divider{height:1px; background:var(--line); margin:12px 0}
+    .tiny{font-size: calc(11.5px * var(--xl)); color:var(--muted)}
+    .ok{color:var(--accent2); font-weight:800}
+    .warnTxt{color:var(--warn); font-weight:800}
+    .dangerTxt{color:var(--danger); font-weight:800}
   </style>
 </head>
 <body>
-<header class="no-print">
-  <div class="wrap">
-    <div class="head">
-      <h1>Bestellung REWE</h1>
-      <div class="flex">
-        <a class="btn small" href="./rezepte_naehrwerte.html">Rezepte & Nährwerte</a>
-        <a class="btn small" href="./etiketten.html">Etiketten</a>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M7 7c0-2.2 2.2-4 5-4s5 1.8 5 4-2.2 4-5 4-5-1.8-5-4Z" stroke="white" stroke-width="2"/>
+          <path d="M9 21h6M10 15l2 6M14 15l-2 6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="title">
+        <b>Nährwert & Etikett Generator</b>
+        <span>Eiscafé Sanremo · Zutatenbank · Rezept · LMIV-Etikett · Druck</span>
       </div>
     </div>
-    <nav>
-      <button class="tab active" data-view="bestellung">Bestellung</button>
-      <button class="tab" data-view="produktion">Produktion</button>
-      <button class="tab" data-view="xl">Produktion XL</button>
-      <button class="tab" data-view="plan">Baldes-Plan</button>
-      <button class="tab" data-view="statistik">Statistik</button>
-      <button class="tab" data-view="kunden">Kunden</button>
-      <button class="tab" data-view="sorten">Sorten</button>
-      <button class="tab" data-view="history">Historie</button>
-    </nav>
+
+    <div class="head-actions">
+      <div class="pill">
+        <span class="muted">Projekt:</span>
+        <b id="projectName" class="mono">Sanremo-Label</b>
+      </div>
+
+      <button class="btn" id="btnXL" title="Große Buttons für Produktion (Handschuhe)">
+        🧤 Produktion XL: <span id="xlState" class="badge">AUS</span>
+      </button>
+
+      <button class="btn warn" id="btnBackup" title="Exportiert alle Daten als JSON Datei">
+        ⬇️ Backup JSON
+      </button>
+      <label class="btn" style="cursor:pointer">
+        ⬆️ Import JSON
+        <input id="fileImport" type="file" accept="application/json" style="display:none">
+      </label>
+      <button class="btn danger" id="btnReset" title="Setzt alles zurück">
+        🗑️ Reset
+      </button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT: DATABASE -->
+    <div class="card">
+      <h2>
+        Zutatenbank
+        <small id="ingCount">0</small>
+      </h2>
+      <div class="body">
+        <div class="row">
+          <div>
+            <label>Suche</label>
+            <input id="q" placeholder="z.B. Milch, Zucker, Pistazie, Aroma..." />
+          </div>
+          <div>
+            <label>Kategorie</label>
+            <select id="catFilter">
+              <option value="">Alle</option>
+              <option>Milchprodukte</option>
+              <option>Zucker/Carbs</option>
+              <option>Fette</option>
+              <option>Frucht</option>
+              <option>Nüsse</option>
+              <option>Schokolade/Kakao</option>
+              <option>Stabilisator/Emulgator</option>
+              <option>Aromen/Pasten</option>
+              <option>Zusatzstoffe/Farbstoffe</option>
+              <option>Sonstiges</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <button class="btn primary" id="btnNewIng">➕ Neue Zutat anlegen</button>
+
+        <div class="divider"></div>
+
+        <div class="list" id="ingList"></div>
+
+        <div class="notice">
+          <b>Hinweis (LMIV/Etikett):</b><br>
+          Dieses Tool hilft beim Erstellen von Zutatenliste & Nährwerttabelle.
+          Du musst die Daten der Lieferanten (Spezifikationen) korrekt pflegen.
+          Für rechtssichere Etiketten ist der Betreiber verantwortlich (z.B. Zusatzstoffe, Allergene, QUID, Nettofüllmenge, MHD, Losnummer).
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: MAIN -->
+    <div class="card">
+      <div class="tabs">
+        <div class="tab active" data-tab="rezept">🍨 Rezept</div>
+        <div class="tab" data-tab="etikett">🏷️ Etikett</div>
+        <div class="tab" data-tab="druck">🖨️ Druck & Export</div>
+        <div class="tab" data-tab="hilfe">ℹ️ Hilfe</div>
+      </div>
+
+      <!-- TAB: REZEPT -->
+      <div id="tab-rezept" class="body">
+        <div class="split">
+          <div>
+            <div class="row">
+              <div>
+                <label>Produkt / Verkehrsbezeichnung</label>
+                <input id="prodName" placeholder="z.B. Speiseeis / Fruchteis / Sorbet / Milcheis" />
+              </div>
+              <div>
+                <label>Sorte / Geschmack</label>
+                <input id="flavor" placeholder="z.B. Stracciatella, Erdbeer, Mango..." />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>Rezept-Menge (Gesamt) in g</label>
+                <input id="batchG" type="number" min="1" step="1" placeholder="z.B. 10000" />
+              </div>
+              <div>
+                <label>Portionsgröße / Becher (optional) in g</label>
+                <input id="portionG" type="number" min="0" step="1" placeholder="z.B. 170" />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>Produktgruppe</label>
+                <select id="productGroup">
+                  <option value="Eis">Speiseeis (Milch/Creme)</option>
+                  <option value="Sorbet">Sorbet / Fruchteis (ohne Milch)</option>
+                  <option value="Dessert">Dessert / Spezial</option>
+                </select>
+              </div>
+              <div>
+                <label>Rezept-Notizen (intern)</label>
+                <input id="recipeNotes" placeholder="z.B. Stabilizator 4 g/kg, Paste 80 g..." />
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="flex">
+              <button class="btn primary" id="btnAddLine">➕ Zutat zum Rezept</button>
+              <button class="btn" id="btnAutoSort">↕️ Zutaten nach Menge sortieren</button>
+              <button class="btn" id="btnClearRecipe">🧹 Rezept leeren</button>
+              <span class="tiny">Tipp: Zutat aus der linken Liste auswählen → dann „Zutat zum Rezept“.</span>
+            </div>
+
+            <div class="spacer"></div>
+
+            <div class="card" style="box-shadow:none; border-radius:18px">
+              <h2 style="border-bottom:1px solid var(--line); border-radius:18px 18px 0 0;">
+                Rezept-Positionen <small id="recipeCount">0</small>
+              </h2>
+              <div class="body" style="padding:0">
+                <div style="overflow:auto">
+                  <table id="recipeTable">
+                    <thead>
+                      <tr>
+                        <th style="min-width:220px">Zutat</th>
+                        <th style="min-width:140px">Menge (g)</th>
+                        <th>Hinweis</th>
+                        <th class="right">Aktion</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="kpi">
+              <div class="box">
+                <b>Gesamtgewicht</b>
+                <span id="kpiTotal">0 g</span>
+              </div>
+              <div class="box">
+                <b>Nährwerte</b>
+                <span id="kpiNutrients">berechnen…</span>
+              </div>
+              <div class="box">
+                <b>Allergene / Zusatzstoffe</b>
+                <span id="kpiAllergens">prüfen…</span>
+              </div>
+            </div>
+
+            <div class="notice">
+              <b>Wichtig:</b> Für Nährwerte brauchst du für jede Zutat korrekte Werte pro 100 g (vom Lieferanten).
+              Wenn etwas fehlt, zeigt das Tool Warnungen.
+            </div>
+          </div>
+
+          <div>
+            <div class="card" style="box-shadow:none; border-radius:18px">
+              <h2 style="border-bottom:1px solid var(--line); border-radius:18px 18px 0 0;">
+                Berechnung (pro 100 g)
+                <small class="mono" id="calcStamp">–</small>
+              </h2>
+              <div class="body">
+                <div id="calcWarnings" class="notice" style="display:none"></div>
+
+                <table>
+                  <tbody id="nutriTable"></tbody>
+                </table>
+
+                <div class="divider"></div>
+
+                <div>
+                  <label>Zutatenliste (automatisch, absteigend)</label>
+                  <textarea id="ingredientsOut" readonly></textarea>
+                  <div class="help">
+                    Allergene werden <b>fett + unterstrichen</b> dargestellt (LMIV-üblich).
+                    Du kannst die Reihenfolge automatisch nach Menge sortieren.
+                  </div>
+                </div>
+
+                <div class="spacer"></div>
+
+                <div>
+                  <label>Zusatzstoff-Hinweise (aus Zutaten aggregiert)</label>
+                  <textarea id="additivesOut" readonly></textarea>
+                  <div class="help">
+                    Beispiel: „mit Farbstoff“, „mit Konservierungsstoff“, „mit Süßungsmittel“…<br>
+                    Bitte prüfe, ob für dein Produkt zusätzliche Pflichtangaben gelten (z.B. Koffein, Süßholz, Polyole, Azofarbstoffe, QUID usw.).
+                  </div>
+                </div>
+
+                <div class="spacer"></div>
+
+                <div>
+                  <label>Allergene (aggregiert)</label>
+                  <textarea id="allergensOut" readonly></textarea>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: ETIKETT -->
+      <div id="tab-etikett" class="body" style="display:none">
+        <div class="split">
+          <div>
+            <div class="row">
+              <div>
+                <label>Nettofüllmenge</label>
+                <input id="netQty" placeholder="z.B. 170 g / 750 g / 240 ml" />
+              </div>
+              <div>
+                <label>MHD (Mindestens haltbar bis)</label>
+                <input id="mhd" placeholder="TT.MM.JJJJ" />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>Losnummer / Charge</label>
+                <input id="lot" placeholder="z.B. L241216-01" />
+              </div>
+              <div>
+                <label>Aufbewahrung</label>
+                <input id="storage" placeholder="z.B. Tiefgekühlt bei -18°C lagern. Nach dem Auftauen nicht wieder einfrieren." />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>Hersteller / Inverkehrbringer</label>
+                <input id="maker" placeholder="Eiscafé Sanremo" />
+              </div>
+              <div>
+                <label>Kontakt / Adresse</label>
+                <input id="contact" placeholder="57319 Bad Berleburg · Tel. 0176 72809926 · paulo.sanremo@web.de" />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>Pflichthinweis (optional)</label>
+                <input id="mandatoryNote" placeholder="z.B. Kann Spuren von ... enthalten" />
+              </div>
+              <div>
+                <label>QR-Link (optional)</label>
+                <input id="qrLink" placeholder="https://..." />
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="flex">
+              <button class="btn good" id="btnUpdateLabel">✅ Etikett aktualisieren</button>
+              <button class="btn" id="btnLoadDemo">✨ Demo-Daten laden</button>
+            </div>
+
+            <div class="notice">
+              <b>LMIV-Check:</b> Je nach Produkt brauchst du evtl. zusätzliche Pflichtangaben
+              (z.B. QUID bei hervorgehobenen Zutaten, Herkunft, Alkohol, Süßungsmittel-Warnhinweise, Azofarbstoffe, etc.).
+              Dieses Tool unterstützt dich, ersetzt aber keine rechtliche Prüfung.
+            </div>
+          </div>
+
+          <div>
+            <div class="labelWrap">
+              <div class="flex no-print">
+                <span class="badge">Live Vorschau</span>
+                <span class="tiny">Druckansicht im Tab „Druck & Export“</span>
+              </div>
+              <div class="spacer"></div>
+              <div class="label" id="labelPreview"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: DRUCK -->
+      <div id="tab-druck" class="body" style="display:none">
+        <div class="row">
+          <div>
+            <label>Etikett-Format</label>
+            <select id="labelFormat">
+              <option value="standard">Standard (flexibel)</option>
+              <option value="100x60">100×60 mm</option>
+              <option value="80x50">80×50 mm</option>
+              <option value="70x37">70×37 mm</option>
+            </select>
+            <div class="help">Beim Drucken kannst du im Browser zusätzlich Skalierung einstellen.</div>
+          </div>
+          <div>
+            <label>Export</label>
+            <div class="flex">
+              <button class="btn warn" id="btnExportRecipe">⬇️ Rezept JSON</button>
+              <button class="btn warn" id="btnExportLabelText">⬇️ Etikett Text (TXT)</button>
+              <button class="btn primary" id="btnPrint">🖨️ Drucken</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="card" style="box-shadow:none; border-radius:18px">
+          <h2 style="border-bottom:1px solid var(--line); border-radius:18px 18px 0 0;">
+            Druckvorschau
+            <small>Wird genau so gedruckt</small>
+          </h2>
+          <div class="body">
+            <div id="printHint" class="notice">
+              Tipp: Browser-Druck → „Hintergrundgrafiken“ aktivieren (falls verfügbar), und ggf. Skalierung anpassen.
+            </div>
+            <div class="label" id="labelPrintPreview"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: HILFE -->
+      <div id="tab-hilfe" class="body" style="display:none">
+        <h3 style="margin:0 0 10px">So funktioniert’s (kurz)</h3>
+        <ol style="margin:0; padding-left:18px; line-height:1.5">
+          <li><b>Zutatenbank</b>: Links Zutaten anlegen/ändern (Nährwerte pro 100 g, Allergene, Zusatzstoffe/Farbstoffe).</li>
+          <li><b>Rezept</b>: Rechts Zutaten ins Rezept hinzufügen + Mengen in Gramm.</li>
+          <li>Tool berechnet automatisch <b>Nährwerte pro 100 g</b>, <b>Zutatenliste</b> (absteigend) und <b>Allergene</b>.</li>
+          <li><b>Etikett</b>: Nettofüllmenge, MHD, Los, Lagerung, Kontakt ergänzen.</li>
+          <li><b>Druck</b>: Druckvorschau → Drucken oder Text/JSON exportieren.</li>
+        </ol>
+
+        <div class="divider"></div>
+
+        <h3 style="margin:0 0 10px">Allergen-Standard (LMIV)</h3>
+        <div class="help">
+          Du kannst Allergene je Zutat markieren. Im Etikett werden Allergene in der Zutatenliste <b><u>hervorgehoben</u></b>.
+          Typische Allergene: Milch, Eier, Gluten, Soja, Nüsse, Erdnüsse, Sellerie, Senf, Sesam, Lupinen, Fisch, Krebstiere, Weichtiere, Schwefeldioxid/Sulfite.
+        </div>
+
+        <div class="divider"></div>
+
+        <h3 style="margin:0 0 10px">Zusatzstoffe / Farbstoffe</h3>
+        <div class="help">
+          Pro Zutat kannst du Zusatzstoff-Hinweise hinterlegen (z.B. <i>„mit Farbstoff“</i> oder <i>„E100“</i>).
+          Das Tool sammelt das zusammen, aber du musst prüfen, ob spezielle Warnhinweise nötig sind (Azofarbstoffe, Süßungsmittel, Polyole usw.).
+        </div>
+
+        <div class="divider"></div>
+
+        <button class="btn primary" id="btnSeedSanremo">🍦 Sanremo-Grunddaten setzen</button>
+        <div class="help">Setzt Standardwerte für Hersteller/Kontakt und ein paar Basis-Zutaten (kannst du danach bearbeiten).</div>
+      </div>
+
+    </div>
   </div>
-</header>
+</div>
 
-<main class="wrap">
-  <!-- BESTELLUNG -->
-  <section id="view-bestellung" class="grid two">
+<!-- PRINT AREA (hidden) -->
+<div id="printArea">
+  <div class="label" id="labelPrint"></div>
+</div>
+
+<!-- MODAL: Ingredient Editor -->
+<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); backdrop-filter: blur(6px); z-index:50;">
+  <div style="max-width:920px; margin:4vh auto; padding:14px;">
     <div class="card">
-      <h2>Neue Bestellung</h2>
-      <div class="row cols">
-        <div>
-          <label>Kunde (Supermarkt)</label>
-          <select id="orderCustomer"></select>
+      <h2>
+        Zutat bearbeiten
+        <small class="muted">Nährwerte pro 100 g · Allergene · Zusatzstoffe</small>
+      </h2>
+      <div class="body">
+        <div class="row">
+          <div>
+            <label>Name (Etikett)</label>
+            <input id="m_name" placeholder="z.B. Vollmilch, Zucker, Pistazienpaste..." />
+          </div>
+          <div>
+            <label>Kategorie</label>
+            <select id="m_cat">
+              <option>Milchprodukte</option>
+              <option>Zucker/Carbs</option>
+              <option>Fette</option>
+              <option>Frucht</option>
+              <option>Nüsse</option>
+              <option>Schokolade/Kakao</option>
+              <option>Stabilisator/Emulgator</option>
+              <option>Aromen/Pasten</option>
+              <option>Zusatzstoffe/Farbstoffe</option>
+              <option>Sonstiges</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label>Lieferdatum</label>
-          <input type="date" id="orderDate" />
+
+        <div class="row">
+          <div>
+            <label>Allergene (kommagetrennt)</label>
+            <input id="m_allergens" placeholder="z.B. MILCH, SOJA, HASSELNUSS" />
+            <div class="help">Groß schreiben ist okay. Im Etikett werden diese Wörter markiert.</div>
+          </div>
+          <div>
+            <label>Zusatzstoff-Hinweise (kommagetrennt)</label>
+            <input id="m_additives" placeholder="z.B. mit Farbstoff, E160a, mit Emulgator" />
+          </div>
         </div>
-      </div>
 
-      <div class="hr"></div>
+        <div class="divider"></div>
 
-      <div class="flex">
-        <button class="btn primary" id="addLine">+ Position</button>
-        <button class="btn" id="clearOrder">Leeren</button>
-        <span id="saveHint" class="muted"></span>
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="scroll maxH" style="border:1px solid var(--line);">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:120px;">Größe</th>
-              <th>Sorte</th>
-              <th style="width:150px;" class="right">Menge (0–100)</th>
-              <th style="width:90px;" class="right">Aktion</th>
-            </tr>
-          </thead>
-          <tbody id="linesTbody"></tbody>
-        </table>
-      </div>
-
-      <div class="hr"></div>
-      <div class="flex">
-        <span class="pill" id="ord_flavors">Sorten: 0</span>
-        <span class="pill" id="ord_750">750g: 0</span>
-        <span class="pill" id="ord_170">170g: 0</span>
-        <span class="pill" id="ord_total">Total: 0</span>
-      </div>
-
-      <div class="hr"></div>
-      <label>Notizen (optional)</label>
-      <textarea id="orderNotes" placeholder="z.B. bitte bis 09:00 liefern, Hintereingang..."></textarea>
-
-      <div class="flex" style="margin-top:12px;">
-        <button class="btn ok" id="saveOrder">Speichern</button>
-        <button class="btn" id="printProduktion">Drucken: Produktion</button>
-        <button class="btn" id="printLieferschein">Drucken: Lieferschein</button>
-        <button class="btn" id="printPicklist">Drucken: Pick-List</button>
-        <button class="btn" id="printPlan">Drucken: Baldes-Plan</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Produktion – Überblick (Datum)</h2>
-      <div class="flex">
-        <span class="pill" id="tot750">750g: 0</span>
-        <span class="pill" id="tot170">170g: 0</span>
-        <span class="pill" id="totAll">Total: 0</span>
-        <span class="pill" id="totKg">KG: 0</span>
-        <span class="pill" id="totBuckets">Baldes: 0</span>
-      </div>
-      <div class="hr"></div>
-      <div class="scroll maxH" style="border:1px solid var(--line);">
-        <table>
-          <thead>
-            <tr>
-              <th>Sorte</th>
-              <th class="right">750g</th>
-              <th class="right">170g</th>
-              <th class="right">KG</th>
-              <th class="right">Baldes</th>
-              <th class="right">Baldes (fazer)</th>
-            </tr>
-          </thead>
-          <tbody id="prodTbody"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- PRODUKTION -->
-  <section id="view-produktion" class="grid hidden">
-    <div class="card">
-      <h2>Produktion – Datum wählen</h2>
-      <div class="row cols">
-        <div>
-          <label>Datum</label>
-          <input type="date" id="prodDate" />
+        <h3 style="margin:0 0 10px">Nährwerte pro 100 g (Lieferanten-Daten)</h3>
+        <div class="row">
+          <div>
+            <label>Energie (kJ)</label>
+            <input id="m_kj" type="number" min="0" step="0.1" placeholder="0" />
+          </div>
+          <div>
+            <label>Energie (kcal)</label>
+            <input id="m_kcal" type="number" min="0" step="0.1" placeholder="0" />
+          </div>
         </div>
-        <div class="flex" style="align-items:end;">
-          <button class="btn primary" id="prodRefresh">Aktualisieren</button>
-          <button class="btn" id="prodPrint">Drucken: Produktion</button>
-          <button class="btn" id="prodPick">Drucken: Pick-List</button>
-          <button class="btn" id="prodPlan">Drucken: Baldes-Plan</button>
+
+        <div class="row">
+          <div>
+            <label>Fett (g)</label>
+            <input id="m_fat" type="number" min="0" step="0.01" placeholder="0" />
+          </div>
+          <div>
+            <label>davon gesättigte Fettsäuren (g)</label>
+            <input id="m_sat" type="number" min="0" step="0.01" placeholder="0" />
+          </div>
         </div>
-      </div>
-      <div class="hr"></div>
-      <div class="flex">
-        <span class="pill" id="p_tot750">750g: 0</span>
-        <span class="pill" id="p_tot170">170g: 0</span>
-        <span class="pill" id="p_totAll">Total: 0</span>
-        <span class="pill" id="p_totKg">KG: 0</span>
-        <span class="pill" id="p_totBuckets">Baldes: 0</span>
-      </div>
-      <div class="hr"></div>
-      <div class="scroll maxH" style="border:1px solid var(--line);">
-        <table>
-          <thead>
-            <tr>
-              <th>Sorte</th>
-              <th class="right">750g</th>
-              <th class="right">170g</th>
-              <th class="right">KG</th>
-              <th class="right">Baldes</th>
-              <th class="right">Baldes (fazer)</th>
-            </tr>
-          </thead>
-          <tbody id="prodTbody2"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
 
-  <!-- XL -->
-  <section id="view-xl" class="grid hidden">
-    <div class="card">
-      <div class="flex" style="justify-content:space-between;align-items:end;">
-        <div>
-          <h2 style="margin:0 0 6px;">Produktion XL (Luvas)</h2>
-          <div class="muted">1 toque em “+1” = 1 balde (6kg) feito</div>
+        <div class="row">
+          <div>
+            <label>Kohlenhydrate (g)</label>
+            <input id="m_carb" type="number" min="0" step="0.01" placeholder="0" />
+          </div>
+          <div>
+            <label>davon Zucker (g)</label>
+            <input id="m_sugar" type="number" min="0" step="0.01" placeholder="0" />
+          </div>
         </div>
-        <div style="min-width:240px;">
-          <label>Datum</label>
-          <input type="date" id="xlDate" />
+
+        <div class="row">
+          <div>
+            <label>Eiweiß (g)</label>
+            <input id="m_protein" type="number" min="0" step="0.01" placeholder="0" />
+          </div>
+          <div>
+            <label>Salz (g)</label>
+            <input id="m_salt" type="number" min="0" step="0.001" placeholder="0" />
+          </div>
         </div>
-        <div class="flex">
-          <button class="btn primary" id="xlRefresh">Anzeigen</button>
-          <button class="btn danger" id="xlReset">Reset (dia)</button>
+
+        <div class="divider"></div>
+
+        <div class="flex" style="justify-content:space-between">
+          <div class="flex">
+            <button class="btn danger" id="m_delete">🗑️ Löschen</button>
+          </div>
+          <div class="flex">
+            <button class="btn" id="m_cancel">Abbrechen</button>
+            <button class="btn good" id="m_save">Speichern</button>
+          </div>
         </div>
-      </div>
-
-      <div class="hr"></div>
-      <div class="flex">
-        <span class="pill" id="xl_totKg">KG: 0</span>
-        <span class="pill" id="xl_totBuckets">Baldes: 0</span>
-        <span class="pill" id="xl_done">Feitos: 0</span>
-        <span class="pill" id="xl_left">Faltam: 0</span>
-      </div>
-
-      <div class="xlGrid" id="xlGrid"></div>
-    </div>
-  </section>
-
-  <!-- PLAN -->
-  <section id="view-plan" class="grid hidden">
-    <div class="card">
-      <h2>Baldes-Plan (6kg)</h2>
-      <div class="row cols">
-        <div>
-          <label>Datum</label>
-          <input type="date" id="planDate" />
-        </div>
-        <div class="flex" style="align-items:end;">
-          <button class="btn primary" id="planRefresh">Anzeigen</button>
-          <button class="btn" id="planPrint">Drucken: Baldes-Plan</button>
-          <button class="btn danger" id="planReset">Reset (dia)</button>
-        </div>
-      </div>
-
-      <div class="hr"></div>
-      <div class="flex">
-        <span class="pill" id="plan_totKg">KG: 0</span>
-        <span class="pill" id="plan_totBuckets">Baldes: 0</span>
-        <span class="pill" id="plan_done">Feitos: 0</span>
-        <span class="pill" id="plan_left">Faltam: 0</span>
-      </div>
-
-      <div class="hr"></div>
-      <div class="scroll maxH" style="border:1px solid var(--line);">
-        <table>
-          <thead>
-            <tr>
-              <th>Sorte</th>
-              <th class="right">KG</th>
-              <th class="right">Baldes (fazer)</th>
-              <th class="right">Feitos</th>
-              <th class="right">Faltam</th>
-              <th class="right">Aktion</th>
-            </tr>
-          </thead>
-          <tbody id="planBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- STATISTIK -->
-  <section id="view-statistik" class="grid two hidden">
-    <div class="card">
-      <h2>Statistik – Monat (nur gedruckt)</h2>
-      <div class="row cols">
-        <div><label>Monat</label><input type="month" id="statMonth"></div>
-        <div class="flex" style="align-items:end;"><button class="btn primary" id="statMonthRefresh">Anzeigen</button></div>
-      </div>
-      <div class="hr"></div>
-      <div class="flex">
-        <span class="pill" id="sm_tot750">750g: 0</span>
-        <span class="pill" id="sm_tot170">170g: 0</span>
-        <span class="pill" id="sm_totAll">Total: 0</span>
-        <span class="pill" id="sm_totKg">KG: 0</span>
-        <span class="pill" id="sm_totBuckets">Baldes: 0</span>
-      </div>
-      <div class="hr"></div>
-      <div class="scroll maxH" style="border:1px solid var(--line);">
-        <table>
-          <thead><tr><th>Sorte</th><th class="right">750g</th><th class="right">170g</th><th class="right">KG</th><th class="right">Baldes</th><th class="right">Baldes (fazer)</th></tr></thead>
-          <tbody id="statMonthBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Statistik – Jahr (nur gedruckt)</h2>
-      <div class="row cols">
-        <div><label>Jahr</label><input type="number" id="statYear" min="2020" step="1"></div>
-        <div class="flex" style="align-items:end;"><button class="btn primary" id="statYearRefresh">Anzeigen</button></div>
-      </div>
-      <div class="hr"></div>
-      <div class="flex">
-        <span class="pill" id="sy_tot750">750g: 0</span>
-        <span class="pill" id="sy_tot170">170g: 0</span>
-        <span class="pill" id="sy_totAll">Total: 0</span>
-        <span class="pill" id="sy_totKg">KG: 0</span>
-        <span class="pill" id="sy_totBuckets">Baldes: 0</span>
-      </div>
-      <div class="hr"></div>
-      <div class="scroll maxH" style="border:1px solid var(--line);">
-        <table>
-          <thead><tr><th>Sorte</th><th class="right">750g</th><th class="right">170g</th><th class="right">KG</th><th class="right">Baldes</th><th class="right">Baldes (fazer)</th></tr></thead>
-          <tbody id="statYearBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- KUNDEN -->
-  <section id="view-kunden" class="grid two hidden">
-    <div class="card">
-      <h2>Kunden</h2>
-      <div class="row cols">
-        <div><label>Name</label><input id="newCustomerName" placeholder="z.B. REWE Bad Berleburg"></div>
-        <div><label>Zusatz (optional)</label><input id="newCustomerNote" placeholder="z.B. Filiale, Ansprechpartner..."></div>
-      </div>
-      <div class="flex" style="margin-top:10px;">
-        <button class="btn ok" id="addCustomer">Hinzufügen</button>
-      </div>
-    </div>
-    <div class="card">
-      <h2>Liste</h2>
-      <div class="scroll maxH" style="border:1px solid var(--line); padding:10px;">
-        <div id="customersList"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SORTEN -->
-  <section id="view-sorten" class="grid two hidden">
-    <div class="card">
-      <h2>Sorten</h2>
-      <div class="row cols">
-        <div><label>Neue Sorte</label><input id="newFlavor" placeholder="z.B. Haselnuss, Zitrone..."></div>
-        <div class="flex" style="align-items:end;">
-          <button class="btn ok" id="addFlavor">Hinzufügen</button>
-          <button class="btn" id="resetDefaults">Standard</button>
+        <div class="help">
+          Tipp: Para “pós e pastas” (ex. Nuss-Paste, Aroma-Paste, Stabilizer, Farbstoff) cria uma Zutat própria com valores e os avisos (E-Nummern/„mit Farbstoff“).
         </div>
       </div>
     </div>
-    <div class="card">
-      <h2>Liste</h2>
-      <div class="scroll maxH" style="border:1px solid var(--line); padding:10px;">
-        <div id="flavorsList"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- HISTORIE -->
-  <section id="view-history" class="grid hidden">
-    <div class="card">
-      <h2>Historie</h2>
-      <div class="row cols">
-        <div><label>Suche</label><input id="historySearch" placeholder="REWE oder 2025-12-16"></div>
-        <div class="flex" style="align-items:end;">
-          <button class="btn primary" id="historyRefresh">Aktualisieren</button>
-          <button class="btn danger" id="deleteAll">Alle löschen</button>
-        </div>
-      </div>
-      <div class="hr"></div>
-      <div class="scroll maxH" style="border:1px solid var(--line); padding:10px;">
-        <div id="historyList"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PRINT -->
-  <section class="print-area hidden" id="printArea"></section>
-</main>
+  </div>
+</div>
 
 <script>
 (() => {
-  // ===== Shared DB (used by ALL 3 files)
-  const DB_KEY = "SANREMO_DB_V1";
-  const PROG_KEY = "SANREMO_BUCKET_PROGRESS_V1";
+  const LS_KEY = "sanremo_label_v1";
+  const state = {
+    xl: false,
+    selectedIngId: null,
+    ingredients: [],
+    recipe: [], // {id, name, grams, note}
+    settings: {
+      projectName: "Sanremo-Label",
+      prodName: "",
+      flavor: "",
+      batchG: 0,
+      portionG: 0,
+      productGroup: "Eis",
+      recipeNotes: "",
+      netQty: "",
+      mhd: "",
+      lot: "",
+      storage: "Tiefgekühlt bei -18°C lagern. Nach dem Auftauen nicht wieder einfrieren.",
+      maker: "Eiscafé Sanremo",
+      contact: "57319 Bad Berleburg · Tel. 0176 72809926 · paulo.sanremo@web.de",
+      mandatoryNote: "",
+      qrLink: ""
+    }
+  };
 
-  // ===== constants
-  const KG_750 = 0.75, KG_170 = 0.17, BUCKET_KG = 6;
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n, d=2) => (isFinite(n) ? (+n).toFixed(d) : "0.00");
+  const clamp0 = (x) => Math.max(0, isFinite(x) ? +x : 0);
 
-  const defaultFlavors = [
-    "Stracciatella","Amarena Kirsch","Vanille","Spaghetti","Toffifee","Cookies",
-    "Weiß Schokolade Pistazien","Erdbeer","Joghurt Orange","Kinder Buenos",
-    "Kinder Riegel","Joghurete Schokolade","Mango","Hanutta"
-  ];
-  const defaultCustomers = [
-    { id: uid(), name: "REWE", note: "" },
-    { id: uid(), name: "EDEKA", note: "" }
-  ];
+  function uid(){
+    return "ing_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+  }
 
-  function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
-  const $ = (s)=>document.querySelector(s);
-  const $$ = (s)=>Array.from(document.querySelectorAll(s));
-  function num(x){ const n=Number(x); return isFinite(n)?n:0; }
-  function esc(s){ return String(s).replace(/[&<>"']/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
-
-  function loadDB(){
+  function load(){
     try{
-      const raw = localStorage.getItem(DB_KEY);
+      const raw = localStorage.getItem(LS_KEY);
       if(raw){
-        const db = JSON.parse(raw);
-        if(db && typeof db==="object") return db;
+        const data = JSON.parse(raw);
+        Object.assign(state, data);
+        // Backward safety
+        state.ingredients ||= [];
+        state.recipe ||= [];
+        state.settings ||= {};
+      } else {
+        seedMinimal();
       }
-    }catch(e){}
-    return { flavors:[...defaultFlavors], customers:[...defaultCustomers], orders:[], ingredients:[], recipes:{} };
-  }
-  function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
-  function loadProg(){ try{return JSON.parse(localStorage.getItem(PROG_KEY)||"{}");}catch(e){return {}} }
-  function saveProg(o){ localStorage.setItem(PROG_KEY, JSON.stringify(o)); }
-  function getProg(date){ const all=loadProg(); return all[date]||{}; }
-  function setProg(date,p){ const all=loadProg(); all[date]=p; saveProg(all); }
-  function resetProg(date){ const all=loadProg(); delete all[date]; saveProg(all); }
-
-  function setTodayIfEmpty(el){
-    if(!el || el.value) return;
-    const d=new Date(); const tzOff=d.getTimezoneOffset()*60000;
-    el.value=new Date(Date.now()-tzOff).toISOString().slice(0,10);
-  }
-  function setCurrentMonthIfEmpty(el){
-    if(!el || el.value) return;
-    const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,"0");
-    el.value=`${y}-${m}`;
+    }catch(e){
+      seedMinimal();
+    }
+    applyXL();
+    renderAll();
   }
 
-  let db = loadDB();
-  db.flavors = Array.isArray(db.flavors)&&db.flavors.length ? db.flavors : [...defaultFlavors];
-  db.customers = Array.isArray(db.customers)&&db.customers.length ? db.customers : [...defaultCustomers];
-  db.orders = Array.isArray(db.orders) ? db.orders : [];
-  db.recipes = db.recipes && typeof db.recipes==="object" ? db.recipes : {};
-  saveDB(db);
-
-  function customerName(id){
-    const c=db.customers.find(x=>x.id===id);
-    return c ? (c.note?`${c.name} – ${c.note}`:c.name) : "Unbekannt";
+  function save(){
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      xl: state.xl,
+      selectedIngId: state.selectedIngId,
+      ingredients: state.ingredients,
+      recipe: state.recipe,
+      settings: state.settings
+    }));
   }
 
-  // ===== Tabs
-  function renderTabs(active){
-    $$(".tab").forEach(b=>b.classList.toggle("active", b.dataset.view===active));
-    $$("main section[id^='view-']").forEach(sec=>sec.classList.add("hidden"));
-    $("#view-"+active).classList.remove("hidden");
+  function seedMinimal(){
+    // Minimal defaults – user can edit/extend
+    state.ingredients = [
+      mkIng("Vollmilch 3,5%", "Milchprodukte", ["MILCH"], [], {kj: 268, kcal: 64, fat:3.5, sat:2.3, carb:4.8, sugar:4.8, protein:3.4, salt:0.10}),
+      mkIng("Sahne 30%", "Milchprodukte", ["MILCH"], [], {kj: 1255, kcal: 305, fat:30, sat:19, carb:3, sugar:3, protein:2, salt:0.08}),
+      mkIng("Zucker", "Zucker/Carbs", [], [], {kj: 1700, kcal: 400, fat:0, sat:0, carb:100, sugar:100, protein:0, salt:0}),
+      mkIng("Dextrose", "Zucker/Carbs", [], [], {kj: 1570, kcal: 370, fat:0, sat:0, carb:92, sugar:92, protein:0, salt:0}),
+      mkIng("Glukosepulver", "Zucker/Carbs", [], [], {kj: 1600, kcal: 380, fat:0, sat:0, carb:95, sugar:95, protein:0, salt:0}),
+      mkIng("Magermilchpulver", "Milchprodukte", ["MILCH"], [], {kj: 1500, kcal: 360, fat:1, sat:0.7, carb:52, sugar:52, protein:35, salt:1.2}),
+      mkIng("Stabilisator/Emulgator (Mix)", "Stabilisator/Emulgator", [], ["mit Emulgator"], {kj:0,kcal:0,fat:0,sat:0,carb:0,sugar:0,protein:0,salt:0})
+    ];
+    state.selectedIngId = state.ingredients[0]?.id || null;
+    save();
   }
 
-  // ===== qty 0..100
-  function qtyOptions(selected){
-    let out="";
-    for(let i=0;i<=100;i++) out += `<option value="${i}" ${i===selected?"selected":""}>${i}</option>`;
+  function mkIng(name, cat, allergens=[], additives=[], n){
+    return {
+      id: uid(),
+      name,
+      cat,
+      allergens, // array strings
+      additives, // array strings
+      nutri: {
+        kj: clamp0(n?.kj), kcal: clamp0(n?.kcal),
+        fat: clamp0(n?.fat), sat: clamp0(n?.sat),
+        carb: clamp0(n?.carb), sugar: clamp0(n?.sugar),
+        protein: clamp0(n?.protein), salt: clamp0(n?.salt)
+      }
+    };
+  }
+
+  // UI: Tabs
+  document.querySelectorAll(".tab").forEach(t => {
+    t.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+      t.classList.add("active");
+      const key = t.dataset.tab;
+      ["rezept","etikett","druck","hilfe"].forEach(k => {
+        $("tab-"+k).style.display = (k === key) ? "" : "none";
+      });
+      if(key === "etikett" || key === "druck"){ updateLabel(); }
+      if(key === "druck"){ renderPrintPreview(); }
+    });
+  });
+
+  // XL toggle
+  $("btnXL").addEventListener("click", () => {
+    state.xl = !state.xl;
+    applyXL();
+    save();
+  });
+
+  function applyXL(){
+    document.documentElement.style.setProperty("--xl", state.xl ? 1.18 : 1);
+    $("xlState").textContent = state.xl ? "AN" : "AUS";
+  }
+
+  // Settings bind
+  const bind = (id, key, parseFn=null) => {
+    const el = $(id);
+    el.value = state.settings[key] ?? "";
+    el.addEventListener("input", () => {
+      state.settings[key] = parseFn ? parseFn(el.value) : el.value;
+      if(["prodName","flavor","batchG","portionG","productGroup","recipeNotes"].includes(key)){
+        recalc();
+      }
+      if(["netQty","mhd","lot","storage","maker","contact","mandatoryNote","qrLink","prodName","flavor"].includes(key)){
+        updateLabel();
+      }
+      save();
+    });
+  };
+
+  bind("prodName","prodName");
+  bind("flavor","flavor");
+  bind("batchG","batchG", v => clamp0(+v));
+  bind("portionG","portionG", v => clamp0(+v));
+  bind("productGroup","productGroup");
+  bind("recipeNotes","recipeNotes");
+
+  bind("netQty","netQty");
+  bind("mhd","mhd");
+  bind("lot","lot");
+  bind("storage","storage");
+  bind("maker","maker");
+  bind("contact","contact");
+  bind("mandatoryNote","mandatoryNote");
+  bind("qrLink","qrLink");
+
+  $("projectName").textContent = state.settings.projectName || "Sanremo-Label";
+
+  // Ingredient list
+  $("q").addEventListener("input", renderIngList);
+  $("catFilter").addEventListener("change", renderIngList);
+
+  function renderIngList(){
+    const q = $("q").value.trim().toLowerCase();
+    const cat = $("catFilter").value;
+    const list = $("ingList");
+    list.innerHTML = "";
+
+    const filtered = state.ingredients
+      .filter(i => !cat || i.cat === cat)
+      .filter(i => !q || (i.name||"").toLowerCase().includes(q));
+
+    $("ingCount").textContent = filtered.length + " / " + state.ingredients.length;
+
+    filtered.forEach(i => {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.style.outline = (state.selectedIngId === i.id) ? "2px solid rgba(124,58,237,.55)" : "none";
+      div.innerHTML = `
+        <div class="top">
+          <div style="min-width:0">
+            <b>${escapeHtml(i.name)}</b>
+            <div class="meta">${escapeHtml(i.cat)} · ${i.allergens?.length ? "Allergene: " + escapeHtml(i.allergens.join(", ")) : "keine Allergene"} </div>
+            <div class="meta">${i.additives?.length ? "Zusatzstoffe: " + escapeHtml(i.additives.join(", ")) : ""}</div>
+            <div>
+              ${i.allergens?.map(a => `<span class="tag">⚠️ ${escapeHtml(a)}</span>`).join("") || ""}
+              ${i.additives?.map(a => `<span class="tag">🧪 ${escapeHtml(a)}</span>`).join("") || ""}
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn" data-sel="${i.id}">Auswählen</button>
+            <button class="btn primary" data-edit="${i.id}">Bearbeiten</button>
+          </div>
+        </div>
+      `;
+      div.querySelector("[data-sel]").addEventListener("click", () => {
+        state.selectedIngId = i.id;
+        save();
+        renderIngList();
+      });
+      div.querySelector("[data-edit]").addEventListener("click", () => openModal(i.id));
+      list.appendChild(div);
+    });
+  }
+
+  // New ingredient
+  $("btnNewIng").addEventListener("click", () => openModal(null));
+
+  // Modal
+  let modalId = null;
+
+  function openModal(id){
+    modalId = id;
+    const ing = id ? state.ingredients.find(x => x.id === id) : mkIng("", "Sonstiges", [], [], {kj:0,kcal:0,fat:0,sat:0,carb:0,sugar:0,protein:0,salt:0});
+    $("m_name").value = ing.name || "";
+    $("m_cat").value = ing.cat || "Sonstiges";
+    $("m_allergens").value = (ing.allergens || []).join(", ");
+    $("m_additives").value = (ing.additives || []).join(", ");
+
+    $("m_kj").value = ing.nutri?.kj ?? 0;
+    $("m_kcal").value = ing.nutri?.kcal ?? 0;
+    $("m_fat").value = ing.nutri?.fat ?? 0;
+    $("m_sat").value = ing.nutri?.sat ?? 0;
+    $("m_carb").value = ing.nutri?.carb ?? 0;
+    $("m_sugar").value = ing.nutri?.sugar ?? 0;
+    $("m_protein").value = ing.nutri?.protein ?? 0;
+    $("m_salt").value = ing.nutri?.salt ?? 0;
+
+    $("m_delete").style.display = id ? "" : "none";
+    $("modal").style.display = "";
+  }
+
+  $("m_cancel").addEventListener("click", () => $("modal").style.display = "none");
+  $("m_save").addEventListener("click", () => {
+    const name = $("m_name").value.trim();
+    if(!name){ alert("Bitte Zutat-Name eingeben."); return; }
+
+    const ingData = {
+      id: modalId || uid(),
+      name,
+      cat: $("m_cat").value,
+      allergens: parseCsv($("m_allergens").value),
+      additives: parseCsv($("m_additives").value),
+      nutri: {
+        kj: clamp0(+$("m_kj").value),
+        kcal: clamp0(+$("m_kcal").value),
+        fat: clamp0(+$("m_fat").value),
+        sat: clamp0(+$("m_sat").value),
+        carb: clamp0(+$("m_carb").value),
+        sugar: clamp0(+$("m_sugar").value),
+        protein: clamp0(+$("m_protein").value),
+        salt: clamp0(+$("m_salt").value)
+      }
+    };
+
+    if(modalId){
+      const idx = state.ingredients.findIndex(x => x.id === modalId);
+      if(idx >= 0) state.ingredients[idx] = ingData;
+    }else{
+      state.ingredients.unshift(ingData);
+      state.selectedIngId = ingData.id;
+    }
+
+    // Keep recipe names synced if edited
+    state.recipe.forEach(r => {
+      if(r.id === ingData.id) r.name = ingData.name;
+    });
+
+    $("modal").style.display = "none";
+    save();
+    renderIngList();
+    renderRecipe();
+    recalc();
+    updateLabel();
+  });
+
+  $("m_delete").addEventListener("click", () => {
+    if(!modalId) return;
+    if(!confirm("Diese Zutat wirklich löschen? (Rezeptpositionen werden ebenfalls entfernt)")) return;
+    state.ingredients = state.ingredients.filter(x => x.id !== modalId);
+    state.recipe = state.recipe.filter(r => r.id !== modalId);
+    if(state.selectedIngId === modalId) state.selectedIngId = state.ingredients[0]?.id || null;
+    modalId = null;
+    $("modal").style.display = "none";
+    save();
+    renderAll();
+  });
+
+  function parseCsv(s){
+    return (s||"")
+      .split(",")
+      .map(x => x.trim())
+      .filter(Boolean);
+  }
+
+  // Recipe
+  $("btnAddLine").addEventListener("click", () => {
+    const id = state.selectedIngId;
+    if(!id){ alert("Bitte zuerst eine Zutat auswählen."); return; }
+    const ing = state.ingredients.find(x => x.id === id);
+    if(!ing){ alert("Zutat nicht gefunden."); return; }
+    state.recipe.push({ id: ing.id, name: ing.name, grams: 0, note: "" });
+    save();
+    renderRecipe();
+    recalc();
+  });
+
+  $("btnClearRecipe").addEventListener("click", () => {
+    if(!confirm("Rezept wirklich leeren?")) return;
+    state.recipe = [];
+    save();
+    renderRecipe();
+    recalc();
+    updateLabel();
+  });
+
+  $("btnAutoSort").addEventListener("click", () => {
+    state.recipe.sort((a,b) => (clamp0(b.grams) - clamp0(a.grams)));
+    save();
+    renderRecipe();
+    recalc();
+    updateLabel();
+  });
+
+  function renderRecipe(){
+    const tb = $("recipeTable").querySelector("tbody");
+    tb.innerHTML = "";
+    $("recipeCount").textContent = state.recipe.length;
+
+    state.recipe.forEach((r, idx) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><b>${escapeHtml(r.name)}</b></td>
+        <td>
+          <input data-g="${idx}" type="number" min="0" step="1" value="${clamp0(r.grams)}" />
+        </td>
+        <td>
+          <input data-n="${idx}" placeholder="optional (intern)" value="${escapeAttr(r.note||"")}" />
+        </td>
+        <td class="right">
+          <button class="btn danger" data-del="${idx}">Entfernen</button>
+        </td>
+      `;
+      tr.querySelector("[data-g]").addEventListener("input", (e) => {
+        state.recipe[idx].grams = clamp0(+e.target.value);
+        save();
+        recalc();
+        updateLabel();
+      });
+      tr.querySelector("[data-n]").addEventListener("input", (e) => {
+        state.recipe[idx].note = e.target.value;
+        save();
+      });
+      tr.querySelector("[data-del]").addEventListener("click", () => {
+        state.recipe.splice(idx,1);
+        save();
+        renderRecipe();
+        recalc();
+        updateLabel();
+      });
+      tb.appendChild(tr);
+    });
+  }
+
+  // Calculation
+  function recalc(){
+    const total = state.recipe.reduce((s,r) => s + clamp0(r.grams), 0);
+    $("kpiTotal").textContent = total ? (fmt(total,0) + " g") : "0 g";
+    $("calcStamp").textContent = new Date().toLocaleString("de-DE");
+
+    const warnings = [];
+    if(total <= 0) warnings.push("Keine Rezeptmengen eingetragen.");
+
+    // Weighted nutrients
+    const sum = {kj:0,kcal:0,fat:0,sat:0,carb:0,sugar:0,protein:0,salt:0};
+    const missing = [];
+    const allergens = new Set();
+    const additives = new Set();
+
+    state.recipe.forEach(r => {
+      const g = clamp0(r.grams);
+      if(g <= 0) return;
+      const ing = state.ingredients.find(x => x.id === r.id);
+      if(!ing){ missing.push(r.name); return; }
+      const n = ing.nutri || {};
+      // detect missing: all zeros is ok for some additives, but warn if kcal/kj missing while others exist
+      const hasAny = ["kj","kcal","fat","sat","carb","sugar","protein","salt"].some(k => clamp0(n[k])>0);
+      const maybeMissingEnergy = (clamp0(n.kj)===0 && clamp0(n.kcal)===0 && hasAny===false && ing.cat!=="Zusatzstoffe/Farbstoffe" && ing.cat!=="Stabilisator/Emulgator");
+      if(maybeMissingEnergy) missing.push(ing.name);
+
+      for(const k of Object.keys(sum)){
+        sum[k] += (clamp0(n[k]) * g / 100);
+      }
+      (ing.allergens||[]).forEach(a => allergens.add(normAllergen(a)));
+      (ing.additives||[]).forEach(a => additives.add(a.trim()));
+    });
+
+    if(missing.length){
+      warnings.push("Nährwerte fehlen (oder sind 0) bei: " + [...new Set(missing)].slice(0,8).join(", ") + (missing.length>8 ? "…" : ""));
+    }
+    if(state.settings.batchG && total && Math.abs(total - state.settings.batchG) > 1){
+      warnings.push(`Gesamtgewicht (${fmt(total,0)} g) ≠ Rezept-Menge Feld (${fmt(state.settings.batchG,0)} g).`);
+    }
+
+    // per 100g
+    const per100 = {};
+    for(const k of Object.keys(sum)){
+      per100[k] = total>0 ? (sum[k] / total * 100) : 0;
+    }
+
+    // Render nutrition table
+    const rows = [
+      ["Energie", `${fmt(per100.kj,0)} kJ / ${fmt(per100.kcal,0)} kcal`],
+      ["Fett", `${fmt(per100.fat,1)} g`],
+      ["davon gesättigte Fettsäuren", `${fmt(per100.sat,1)} g`],
+      ["Kohlenhydrate", `${fmt(per100.carb,1)} g`],
+      ["davon Zucker", `${fmt(per100.sugar,1)} g`],
+      ["Eiweiß", `${fmt(per100.protein,1)} g`],
+      ["Salz", `${fmt(per100.salt,2)} g`],
+    ];
+
+    $("nutriTable").innerHTML = rows.map(([k,v]) => `
+      <tr><th>${escapeHtml(k)}</th><td class="right"><b>${escapeHtml(v)}</b></td></tr>
+    `).join("");
+
+    // Ingredients list descending
+    const sorted = [...state.recipe].filter(r => clamp0(r.grams)>0).sort((a,b)=>clamp0(b.grams)-clamp0(a.grams));
+    const ingText = sorted.map(r => highlightAllergens(r.name, allergens)).join(", ");
+    $("ingredientsOut").value = ingText || "";
+
+    // Additives
+    $("additivesOut").value = [...additives].filter(Boolean).join(", ");
+    $("allergensOut").value = [...allergens].filter(Boolean).join(", ") || "";
+
+    // KPI
+    $("kpiNutrients").textContent = total>0 ? "ok (pro 100 g)" : "–";
+    $("kpiAllergens").textContent = (allergens.size || additives.size) ? `${allergens.size} Allergene · ${additives.size} Hinweise` : "–";
+
+    // warnings UI
+    if(warnings.length){
+      $("calcWarnings").style.display = "";
+      $("calcWarnings").innerHTML = "<b>Warnungen:</b><br>" + warnings.map(w => "• " + escapeHtml(w)).join("<br>");
+    }else{
+      $("calcWarnings").style.display = "none";
+      $("calcWarnings").innerHTML = "";
+    }
+
+    // Persist computed for label
+    state._computed = { total, per100, ingredientsHTML: ingText, allergens: [...allergens], additives: [...additives] };
+  }
+
+  function normAllergen(a){
+    const x = (a||"").trim();
+    if(!x) return "";
+    // normalize common
+    return x.toUpperCase();
+  }
+
+  function highlightAllergens(text, allergenSet){
+    // in output textarea we keep as plain; but for label HTML we apply strong/underline later.
+    // here keep original
+    return text;
+  }
+
+  function escapeHtml(s){
+    return (s??"").toString()
+      .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+  }
+  function escapeAttr(s){ return escapeHtml(s).replaceAll("\n"," "); }
+
+  // Label builder
+  $("btnUpdateLabel").addEventListener("click", () => updateLabel());
+  $("btnPrint").addEventListener("click", () => {
+    renderPrintPreview(true);
+    window.print();
+  });
+
+  $("labelFormat").addEventListener("change", () => renderPrintPreview());
+
+  function buildLabelHTML(){
+    const c = state._computed || {per100:{}, allergens:[], additives:[]};
+    const s = state.settings;
+
+    const sortLine = [
+      (s.prodName||"").trim(),
+      (s.flavor||"").trim() ? "– " + (s.flavor||"").trim() : ""
+    ].join(" ").trim();
+
+    const ingredients = buildIngredientsLabelHTML();
+    const additivesLine = (c.additives||[]).filter(Boolean).join(", ");
+    const allergensLine = (c.allergens||[]).filter(Boolean).join(", ");
+
+    const mandatory = (s.mandatoryNote||"").trim();
+    const qr = (s.qrLink||"").trim();
+
+    const n = c.per100 || {};
+    const nutriRows = [
+      ["Energie", `${fmt(n.kj,0)} kJ / ${fmt(n.kcal,0)} kcal`],
+      ["Fett", `${fmt(n.fat,1)} g`],
+      ["davon gesättigte Fettsäuren", `${fmt(n.sat,1)} g`],
+      ["Kohlenhydrate", `${fmt(n.carb,1)} g`],
+      ["davon Zucker", `${fmt(n.sugar,1)} g`],
+      ["Eiweiß", `${fmt(n.protein,1)} g`],
+      ["Salz", `${fmt(n.salt,2)} g`],
+    ];
+
+    return `
+      <div class="lhead">
+        <div>
+          <b>${escapeHtml(s.maker || "Hersteller")}</b><br>
+          <small>${escapeHtml(s.contact || "")}</small>
+        </div>
+        <div style="text-align:right">
+          <small class="mono">${escapeHtml(s.lot || "")}</small><br>
+          <small>${escapeHtml(s.netQty || "")}</small>
+        </div>
+      </div>
+
+      <div class="lsort">${escapeHtml(sortLine || "Produkt")}</div>
+
+      <div class="block">
+        <div class="cap">Zutaten:</div>
+        <p class="ing">${ingredients || "<span class='small'>(keine Rezeptdaten)</span>"}</p>
+      </div>
+
+      ${additivesLine ? `
+      <div class="block">
+        <div class="cap">Hinweise:</div>
+        <p>${escapeHtml(additivesLine)}</p>
+      </div>` : ""}
+
+      ${allergensLine ? `
+      <div class="block">
+        <div class="cap">Allergene:</div>
+        <p>${escapeHtml(allergensLine)}</p>
+      </div>` : ""}
+
+      <div class="block">
+        <div class="cap">Nährwerte je 100 g:</div>
+        <table>
+          <thead>
+            <tr><th>Angabe</th><th class="right">Wert</th></tr>
+          </thead>
+          <tbody>
+            ${nutriRows.map(r => `<tr><td>${escapeHtml(r[0])}</td><td class="right"><b>${escapeHtml(r[1])}</b></td></tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <div class="cap">Aufbewahrung:</div>
+        <p>${escapeHtml(s.storage || "")}</p>
+      </div>
+
+      <div class="foot">
+        <div>
+          ${s.mhd ? `<div><b>MHD:</b> ${escapeHtml(s.mhd)}</div>` : ""}
+          ${mandatory ? `<div><b>Hinweis:</b> ${escapeHtml(mandatory)}</div>` : ""}
+        </div>
+        <div style="text-align:right">
+          ${qr ? `<div class="mono">QR: ${escapeHtml(qr)}</div>` : ""}
+          <div class="small">Erstellt mit Sanremo-Generator (intern)</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function buildIngredientsLabelHTML(){
+    // Use recipe names with allergen highlighting by keyword matches
+    const c = state._computed || {};
+    const allergens = (c.allergens||[]).map(a => a.toUpperCase());
+
+    const sorted = [...state.recipe]
+      .filter(r => clamp0(r.grams)>0)
+      .sort((a,b)=>clamp0(b.grams)-clamp0(a.grams));
+
+    if(!sorted.length) return "";
+
+    // Build string: each ingredient name, but if it contains allergen keyword, highlight that part.
+    const out = sorted.map(r => {
+      const ing = state.ingredients.find(x => x.id === r.id);
+      const name = (ing?.name || r.name || "").toString();
+      return markAllergensInText(name, allergens);
+    }).join(", ");
+
     return out;
   }
 
-  // ===== Customers
-  function renderCustomers(){
-    const sel=$("#orderCustomer"); sel.innerHTML="";
-    db.customers.forEach(c=>{
-      const o=document.createElement("option");
-      o.value=c.id; o.textContent=c.note?`${c.name} – ${c.note}`:c.name;
-      sel.appendChild(o);
+  function markAllergensInText(text, allergensUpper){
+    // simple word highlight: for each allergen, replace case-insensitive occurrences
+    let html = escapeHtml(text);
+    allergensUpper.forEach(al => {
+      if(!al) return;
+      // Replace any occurrence ignoring case
+      const re = new RegExp(al.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+      html = html.replace(re, (m) => `<strong>${escapeHtml(m)}</strong>`);
     });
-    const rewe=db.customers.find(c=>c.name.toLowerCase().includes("rewe"));
-    if(rewe) sel.value=rewe.id;
-
-    const box=$("#customersList"); box.innerHTML="";
-    db.customers.forEach(c=>{
-      const div=document.createElement("div");
-      div.className="card"; div.style.marginBottom="10px"; div.style.boxShadow="none";
-      div.innerHTML=`
-        <div class="flex" style="justify-content:space-between;">
-          <div>
-            <div style="font-weight:950;">${esc(c.name)}</div>
-            <div class="muted">${esc(c.note||"")}</div>
-          </div>
-          <button class="btn small danger" data-del-customer="${c.id}">Löschen</button>
-        </div>`;
-      box.appendChild(div);
-    });
-    $$("[data-del-customer]").forEach(btn=>{
-      btn.onclick=()=>{
-        const id=btn.getAttribute("data-del-customer");
-        const used=db.orders.some(o=>o.customerId===id);
-        if(used && !confirm("Dieser Kunde hat Bestellungen. Trotzdem löschen?")) return;
-        db.customers=db.customers.filter(c=>c.id!==id);
-        saveDB(db); renderAll();
-      };
-    });
+    return html;
   }
 
-  $("#addCustomer").onclick=()=>{
-    const name=$("#newCustomerName").value.trim();
-    const note=$("#newCustomerNote").value.trim();
-    if(!name) return;
-    db.customers.push({id:uid(), name, note});
-    $("#newCustomerName").value=""; $("#newCustomerNote").value="";
-    saveDB(db); renderAll();
-  };
-
-  // ===== Flavors
-  function renderFlavors(){
-    const box=$("#flavorsList"); box.innerHTML="";
-    db.flavors.forEach((f,idx)=>{
-      const row=document.createElement("div");
-      row.className="flex"; row.style.justifyContent="space-between";
-      row.innerHTML=`<span class="pill" style="font-weight:950;">${esc(f)}</span>
-                     <button class="btn small danger" data-del-flavor="${idx}">Entfernen</button>`;
-      box.appendChild(row);
-    });
-    $$("[data-del-flavor]").forEach(btn=>{
-      btn.onclick=()=>{
-        const i=Number(btn.getAttribute("data-del-flavor"));
-        const fname=db.flavors[i];
-        if(db.recipes && db.recipes[fname] && !confirm("Diese Sorte hat ein Rezept gespeichert. Sorte & Rezept löschen?")) return;
-        if(db.recipes && db.recipes[fname]) delete db.recipes[fname];
-        db.flavors.splice(i,1);
-        saveDB(db); renderAll();
-      };
-    });
+  function updateLabel(){
+    recalc();
+    const html = buildLabelHTML();
+    $("labelPreview").innerHTML = html;
+    $("labelPrintPreview").innerHTML = html;
+    save();
   }
 
-  $("#addFlavor").onclick=()=>{
-    const v=$("#newFlavor").value.trim();
-    if(!v) return;
-    if(db.flavors.map(x=>x.toLowerCase()).includes(v.toLowerCase())){ $("#newFlavor").value=""; return; }
-    db.flavors.push(v); $("#newFlavor").value="";
-    saveDB(db); renderAll();
-  };
-  $("#resetDefaults").onclick=()=>{
-    db.flavors=[...defaultFlavors];
-    saveDB(db); renderAll();
-  };
+  function renderPrintPreview(forPrint=false){
+    updateLabel();
+    const format = $("labelFormat").value;
+    const el = forPrint ? $("labelPrint") : $("labelPrintPreview");
+    el.innerHTML = buildLabelHTML();
 
-  // ===== Orders UI
-  let currentLines=[];
-  function addLine(size="750g", flavor=null, qty=0){
-    currentLines.push({ size, flavor: flavor || (db.flavors[0]||""), qty });
-    renderLines();
-  }
-  function renderLines(){
-    const tb=$("#linesTbody"); tb.innerHTML="";
-    currentLines.forEach((ln,idx)=>{
-      const tr=document.createElement("tr");
-
-      const sizeSel=document.createElement("select");
-      sizeSel.innerHTML=`<option value="750g">750g</option><option value="170g">170g</option>`;
-      sizeSel.value=ln.size;
-      sizeSel.onchange=()=>{ ln.size=sizeSel.value; refreshDraftSummary(); };
-
-      const flSel=document.createElement("select");
-      flSel.innerHTML=db.flavors.map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join("");
-      flSel.value=ln.flavor;
-      flSel.onchange=()=>{ ln.flavor=flSel.value; refreshDraftSummary(); };
-
-      const qSel=document.createElement("select");
-      qSel.innerHTML=qtyOptions(Number(ln.qty||0));
-      qSel.value=String(Number(ln.qty||0));
-      qSel.onchange=()=>{ ln.qty=Number(qSel.value||0); refreshDraftSummary(); };
-
-      const del=document.createElement("button");
-      del.className="btn small danger"; del.textContent="X";
-      del.onclick=()=>{ currentLines.splice(idx,1); renderLines(); };
-
-      tr.innerHTML=`<td></td><td></td><td class="right"></td><td class="right"></td>`;
-      tr.children[0].appendChild(sizeSel);
-      tr.children[1].appendChild(flSel);
-      tr.children[2].appendChild(qSel);
-      tr.children[3].appendChild(del);
-      tb.appendChild(tr);
-    });
-    refreshDraftSummary();
-  }
-
-  $("#addLine").onclick=()=>addLine("750g", db.flavors[0]||"", 0);
-  $("#clearOrder").onclick=()=>{ currentLines=[]; $("#orderNotes").value=""; renderLines(); };
-
-  $("#saveOrder").onclick=()=>{
-    const customerId=$("#orderCustomer").value;
-    const date=$("#orderDate").value;
-    const notes=$("#orderNotes").value.trim();
-    const lines=currentLines.filter(l=>l.flavor && Number(l.qty)>0).map(l=>({size:l.size, flavor:l.flavor, qty:Number(l.qty)}));
-    if(!customerId || !date || lines.length===0){ $("#saveHint").textContent="Bitte Kunde, Datum und mindestens 1 Position eingeben."; return; }
-    db.orders.push({ id:uid(), date, customerId, notes, lines, countedAt:null });
-    saveDB(db);
-    $("#saveHint").textContent="Gespeichert ✅"; setTimeout(()=>$("#saveHint").textContent="",1200);
-    currentLines=[]; $("#orderNotes").value=""; renderLines();
-    renderHistory(); refreshOverviewAll(); refreshStatsTables(); renderPlan(); renderXL();
-  };
-
-  function ordersByDate(date){ return db.orders.filter(o=>o.date===date); }
-
-  // ===== Calc production
-  function calcProduction(orders){
-    const map=new Map(); let t750=0,t170=0;
-    orders.forEach(o=>{
-      o.lines.forEach(l=>{
-        const key=l.flavor;
-        if(!map.has(key)) map.set(key,{f:key,g750:0,g170:0});
-        const r=map.get(key);
-        if(l.size==="750g"){ r.g750+=l.qty; t750+=l.qty; }
-        if(l.size==="170g"){ r.g170+=l.qty; t170+=l.qty; }
-      });
-    });
-    const rows=[...map.values()].map(r=>{
-      const kg=(r.g750*KG_750)+(r.g170*KG_170);
-      const bucketsExact=kg/BUCKET_KG;
-      return {
-        ...r,
-        total:r.g750+r.g170,
-        kg:Math.round(kg*100)/100,
-        bucketsExact:Math.round(bucketsExact*100)/100,
-        bucketsToMake:Math.ceil(bucketsExact)
-      };
-    }).sort((a,b)=>(b.kg-a.kg)||(b.total-a.total)||a.f.localeCompare(b.f));
-    const totalKg=rows.reduce((s,r)=>s+r.kg,0);
-    const totalBucketsExact=totalKg/BUCKET_KG;
-    return {
-      rows, t750, t170, total:t750+t170,
-      totalKg:Math.round(totalKg*100)/100,
-      totalBucketsExact:Math.round(totalBucketsExact*100)/100,
-      totalBucketsToMake:Math.ceil(totalBucketsExact)
-    };
-  }
-
-  function refreshOverviewAll(){
-    const date=$("#orderDate").value || $("#prodDate").value;
-    if(!date) return;
-    const prod=calcProduction(ordersByDate(date));
-
-    $("#tot750").textContent=`750g: ${prod.t750}`;
-    $("#tot170").textContent=`170g: ${prod.t170}`;
-    $("#totAll").textContent=`Total: ${prod.total}`;
-    $("#totKg").textContent=`KG: ${prod.totalKg.toFixed(2)}`;
-    $("#totBuckets").textContent=`Baldes: ${prod.totalBucketsExact.toFixed(2)} (~${prod.totalBucketsToMake})`;
-
-    $("#p_tot750").textContent=`750g: ${prod.t750}`;
-    $("#p_tot170").textContent=`170g: ${prod.t170}`;
-    $("#p_totAll").textContent=`Total: ${prod.total}`;
-    $("#p_totKg").textContent=`KG: ${prod.totalKg.toFixed(2)}`;
-    $("#p_totBuckets").textContent=`Baldes: ${prod.totalBucketsExact.toFixed(2)} (~${prod.totalBucketsToMake})`;
-
-    const rowsHtml = prod.rows.map(r=>`
-      <tr>
-        <td>${esc(r.f)}</td>
-        <td class="right">${r.g750}</td>
-        <td class="right">${r.g170}</td>
-        <td class="right">${r.kg.toFixed(2)}</td>
-        <td class="right">${r.bucketsExact.toFixed(2)}</td>
-        <td class="right"><b>${r.bucketsToMake}</b></td>
-      </tr>
-    `).join("") || `<tr><td colspan="6" class="muted">Keine Bestellungen für dieses Datum.</td></tr>`;
-
-    $("#prodTbody").innerHTML=rowsHtml;
-    $("#prodTbody2").innerHTML=rowsHtml;
-
-    renderPlan();
-    renderXL();
-  }
-
-  function refreshDraftSummary(){
-    let t750=0,t170=0; const flavors=new Set();
-    currentLines.forEach(l=>{
-      const q=Number(l.qty)||0;
-      if(q>0 && l.flavor) flavors.add(l.flavor);
-      if(l.size==="750g") t750+=q;
-      if(l.size==="170g") t170+=q;
-    });
-    $("#ord_flavors").textContent=`Sorten: ${flavors.size}`;
-    $("#ord_750").textContent=`750g: ${t750}`;
-    $("#ord_170").textContent=`170g: ${t170}`;
-    $("#ord_total").textContent=`Total: ${t750+t170}`;
-    refreshOverviewAll();
-  }
-
-  $("#prodRefresh").onclick=()=>refreshOverviewAll();
-  $("#orderDate").onchange=()=>refreshOverviewAll();
-  $("#prodDate").onchange=()=>refreshOverviewAll();
-
-  // ===== Counting only when printing
-  function markCounted(date){
-    const now=new Date().toISOString();
-    ordersByDate(date).forEach(o=>{ if(!o.countedAt) o.countedAt=now; });
-    saveDB(db);
-    renderHistory();
-    refreshStatsTables();
-  }
-
-  function companyBlock(){
-    return `<div class="p-box"><div style="font-weight:800;">Eiscafé Sanremo</div>
-      <div class="small">Bad Berleburg</div><div class="small">Tel.: 0176 72809926</div></div>`;
-  }
-  function printPills(prod){
-    return `<div class="p-pills">
-      <div class="p-pill">750g: <b>${prod.t750}</b></div>
-      <div class="p-pill">170g: <b>${prod.t170}</b></div>
-      <div class="p-pill">Total: <b>${prod.total}</b></div>
-      <div class="p-pill">KG: <b>${prod.totalKg.toFixed(2)}</b></div>
-      <div class="p-pill">Baldes: <b>${prod.totalBucketsExact.toFixed(2)}</b> (~<b>${prod.totalBucketsToMake}</b>)</div>
-    </div>`;
-  }
-
-  function doPrint(html){
-    $("#printArea").innerHTML=html;
-    $("#printArea").classList.remove("hidden");
-    window.print();
-    $("#printArea").classList.add("hidden");
-  }
-
-  function printProduktion(date){
-    if(!date) return alert("Bitte Datum wählen.");
-    const list=ordersByDate(date);
-    if(!list.length) return alert("Keine Bestellungen für dieses Datum.");
-    markCounted(date);
-    const prod=calcProduction(list);
-    doPrint(`
-      <div class="print-page">
-        <div class="p-head">
-          <div><h2 class="p-title">Produktion – ${esc(date)}</h2><div class="p-sub">Nach Sorte + KG + Baldes (6kg)</div></div>
-          ${companyBlock()}
-        </div>
-        ${printPills(prod)}
-        <table class="p-table">
-          <thead><tr><th>Sorte</th><th>750g</th><th>170g</th><th>KG</th><th>Baldes</th><th>Baldes (fazer)</th></tr></thead>
-          <tbody>${prod.rows.map(r=>`
-            <tr><td>${esc(r.f)}</td><td>${r.g750}</td><td>${r.g170}</td><td>${r.kg.toFixed(2)}</td><td>${r.bucketsExact.toFixed(2)}</td><td><b>${r.bucketsToMake}</b></td></tr>
-          `).join("")}</tbody>
-        </table>
-      </div>
-    `);
-  }
-
-  function printLieferschein(date){
-    if(!date) return alert("Bitte Datum wählen.");
-    const list=ordersByDate(date);
-    if(!list.length) return alert("Keine Bestellungen für dieses Datum.");
-    markCounted(date);
-
-    const pages=list.map(o=>{
-      const prod=calcProduction([o]);
-      return `
-        <div class="print-page">
-          <div class="p-head">
-            <div><h2 class="p-title">Lieferschein (ohne Preise)</h2><div class="p-sub">Datum: <b>${esc(o.date)}</b></div></div>
-            ${companyBlock()}
-          </div>
-          <div style="margin-top:8mm;display:grid;grid-template-columns:1fr 1fr;gap:10mm;">
-            <div class="p-box"><b>Kunde</b><div style="margin-top:6px;">${esc(customerName(o.customerId))}</div></div>
-            <div class="p-box"><b>Notizen</b><div style="margin-top:6px;">${esc(o.notes||"-")}</div></div>
-          </div>
-          ${printPills(prod)}
-          <table class="p-table">
-            <thead><tr><th>Größe</th><th>Sorte</th><th>Menge</th></tr></thead>
-            <tbody>${o.lines.map(l=>`<tr><td>${esc(l.size)}</td><td>${esc(l.flavor)}</td><td><b>${l.qty}</b></td></tr>`).join("")}</tbody>
-          </table>
-          <div class="sign">
-            <div style="flex:1;"><div class="small">Unterschrift Kunde</div><div class="line"></div></div>
-            <div style="flex:1;"><div class="small">Unterschrift Lieferant</div><div class="line"></div></div>
-          </div>
-        </div>`;
-    }).join("");
-
-    doPrint(pages);
-  }
-
-  function summarizeByFlavor(orders){
-    const map=new Map();
-    orders.forEach(o=>{
-      o.lines.forEach(l=>{
-        if(!map.has(l.flavor)) map.set(l.flavor,{f:l.flavor,g750:0,g170:0});
-        const r=map.get(l.flavor);
-        if(l.size==="750g") r.g750+=num(l.qty);
-        if(l.size==="170g") r.g170+=num(l.qty);
-      });
-    });
-    return [...map.values()].map(r=>{
-      const kg=(r.g750*KG_750)+(r.g170*KG_170);
-      const bucketsExact=kg/BUCKET_KG;
-      return {...r,total:r.g750+r.g170,kg:Math.round(kg*100)/100,bucketsExact:Math.round(bucketsExact*100)/100,bucketsToMake:Math.ceil(bucketsExact)};
-    }).sort((a,b)=>(b.kg-a.kg)||(b.total-a.total)||a.f.localeCompare(b.f));
-  }
-  function totalsFromRows(rows){
-    const t750=rows.reduce((s,r)=>s+r.g750,0);
-    const t170=rows.reduce((s,r)=>s+r.g170,0);
-    const total=t750+t170;
-    const totalKg=rows.reduce((s,r)=>s+r.kg,0);
-    const totalBucketsExact=totalKg/BUCKET_KG;
-    return {t750,t170,total,totalKg:Math.round(totalKg*100)/100,totalBucketsExact:Math.round(totalBucketsExact*100)/100,totalBucketsToMake:Math.ceil(totalBucketsExact)};
-  }
-
-  function printPickList(date){
-    if(!date) return alert("Bitte Datum wählen.");
-    const list=ordersByDate(date);
-    if(!list.length) return alert("Keine Bestellungen für dieses Datum.");
-    markCounted(date);
-
-    const allRows=summarizeByFlavor(list);
-    const allTot=totalsFromRows(allRows);
-
-    const table=(rows)=>`
-      <table class="p-table">
-        <thead><tr><th>Sorte</th><th>750g</th><th>170g</th><th>KG</th><th>Baldes</th><th>Baldes (fazer)</th></tr></thead>
-        <tbody>${rows.map(r=>`<tr><td>${esc(r.f)}</td><td>${r.g750}</td><td>${r.g170}</td><td>${r.kg.toFixed(2)}</td><td>${r.bucketsExact.toFixed(2)}</td><td><b>${r.bucketsToMake}</b></td></tr>`).join("")}</tbody>
-      </table>`;
-
-    const general=`
-      <div class="print-page">
-        <div class="p-head">
-          <div><h2 class="p-title">Pick-List (Gesamt) – ${esc(date)}</h2><div class="p-sub">Nach Sorte + KG + Baldes</div></div>
-          ${companyBlock()}
-        </div>
-        ${printPills(allTot)}
-        ${table(allRows)}
-      </div>`;
-
-    const perCustomer=list.map(o=>{
-      const rows=summarizeByFlavor([o]);
-      const tot=totalsFromRows(rows);
-      return `
-        <div class="print-page">
-          <div class="p-head">
-            <div><h2 class="p-title">Pick-List – ${esc(date)}</h2><div class="p-sub">Kunde: <b>${esc(customerName(o.customerId))}</b></div></div>
-            ${companyBlock()}
-          </div>
-          ${printPills(tot)}
-          ${table(rows)}
-          <div style="margin-top:8mm;" class="small">Notizen: ${esc(o.notes||"-")}</div>
-        </div>`;
-    }).join("");
-
-    doPrint(general + perCustomer);
-  }
-
-  function printPlan(date){
-    if(!date) return alert("Bitte Datum wählen.");
-    const list=ordersByDate(date);
-    if(!list.length) return alert("Keine Bestellungen für dieses Datum.");
-    markCounted(date);
-    const prod=calcProduction(list);
-    const rows=prod.rows.filter(r=>r.bucketsToMake>0).sort((a,b)=>(b.bucketsToMake-a.bucketsToMake)||(b.kg-a.kg)||a.f.localeCompare(b.f));
-    const body=rows.map(r=>{
-      const checks=Array.from({length:Math.min(r.bucketsToMake,20)},()=> "☐").join(" ");
-      return `<tr><td><b>${esc(r.f)}</b></td><td class="right">${r.kg.toFixed(2)}</td><td class="right"><b>${r.bucketsToMake}</b></td><td style="font-size:14px;">${checks}</td></tr>`;
-    }).join("") || `<tr><td colspan="4">Keine Daten</td></tr>`;
-
-    doPrint(`
-      <div class="print-page">
-        <div class="p-head">
-          <div><h2 class="p-title">Baldes-Plan (6kg) – ${esc(date)}</h2><div class="p-sub">Planeamento por sabor</div></div>
-          ${companyBlock()}
-        </div>
-        ${printPills(prod)}
-        <table class="p-table">
-          <thead><tr><th>Sorte</th><th>KG</th><th>Baldes (fazer)</th><th>Check</th></tr></thead>
-          <tbody>${body}</tbody>
-        </table>
-      </div>
-    `);
-  }
-
-  $("#printProduktion").onclick=()=>printProduktion($("#orderDate").value);
-  $("#printLieferschein").onclick=()=>printLieferschein($("#orderDate").value);
-  $("#printPicklist").onclick=()=>printPickList($("#orderDate").value);
-  $("#printPlan").onclick=()=>printPlan($("#orderDate").value);
-
-  $("#prodPrint").onclick=()=>printProduktion($("#prodDate").value);
-  $("#prodPick").onclick=()=>printPickList($("#prodDate").value);
-  $("#prodPlan").onclick=()=>printPlan($("#prodDate").value);
-
-  // ===== Baldes-Plan screen (progress)
-  function renderPlan(){
-    const date=$("#planDate").value;
-    if(!date) return;
-
-    const list=ordersByDate(date);
-    const tbody=$("#planBody");
-    if(!list.length){
-      tbody.innerHTML=`<tr><td colspan="6" class="muted">Keine Bestellungen für dieses Datum.</td></tr>`;
-      $("#plan_totKg").textContent="KG: 0";
-      $("#plan_totBuckets").textContent="Baldes: 0";
-      $("#plan_done").textContent="Feitos: 0";
-      $("#plan_left").textContent="Faltam: 0";
-      return;
+    // Apply sizes
+    const style = el.style;
+    style.width = "";
+    style.height = "";
+    style.maxWidth = "620px";
+    style.margin = "0 auto";
+    if(format === "100x60"){
+      style.width = "100mm"; style.minHeight = "60mm"; style.maxWidth = "100mm";
+    } else if(format === "80x50"){
+      style.width = "80mm"; style.minHeight = "50mm"; style.maxWidth = "80mm";
+    } else if(format === "70x37"){
+      style.width = "70mm"; style.minHeight = "37mm"; style.maxWidth = "70mm";
     }
-
-    const prod=calcProduction(list);
-    const progress=getProg(date);
-    const rows=prod.rows.filter(r=>r.bucketsToMake>0).sort((a,b)=>(b.bucketsToMake-a.bucketsToMake)||(b.kg-a.kg)||a.f.localeCompare(b.f));
-
-    let totalToMake=0,totalDone=0;
-    tbody.innerHTML=rows.map(r=>{
-      const done=Math.max(0,Math.min(r.bucketsToMake, num(progress[r.f]||0)));
-      const left=Math.max(0,r.bucketsToMake-done);
-      totalToMake+=r.bucketsToMake; totalDone+=done;
-      return `
-        <tr>
-          <td><b>${esc(r.f)}</b></td>
-          <td class="right">${r.kg.toFixed(2)}</td>
-          <td class="right"><b>${r.bucketsToMake}</b></td>
-          <td class="right">${done}</td>
-          <td class="right"><b>${left}</b></td>
-          <td class="right">
-            <button class="btn small ok" data-done="${esc(r.f)}">+1</button>
-            <button class="btn small" data-undo="${esc(r.f)}">-1</button>
-          </td>
-        </tr>`;
-    }).join("");
-
-    const totalLeft=Math.max(0,totalToMake-totalDone);
-    $("#plan_totKg").textContent=`KG: ${prod.totalKg.toFixed(2)}`;
-    $("#plan_totBuckets").textContent=`Baldes: ${prod.totalBucketsExact.toFixed(2)} (~${prod.totalBucketsToMake})`;
-    $("#plan_done").textContent=`Feitos: ${totalDone}`;
-    $("#plan_left").textContent=`Faltam: ${totalLeft}`;
-
-    $$("[data-done]").forEach(b=>b.onclick=()=>{
-      const f=b.getAttribute("data-done");
-      const p=getProg(date); p[f]=num(p[f])+1; setProg(date,p);
-      renderPlan(); renderXL();
-    });
-    $$("[data-undo]").forEach(b=>b.onclick=()=>{
-      const f=b.getAttribute("data-undo");
-      const p=getProg(date); p[f]=Math.max(0,num(p[f])-1); setProg(date,p);
-      renderPlan(); renderXL();
-    });
+    $("printArea").style.display = forPrint ? "block" : "none";
   }
 
-  $("#planRefresh").onclick=()=>renderPlan();
-  $("#planDate").onchange=()=>{ renderPlan(); renderXL(); };
-  $("#planReset").onclick=()=>{
-    const date=$("#planDate").value; if(!date) return;
-    if(!confirm("Reset do plano deste dia?")) return;
-    resetProg(date); renderPlan(); renderXL();
-  };
-  $("#planPrint").onclick=()=>printPlan($("#planDate").value);
+  // Demo
+  $("btnLoadDemo").addEventListener("click", () => {
+    state.settings.prodName = "Speiseeis";
+    state.settings.flavor = "Stracciatella";
+    state.settings.netQty = "170 g";
+    state.settings.mhd = "31.12.2026";
+    state.settings.lot = "L" + new Date().toISOString().slice(2,10).replaceAll("-","");
+    $("prodName").value = state.settings.prodName;
+    $("flavor").value = state.settings.flavor;
+    $("netQty").value = state.settings.netQty;
+    $("mhd").value = state.settings.mhd;
+    $("lot").value = state.settings.lot;
 
-  // ===== XL screen
-  function renderXL(){
-    const date=$("#xlDate").value;
-    if(!date) return;
-    const list=ordersByDate(date);
-    const grid=$("#xlGrid");
+    // Recipe demo
+    const milk = state.ingredients.find(x => x.name.toLowerCase().includes("vollmilch"))?.id;
+    const sugar = state.ingredients.find(x => x.name.toLowerCase() === "zucker")?.id;
+    const dext = state.ingredients.find(x => x.name.toLowerCase().includes("dextrose"))?.id;
+    const cream = state.ingredients.find(x => x.name.toLowerCase().includes("sahne"))?.id;
 
-    if(!list.length){
-      grid.innerHTML=`<div class="muted">Keine Bestellungen für dieses Datum.</div>`;
-      $("#xl_totKg").textContent="KG: 0";
-      $("#xl_totBuckets").textContent="Baldes: 0";
-      $("#xl_done").textContent="Feitos: 0";
-      $("#xl_left").textContent="Faltam: 0";
-      return;
-    }
+    state.recipe = [];
+    if(milk) state.recipe.push({id:milk, name:getIng(milk).name, grams: 6500, note:""});
+    if(cream) state.recipe.push({id:cream, name:getIng(cream).name, grams: 800, note:""});
+    if(sugar) state.recipe.push({id:sugar, name:getIng(sugar).name, grams: 1200, note:""});
+    if(dext) state.recipe.push({id:dext, name:getIng(dext).name, grams: 700, note:""});
 
-    const prod=calcProduction(list);
-    const progress=getProg(date);
-    const rows=prod.rows.filter(r=>r.bucketsToMake>0).sort((a,b)=>(b.bucketsToMake-a.bucketsToMake)||(b.kg-a.kg)||a.f.localeCompare(b.f));
+    state.settings.batchG = state.recipe.reduce((s,r)=>s+clamp0(r.grams),0);
+    $("batchG").value = state.settings.batchG;
 
-    let totalToMake=0,totalDone=0;
-    grid.innerHTML=rows.map(r=>{
-      const done=Math.max(0,Math.min(r.bucketsToMake, num(progress[r.f]||0)));
-      const left=Math.max(0,r.bucketsToMake-done);
-      totalToMake+=r.bucketsToMake; totalDone+=done;
-      return `
-        <div class="xlTile">
-          <div>
-            <div class="xlFlavor">${esc(r.f)}</div>
-            <div class="xlNumbers">
-              <div class="xlLeft">${left}</div>
-              <div class="xlMeta">KG: <b>${r.kg.toFixed(2)}</b><br>Fazer: <b>${r.bucketsToMake}</b> • Feitos: <b>${done}</b></div>
-            </div>
-          </div>
-          <div class="xlActions">
-            <button class="xlBtn" data-xl-minus="${esc(r.f)}">-1</button>
-            <button class="xlBtn plus" data-xl-plus="${esc(r.f)}">+1</button>
-          </div>
-        </div>`;
-    }).join("");
-
-    const totalLeft=Math.max(0,totalToMake-totalDone);
-    $("#xl_totKg").textContent=`KG: ${prod.totalKg.toFixed(2)}`;
-    $("#xl_totBuckets").textContent=`Baldes: ${prod.totalBucketsExact.toFixed(2)} (~${prod.totalBucketsToMake})`;
-    $("#xl_done").textContent=`Feitos: ${totalDone}`;
-    $("#xl_left").textContent=`Faltam: ${totalLeft}`;
-
-    $$("[data-xl-plus]").forEach(b=>b.onclick=()=>{
-      const f=b.getAttribute("data-xl-plus");
-      const p=getProg(date);
-      const row=rows.find(x=>x.f===f);
-      const max=row?row.bucketsToMake:0;
-      if(num(p[f])>=max) return;
-      p[f]=num(p[f])+1; setProg(date,p);
-      renderXL(); renderPlan();
-    });
-    $$("[data-xl-minus]").forEach(b=>b.onclick=()=>{
-      const f=b.getAttribute("data-xl-minus");
-      const p=getProg(date); p[f]=Math.max(0,num(p[f])-1); setProg(date,p);
-      renderXL(); renderPlan();
-    });
-  }
-
-  $("#xlRefresh").onclick=()=>renderXL();
-  $("#xlDate").onchange=()=>{ renderXL(); renderPlan(); };
-  $("#xlReset").onclick=()=>{
-    const date=$("#xlDate").value; if(!date) return;
-    if(!confirm("Reset do progresso XL deste dia?")) return;
-    resetProg(date); renderXL(); renderPlan();
-  };
-
-  // ===== Statistik (counted only)
-  function countedOrders(){ return db.orders.filter(o=>!!o.countedAt); }
-  function calcMonth(yyyyMm){ return calcProduction(countedOrders().filter(o=>o.date.startsWith(yyyyMm))); }
-  function calcYear(year){ const y=String(year); return calcProduction(countedOrders().filter(o=>o.date.startsWith(y+"-"))); }
-
-  function refreshStatsTables(){
-    const m=$("#statMonth").value;
-    if(m){
-      const prod=calcMonth(m);
-      $("#sm_tot750").textContent=`750g: ${prod.t750}`;
-      $("#sm_tot170").textContent=`170g: ${prod.t170}`;
-      $("#sm_totAll").textContent=`Total: ${prod.total}`;
-      $("#sm_totKg").textContent=`KG: ${prod.totalKg.toFixed(2)}`;
-      $("#sm_totBuckets").textContent=`Baldes: ${prod.totalBucketsExact.toFixed(2)} (~${prod.totalBucketsToMake})`;
-      $("#statMonthBody").innerHTML=prod.rows.map(r=>`
-        <tr><td>${esc(r.f)}</td><td class="right">${r.g750}</td><td class="right">${r.g170}</td><td class="right">${r.kg.toFixed(2)}</td><td class="right">${r.bucketsExact.toFixed(2)}</td><td class="right"><b>${r.bucketsToMake}</b></td></tr>
-      `).join("") || `<tr><td colspan="6" class="muted">Keine Daten (noch nichts gedruckt).</td></tr>`;
-    }
-
-    const y=parseInt($("#statYear").value||"",10);
-    if(y){
-      const prod=calcYear(y);
-      $("#sy_tot750").textContent=`750g: ${prod.t750}`;
-      $("#sy_tot170").textContent=`170g: ${prod.t170}`;
-      $("#sy_totAll").textContent=`Total: ${prod.total}`;
-      $("#sy_totKg").textContent=`KG: ${prod.totalKg.toFixed(2)}`;
-      $("#sy_totBuckets").textContent=`Baldes: ${prod.totalBucketsExact.toFixed(2)} (~${prod.totalBucketsToMake})`;
-      $("#statYearBody").innerHTML=prod.rows.map(r=>`
-        <tr><td>${esc(r.f)}</td><td class="right">${r.g750}</td><td class="right">${r.g170}</td><td class="right">${r.kg.toFixed(2)}</td><td class="right">${r.bucketsExact.toFixed(2)}</td><td class="right"><b>${r.bucketsToMake}</b></td></tr>
-      `).join("") || `<tr><td colspan="6" class="muted">Keine Daten (noch nichts gedruckt).</td></tr>`;
-    }
-  }
-
-  $("#statMonthRefresh").onclick=()=>refreshStatsTables();
-  $("#statYearRefresh").onclick=()=>refreshStatsTables();
-
-  // ===== History
-  function renderHistory(){
-    const q=($("#historySearch").value||"").trim().toLowerCase();
-    const box=$("#historyList");
-    const orders=[...db.orders].reverse().filter(o=>{
-      const cn=customerName(o.customerId).toLowerCase();
-      return !q || o.date.includes(q) || cn.includes(q);
-    });
-
-    if(!orders.length){ box.innerHTML=`<div class="muted">Keine Bestellungen gespeichert.</div>`; return; }
-
-    box.innerHTML=orders.map(o=>{
-      const status=o.countedAt ? `<span class="pill" style="border-color:rgba(22,163,74,.35)">✅ Contado</span>`
-                              : `<span class="pill" style="border-color:rgba(37,99,235,.30)">⏳ Nicht gezählt</span>`;
-      const lines=o.lines.map(l=>`${esc(l.size)} • ${esc(l.flavor)} • <b>${l.qty}</b>`).join("<br>");
-      return `
-        <div class="card" style="margin-bottom:10px; box-shadow:none;">
-          <div class="flex" style="justify-content:space-between; align-items:flex-start;">
-            <div>
-              <div style="font-weight:950;">${esc(o.date)} – ${esc(customerName(o.customerId))}</div>
-              <div class="muted">${esc(o.notes||"")}</div>
-              <div style="margin-top:8px;">${status}</div>
-            </div>
-            <div class="flex">
-              <button class="btn small" data-copy="${o.id}">Duplizieren</button>
-              <button class="btn small" data-uncount="${o.id}">Uncount</button>
-              <button class="btn small danger" data-del="${o.id}">Löschen</button>
-            </div>
-          </div>
-          <div class="hr"></div>
-          <div style="font-size:13px;">${lines}</div>
-        </div>`;
-    }).join("");
-
-    $$("[data-del]").forEach(b=>b.onclick=()=>{
-      const id=b.getAttribute("data-del");
-      db.orders=db.orders.filter(o=>o.id!==id);
-      saveDB(db); renderHistory(); refreshOverviewAll(); refreshStatsTables(); renderPlan(); renderXL();
-    });
-    $$("[data-copy]").forEach(b=>b.onclick=()=>{
-      const id=b.getAttribute("data-copy");
-      const o=db.orders.find(x=>x.id===id);
-      if(!o) return;
-      $("#orderCustomer").value=o.customerId;
-      $("#orderDate").value=o.date;
-      $("#orderNotes").value=o.notes||"";
-      currentLines=o.lines.map(l=>({...l}));
-      renderLines();
-      renderTabs("bestellung");
-    });
-    $$("[data-uncount]").forEach(b=>b.onclick=()=>{
-      const id=b.getAttribute("data-uncount");
-      const o=db.orders.find(x=>x.id===id);
-      if(!o) return;
-      if(!confirm("‘Contado’ entfernen? Nur wenn du aus Versehen gedruckt hast.")) return;
-      o.countedAt=null;
-      saveDB(db);
-      renderHistory(); refreshStatsTables();
-    });
-  }
-
-  $("#historyRefresh").onclick=()=>renderHistory();
-  $("#historySearch").oninput=()=>renderHistory();
-  $("#deleteAll").onclick=()=>{
-    if(!confirm("Wirklich ALLE Bestellungen löschen?")) return;
-    db.orders=[];
-    saveDB(db);
-    renderHistory(); refreshOverviewAll(); refreshStatsTables(); renderPlan(); renderXL();
-  };
-
-  // ===== Nav
-  $$(".tab").forEach(btn=>{
-    btn.onclick=()=>{
-      const v=btn.dataset.view;
-      renderTabs(v);
-      if(v==="kunden") renderCustomers();
-      if(v==="sorten") renderFlavors();
-      if(v==="history") renderHistory();
-      if(v==="produktion") refreshOverviewAll();
-      if(v==="plan") renderPlan();
-      if(v==="xl") renderXL();
-      if(v==="statistik") refreshStatsTables();
-    };
+    save();
+    renderRecipe();
+    recalc();
+    updateLabel();
+    alert("Demo geladen. Passe Zutaten/Rezept an deine echten Daten an.");
   });
 
-  // ===== Init
-  function renderAll(){
-    renderCustomers();
-    renderFlavors();
-    renderHistory();
-    renderLines();
-    refreshOverviewAll();
-    refreshStatsTables();
-    renderPlan();
-    renderXL();
+  function getIng(id){ return state.ingredients.find(x=>x.id===id); }
+
+  // Exports / backup
+  $("btnBackup").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify({
+      meta: {tool:"Sanremo-Label", version:"1.0", exportedAt: new Date().toISOString()},
+      ...JSON.parse(localStorage.getItem(LS_KEY) || "{}")
+    }, null, 2)], {type:"application/json"});
+    downloadBlob(blob, `sanremo_backup_${dateStamp()}.json`);
+  });
+
+  $("fileImport").addEventListener("change", async (e) => {
+    const f = e.target.files?.[0];
+    if(!f) return;
+    try{
+      const txt = await f.text();
+      const data = JSON.parse(txt);
+      // accept both raw or wrapped
+      const payload = data.ingredients ? data : (data?.ingredients ? data : data);
+      if(!payload.ingredients || !payload.settings) throw new Error("Ungültiges Backup.");
+      state.xl = !!payload.xl;
+      state.selectedIngId = payload.selectedIngId || null;
+      state.ingredients = payload.ingredients || [];
+      state.recipe = payload.recipe || [];
+      state.settings = payload.settings || state.settings;
+      save();
+      applyXL();
+      renderAll();
+      alert("Import erfolgreich.");
+    }catch(err){
+      alert("Import fehlgeschlagen: " + err.message);
+    }finally{
+      e.target.value = "";
+    }
+  });
+
+  $("btnReset").addEventListener("click", () => {
+    if(!confirm("Alles wirklich zurücksetzen?")) return;
+    localStorage.removeItem(LS_KEY);
+    location.reload();
+  });
+
+  $("btnExportRecipe").addEventListener("click", () => {
+    recalc();
+    const blob = new Blob([JSON.stringify({
+      recipe: state.recipe,
+      totalG: state._computed?.total || 0,
+      settings: pick(state.settings, ["prodName","flavor","batchG","portionG","productGroup","recipeNotes"])
+    }, null, 2)], {type:"application/json"});
+    downloadBlob(blob, `rezept_${safeFile(state.settings.flavor || "produkt")}_${dateStamp()}.json`);
+  });
+
+  $("btnExportLabelText").addEventListener("click", () => {
+    recalc();
+    const c = state._computed || {};
+    const s = state.settings;
+    const lines = [];
+    lines.push(`${s.maker || ""}`.trim());
+    lines.push(`${(s.prodName||"").trim()} ${(s.flavor||"").trim() ? "– "+(s.flavor||"").trim() : ""}`.trim());
+    lines.push(`Nettofüllmenge: ${s.netQty||""}`);
+    if(s.mhd) lines.push(`MHD: ${s.mhd}`);
+    if(s.lot) lines.push(`Los: ${s.lot}`);
+    lines.push(`Zutaten: ${stripHtml(buildIngredientsLabelHTML())}`);
+    if((c.additives||[]).length) lines.push(`Hinweise: ${(c.additives||[]).join(", ")}`);
+    if((c.allergens||[]).length) lines.push(`Allergene: ${(c.allergens||[]).join(", ")}`);
+    lines.push(`Nährwerte je 100 g: Energie ${fmt(c.per100?.kj||0,0)} kJ / ${fmt(c.per100?.kcal||0,0)} kcal; Fett ${fmt(c.per100?.fat||0,1)} g, davon gesättigte Fettsäuren ${fmt(c.per100?.sat||0,1)} g; Kohlenhydrate ${fmt(c.per100?.carb||0,1)} g, davon Zucker ${fmt(c.per100?.sugar||0,1)} g; Eiweiß ${fmt(c.per100?.protein||0,1)} g; Salz ${fmt(c.per100?.salt||0,2)} g.`);
+    if(s.storage) lines.push(`Aufbewahrung: ${s.storage}`);
+    if(s.mandatoryNote) lines.push(`Hinweis: ${s.mandatoryNote}`);
+    lines.push(`${s.contact || ""}`.trim());
+    if(s.qrLink) lines.push(`QR: ${s.qrLink}`);
+
+    const blob = new Blob([lines.filter(Boolean).join("\n")], {type:"text/plain"});
+    downloadBlob(blob, `etikett_${safeFile(s.flavor || "produkt")}_${dateStamp()}.txt`);
+  });
+
+  $("btnSeedSanremo").addEventListener("click", () => {
+    state.settings.maker = "Eiscafé Sanremo";
+    state.settings.contact = "57319 Bad Berleburg · Tel. 0176 72809926 · paulo.sanremo@web.de";
+    $("maker").value = state.settings.maker;
+    $("contact").value = state.settings.contact;
+    save();
+    updateLabel();
+    alert("Sanremo-Grunddaten gesetzt.");
+  });
+
+  function pick(obj, keys){
+    const o = {};
+    keys.forEach(k => o[k] = obj[k]);
+    return o;
   }
 
-  setTodayIfEmpty($("#orderDate"));
-  setTodayIfEmpty($("#prodDate"));
-  setTodayIfEmpty($("#planDate"));
-  setTodayIfEmpty($("#xlDate"));
-  setCurrentMonthIfEmpty($("#statMonth"));
-  $("#statYear").value = $("#statYear").value || String(new Date().getFullYear());
+  function downloadBlob(blob, filename){
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 300);
+  }
+  function dateStamp(){
+    const d = new Date();
+    const p = (n)=>String(n).padStart(2,"0");
+    return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`;
+  }
+  function safeFile(s){
+    return (s||"").toString().trim().toLowerCase()
+      .replaceAll("ä","ae").replaceAll("ö","oe").replaceAll("ü","ue").replaceAll("ß","ss")
+      .replace(/[^a-z0-9_-]+/g,"_").replace(/_+/g,"_").replace(/^_+|_+$/g,"") || "produkt";
+  }
+  function stripHtml(html){
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    return div.textContent || div.innerText || "";
+  }
 
-  if(!currentLines.length) addLine("750g", db.flavors[0]||"", 0);
-  renderAll();
+  function renderAll(){
+    renderIngList();
+    renderRecipe();
+    recalc();
+    updateLabel();
+  }
+
+  // INIT
+  load();
 })();
 </script>
 </body>
   </html>
-  <!doctype html>
-<html lang="de">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Rezepte & Nährwerte</title>
-  <style>
-    :root{
-      --bg:#f3f4f6; --card:#fff; --text:#0f172a; --muted:#64748b;
-      --line:#e5e7eb; --line2:#d1d5db; --accent:#2563eb;
-      --ok:#16a34a; --danger:#dc2626; --warn:#f59e0b;
-      --shadow:0 14px 40px rgba(15,23,42,.10);
-      --r:16px; --r2:14px; --tap:46px;
-    }
-    *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#f8fafc,#f3f4f6);color:var(--text)}
-    header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
-    .wrap{max-width:1150px;margin:0 auto;padding:12px 14px}
-    .head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    h1{margin:0;font-size:18px;font-weight:900}
-    .btn{min-height:var(--tap);display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 14px;border-radius:var(--r2);border:1px solid var(--line2);background:#fff;color:var(--text);cursor:pointer;font-weight:900;font-size:13px}
-    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-    .btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
-    .btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
-    .btn.small{min-height:38px;padding:8px 10px;font-size:12px;border-radius:12px}
-    main{padding:16px 0 30px}
-    .grid{display:grid;grid-template-columns:1fr;gap:12px}
-    @media(min-width:920px){.grid.two{grid-template-columns:1.05fr .95fr}}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
-    .card h2{margin:0 0 10px;font-size:14px}
-    label{font-size:12px;color:var(--muted);display:block;margin:0 0 6px;font-weight:800}
-    input,select,textarea{width:100%;min-height:var(--tap);padding:12px 12px;border-radius:var(--r2);border:1px solid var(--line2);background:#fff;color:var(--text);outline:none;font-size:15px}
-    textarea{min-height:92px;resize:vertical}
-    .row{display:grid;gap:10px}
-    .row.cols{grid-template-columns:1fr}
-    @media(min-width:720px){.row.cols{grid-template-columns:1fr 1fr}}
-    .flex{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .muted{color:var(--muted);font-size:12px}
-    .hr{height:1px;background:var(--line);margin:12px 0}
-    .scroll{overflow:auto;-webkit-overflow-scrolling:touch;border-radius:var(--r2)}
-    .maxH{max-height:520px}
-    @media(max-width:520px){.maxH{max-height:52vh}}
-    table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;background:#fff}
-    thead th{position:sticky;top:0;z-index:2;background:#f8fafc;color:#334155;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line);padding:10px}
-    tbody td{padding:10px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:top}
-    tbody tr:last-child td{border-bottom:none}
-    .right{text-align:right}
-    .chip{display:inline-flex;padding:4px 8px;border:1px solid var(--line2);border-radius:999px;font-size:11px;font-weight:900;background:#fff;margin:2px 4px 0 0}
-    .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid var(--line2);background:#fff;font-size:12px;font-weight:900}
-    .badge.warn{border-color:rgba(245,158,11,.45)}
-    .badge.ok{border-color:rgba(22,163,74,.35)}
-  </style>
-</head>
-<body>
-<header>
-  <div class="wrap">
-    <div class="head">
-      <h1>Rezepte & Nährwerte</h1>
-      <div class="flex">
-        <a class="btn small" href="./bestellung_production.html">← Bestellung</a>
-        <a class="btn small" href="./etiketten.html">Etiketten</a>
-      </div>
-    </div>
-  </div>
-</header>
-
-<main class="wrap">
-  <section class="grid two">
-    <div class="card">
-      <h2>Rezept pro Sorte</h2>
-
-      <div class="row cols">
-        <div>
-          <label>Sorte</label>
-          <select id="rFlavor"></select>
-        </div>
-        <div>
-          <label>Produktbezeichnung (z.B. Milcheis / Sorbet)</label>
-          <input id="rDenom" placeholder="z.B. Milcheis" />
-        </div>
-      </div>
-
-      <div class="row cols" style="margin-top:10px;">
-        <div>
-          <label>Standard-Packung für Etikett</label>
-          <select id="rPack">
-            <option value="170">170 g</option>
-            <option value="750">750 g</option>
-          </select>
-        </div>
-        <div>
-          <label>Standard-Aufbewahrung (Etikett)</label>
-          <input id="rStorage" placeholder="z.B. Bei -18°C lagern. Nach dem Auftauen nicht wieder einfrieren." />
-        </div>
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="flex">
-        <button class="btn primary" id="rAddLine">+ Zutat</button>
-        <button class="btn" id="rClear">Leeren</button>
-        <button class="btn ok" id="rSave">Rezept speichern</button>
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="scroll maxH" style="border:1px solid var(--line);">
-        <table>
-          <thead><tr><th>Zutat</th><th class="right" style="width:180px;">Menge (g)</th><th class="right" style="width:90px;">Aktion</th></tr></thead>
-          <tbody id="rBody"></tbody>
-        </table>
-      </div>
-
-      <div class="hr"></div>
-      <div class="flex">
-        <span class="badge" id="rTotal">Gesamt: 0 g</span>
-        <span class="badge" id="rPer100">Nährwerte: OK</span>
-        <span class="badge warn" id="rAzo">Farbstoff-Warnung: nein</span>
-      </div>
-
-      <div class="hr"></div>
-      <div id="rPreview"></div>
-    </div>
-
-    <div class="card">
-      <h2>Zutaten-Datenbank</h2>
-      <div class="muted">Werte pro <b>100 g</b>. Nutze am besten die Lieferanten-Spezifikationen.</div>
-
-      <div class="hr"></div>
-
-      <div class="row cols">
-        <div>
-          <label>Name (Deutsch)</label>
-          <input id="iName" placeholder="z.B. Vollmilch 3,5%" />
-        </div>
-        <div>
-          <label>Kann Spuren enthalten (optional)</label>
-          <input id="iTraces" placeholder="z.B. EI, SOJA, SCHALENFRÜCHTE" />
-        </div>
-      </div>
-
-      <label style="margin-top:10px;">Allergene (14) – auswählen</label>
-      <div id="iAllBox" class="scroll" style="border:1px solid var(--line2); padding:10px; border-radius:14px; max-height:170px;"></div>
-
-      <div class="row cols" style="margin-top:10px;">
-        <div>
-          <label>Zusatzstoff-Klasse (optional)</label>
-          <select id="iClass">
-            <option value="">—</option>
-            <option value="Farbstoff">Farbstoff</option>
-            <option value="Stabilisator">Stabilisator</option>
-            <option value="Emulgator">Emulgator</option>
-            <option value="Konservierungsstoff">Konservierungsstoff</option>
-            <option value="Säuerungsmittel">Säuerungsmittel</option>
-            <option value="Aroma">Aroma</option>
-          </select>
-        </div>
-        <div>
-          <label>E-Nummer / Zusatzstoff-Name (optional)</label>
-          <input id="iE" placeholder="z.B. E410 / Beta-Carotin / E202" />
-        </div>
-      </div>
-
-      <div class="row cols" style="margin-top:10px;">
-        <div>
-          <label>AZO-Warnhinweis? (E102/E104/E110/E122/E124/E129)</label>
-          <select id="iAzo">
-            <option value="auto">Auto</option>
-            <option value="no">Nein</option>
-            <option value="yes">Ja</option>
-          </select>
-        </div>
-        <div>
-          <label>Datenquelle / Notiz (optional)</label>
-          <input id="iSource" placeholder="z.B. Etikett Foto 12/2025 / Lieferant Spec" />
-        </div>
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="row cols">
-        <div><label>Energie (kJ)</label><input id="nKj" type="number" step="0.1" value="0"></div>
-        <div><label>Energie (kcal)</label><input id="nKcal" type="number" step="0.1" value="0"></div>
-      </div>
-      <div class="row cols" style="margin-top:10px;">
-        <div><label>Fett (g)</label><input id="nFat" type="number" step="0.1" value="0"></div>
-        <div><label>davon gesättigte Fettsäuren (g)</label><input id="nSat" type="number" step="0.1" value="0"></div>
-      </div>
-      <div class="row cols" style="margin-top:10px;">
-        <div><label>Kohlenhydrate (g)</label><input id="nCarb" type="number" step="0.1" value="0"></div>
-        <div><label>davon Zucker (g)</label><input id="nSug" type="number" step="0.1" value="0"></div>
-      </div>
-      <div class="row cols" style="margin-top:10px;">
-        <div><label>Eiweiß (g)</label><input id="nPro" type="number" step="0.1" value="0"></div>
-        <div><label>Salz (g)</label><input id="nSalt" type="number" step="0.001" value="0"></div>
-      </div>
-
-      <div class="flex" style="margin-top:12px;">
-        <button class="btn ok" id="iSave">Zutat speichern</button>
-        <button class="btn" id="iReset">Leeren</button>
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="scroll maxH" style="border:1px solid var(--line); padding:10px;">
-        <div id="iList"></div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<script>
-(() => {
-  const DB_KEY = "SANREMO_DB_V1";
-  const azoSet = new Set(["E102","E104","E110","E122","E124","E129"]);
-  const AZO_WARNING_DE = "Kann Aktivität und Aufmerksamkeit bei Kindern beeinträchtigen.";
-
-  const ALLERGENS_14 = [
-    "GLUTEN","KREBSTIERE","EI","FISCH","ERDNÜSSE","SOJA","MILCH","SCHALENFRÜCHTE",
-    "SELLERIE","SENF","SESAM","SULFITE","LUPINEN","WEICHTIERE"
-  ];
-
-  function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
-  const $ = (s)=>document.querySelector(s);
-  const $$ = (s)=>Array.from(document.querySelectorAll(s));
-  function num(x){ const n=Number(x); return isFinite(n)?n:0; }
-  function esc(s){ return String(s).replace(/[&<>"']/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
-
-  function loadDB(){
-    try{
-      const raw=localStorage.getItem(DB_KEY);
-      if(raw){ const db=JSON.parse(raw); if(db && typeof db==="object") return db; }
-    }catch(e){}
-    return { flavors:[], customers:[], orders:[], ingredients:[], recipes:{} };
-  }
-  function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
-
-  function parseComma(text){ return (text||"").split(",").map(x=>x.trim()).filter(Boolean).map(x=>x.toUpperCase()); }
-  function normalizeE(e){
-    const m=String(e||"").toUpperCase().replace(/\s+/g,"").match(/^E(\d{3,4}[A-Z]?)$/);
-    return m?("E"+m[1]):"";
-  }
-
-  function renderAllergenCheckboxes(){
-    const box=$("#iAllBox");
-    box.innerHTML = ALLERGENS_14.map(a=>`
-      <label style="display:flex;gap:10px;align-items:center;margin:6px 0;font-weight:900;color:#0f172a;">
-        <input type="checkbox" class="iAllChk" value="${a}" style="width:18px;height:18px;min-height:auto;">
-        <span>${a}</span>
-      </label>`).join("");
-  }
-  function getAllergenChecks(){
-    return Array.from(document.querySelectorAll(".iAllChk")).filter(ch=>ch.checked).map(ch=>ch.value);
-  }
-  function setAllergenChecks(list){
-    const set=new Set((list||[]).map(x=>String(x).toUpperCase().trim()));
-    Array.from(document.querySelectorAll(".iAllChk")).forEach(ch=>ch.checked=set.has(ch.value));
-  }
-
-  function hasAnyNutrition(i){
-    const n=i?.n||{};
-    return (num(n.kj)+num(n.kcal)+num(n.fat)+num(n.sat)+num(n.carb)+num(n.sug)+num(n.pro)+num(n.salt))>0;
-  }
-
-  let db = loadDB();
-  db.ingredients = Array.isArray(db.ingredients) ? db.ingredients : [];
-  db.recipes = db.recipes && typeof db.recipes==="object" ? db.recipes : {};
-
-  // ===== Ingredients list
-  function renderIngredients(){
-    const box=$("#iList");
-    if(!db.ingredients.length){
-      box.innerHTML = `<div class="muted">Noch keine Zutaten gespeichert.</div>`;
-      return;
-    }
-    box.innerHTML = db.ingredients.map(i=>{
-      const chips=[];
-      (i.allergens||[]).forEach(a=>chips.push(`<span class="chip">${esc(a)}</span>`));
-      if(i.traces && i.traces.length) chips.push(`<span class="chip">Spuren: ${esc(i.traces.join(", "))}</span>`);
-      if(i.addClass) chips.push(`<span class="chip">${esc(i.addClass)}${i.addE?": "+esc(i.addE):""}</span>`);
-      if(i.azo) chips.push(`<span class="chip">AZO</span>`);
-      if(i.source) chips.push(`<span class="chip">Quelle</span>`);
-
-      return `
-        <div class="card" style="margin-bottom:10px; box-shadow:none;">
-          <div class="flex" style="justify-content:space-between; align-items:flex-start;">
-            <div>
-              <div style="font-weight:1000;">${esc(i.name)}</div>
-              <div>${chips.join("") || "<span class='muted'>—</span>"}</div>
-              <div class="muted" style="margin-top:6px;">
-                kJ ${num(i.n?.kj).toFixed(1)} • kcal ${num(i.n?.kcal).toFixed(1)} •
-                Fett ${num(i.n?.fat).toFixed(1)} • ges. ${num(i.n?.sat).toFixed(1)} •
-                KH ${num(i.n?.carb).toFixed(1)} • Zucker ${num(i.n?.sug).toFixed(1)} •
-                Eiweiß ${num(i.n?.pro).toFixed(1)} • Salz ${num(i.n?.salt).toFixed(3)}
-              </div>
-              ${i.source?`<div class="muted" style="margin-top:6px;"><b>Quelle:</b> ${esc(i.source)}</div>`:""}
-            </div>
-            <div class="flex">
-              <button class="btn small" data-edit="${i.id}">Edit</button>
-              <button class="btn small danger" data-del="${i.id}">Löschen</button>
-            </div>
-          </div>
-        </div>`;
-    }).join("");
-
-    $$("[data-del]").forEach(b=>b.onclick=()=>{
-      const id=b.getAttribute("data-del");
-      const used = Object.values(db.recipes||{}).some(r => (r.lines||[]).some(l=>l.ingId===id));
-      if(used && !confirm("Diese Zutat wird in Rezepten verwendet. Trotzdem löschen?")) return;
-      db.ingredients=db.ingredients.filter(x=>x.id!==id);
-      saveDB(db);
-      renderIngredients();
-      renderRecipeLines();
-      renderPreview();
-    });
-
-    $$("[data-edit]").forEach(b=>b.onclick=()=>{
-      const id=b.getAttribute("data-edit");
-      const i=db.ingredients.find(x=>x.id===id);
-      if(!i) return;
-      $("#iName").value=i.name||"";
-      $("#iTraces").value=(i.traces||[]).join(", ");
-      $("#iClass").value=i.addClass||"";
-      $("#iE").value=i.addE||"";
-      $("#iAzo").value=i.azo ? "yes" : "auto";
-      $("#iSource").value=i.source||"";
-      setAllergenChecks(i.allergens||[]);
-      $("#nKj").value=num(i.n?.kj);
-      $("#nKcal").value=num(i.n?.kcal);
-      $("#nFat").value=num(i.n?.fat);
-      $("#nSat").value=num(i.n?.sat);
-      $("#nCarb").value=num(i.n?.carb);
-      $("#nSug").value=num(i.n?.sug);
-      $("#nPro").value=num(i.n?.pro);
-      $("#nSalt").value=num(i.n?.salt);
-      $("#iSave").setAttribute("data-edit-id", id);
-      $("#iSave").textContent="Änderungen speichern";
-    });
-  }
-
-  function resetIngredientForm(){
-    $("#iName").value="";
-    $("#iTraces").value="";
-    $("#iClass").value="";
-    $("#iE").value="";
-    $("#iAzo").value="auto";
-    $("#iSource").value="";
-    setAllergenChecks([]);
-    $("#nKj").value=0; $("#nKcal").value=0; $("#nFat").value=0; $("#nSat").value=0;
-    $("#nCarb").value=0; $("#nSug").value=0; $("#nPro").value=0; $("#nSalt").value=0;
-    $("#iSave").removeAttribute("data-edit-id");
-    $("#iSave").textContent="Zutat speichern";
-  }
-
-  $("#iReset").onclick=()=>resetIngredientForm();
-
-  $("#iSave").onclick=()=>{
-    const name=$("#iName").value.trim();
-    if(!name) return;
-
-    const allergens=getAllergenChecks();
-    const traces=parseComma($("#iTraces").value||"");
-    const addClass=$("#iClass").value||"";
-    const addE=$("#iE").value.trim();
-    const azoMode=$("#iAzo").value;
-    const eNorm=normalizeE(addE);
-    const azoAuto = (!!eNorm && azoSet.has(eNorm));
-    const azo = (azoMode==="yes") ? true : (azoMode==="no") ? false : azoAuto;
-
-    const obj={
-      id: uid(),
-      name,
-      allergens,
-      traces,
-      addClass,
-      addE,
-      azo,
-      source: $("#iSource").value.trim(),
-      n:{
-        kj:num($("#nKj").value), kcal:num($("#nKcal").value),
-        fat:num($("#nFat").value), sat:num($("#nSat").value),
-        carb:num($("#nCarb").value), sug:num($("#nSug").value),
-        pro:num($("#nPro").value), salt:num($("#nSalt").value)
-      }
-    };
-
-    const editId=$("#iSave").getAttribute("data-edit-id");
-    if(editId){
-      const idx=db.ingredients.findIndex(x=>x.id===editId);
-      if(idx>=0){ obj.id=editId; db.ingredients[idx]=obj; }
-    }else{
-      db.ingredients.push(obj);
-    }
-
-    saveDB(db);
-    resetIngredientForm();
-    renderIngredients();
-    renderRecipeLines();
-    renderPreview();
-  };
-
-  // ===== Recipes
-  function renderFlavorSelect(){
-    const sel=$("#rFlavor");
-    sel.innerHTML = (db.flavors||[]).map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join("");
-  }
-
-  let rLines=[];
-  function rAddLine(ingId=null, grams=0){
-    const first=db.ingredients[0]?.id || "";
-    rLines.push({ ingId: ingId || first, grams:num(grams) });
-    renderRecipeLines();
-  }
-
-  function renderRecipeLines(){
-    const tb=$("#rBody"); tb.innerHTML="";
-    rLines.forEach((ln,idx)=>{
-      const tr=document.createElement("tr");
-      const ingSel=document.createElement("select");
-      ingSel.innerHTML = db.ingredients.map(i=>`<option value="${i.id}">${esc(i.name)}</option>`).join("");
-      ingSel.value=ln.ingId;
-      ingSel.onchange=()=>{ ln.ingId=ingSel.value; renderPreview(); };
-
-      const g=document.createElement("input");
-      g.type="number"; g.step="1"; g.min="0"; g.value=String(num(ln.grams));
-      g.oninput=()=>{ ln.grams=num(g.value); renderPreview(); };
-
-      const del=document.createElement("button");
-      del.className="btn small danger"; del.textContent="X";
-      del.onclick=()=>{ rLines.splice(idx,1); renderRecipeLines(); };
-
-      tr.innerHTML=`<td></td><td class="right"></td><td class="right"></td>`;
-      tr.children[0].appendChild(ingSel);
-      tr.children[1].appendChild(g);
-      tr.children[2].appendChild(del);
-      tb.appendChild(tr);
-    });
-
-    if(!rLines.length) rAddLine();
-    renderPreview();
-  }
-
-  function calcRecipe(){
-    const lines=rLines.filter(l=>l.ingId && num(l.grams)>0).map(l=>({ingId:l.ingId, grams:num(l.grams)}));
-    const totalG=lines.reduce((s,l)=>s+l.grams,0);
-
-    // totals per batch
-    const totals={kj:0,kcal:0,fat:0,sat:0,carb:0,sug:0,pro:0,salt:0};
-    const allergensSet=new Set();
-    const tracesSet=new Set();
-    const additives=[];
-    let azo=false;
-
-    const items = lines.map(l=>{
-      const ing=db.ingredients.find(x=>x.id===l.ingId);
-      return {ing, grams:l.grams};
-    }).filter(x=>x.ing);
-
-    items.forEach(({ing,grams})=>{
-      const factor=grams/100;
-      totals.kj += factor*num(ing.n?.kj);
-      totals.kcal += factor*num(ing.n?.kcal);
-      totals.fat += factor*num(ing.n?.fat);
-      totals.sat += factor*num(ing.n?.sat);
-      totals.carb += factor*num(ing.n?.carb);
-      totals.sug += factor*num(ing.n?.sug);
-      totals.pro += factor*num(ing.n?.pro);
-      totals.salt += factor*num(ing.n?.salt);
-
-      (ing.allergens||[]).forEach(a=>allergensSet.add(a));
-      (ing.traces||[]).forEach(t=>tracesSet.add(t));
-
-      const eNorm=normalizeE(ing.addE);
-      if(ing.azo || (eNorm && azoSet.has(eNorm))) azo=true;
-
-      if(ing.addClass){
-        additives.push( ing.addE ? `${ing.addClass}: ${ing.addE}` : `${ing.addClass}` );
-      }
-    });
-
-    // per 100g
-    const per100 = (k)=> totalG>0 ? (totals[k]/totalG*100) : 0;
-    const per100g = {
-      kj: per100("kj"),
-      kcal: per100("kcal"),
-      fat: per100("fat"),
-      sat: per100("sat"),
-      carb: per100("carb"),
-      sug: per100("sug"),
-      pro: per100("pro"),
-      salt: per100("salt")
-    };
-
-    // Zutatenliste sorted by grams desc
-    const sorted=[...items].sort((a,b)=>b.grams-a.grams);
-    const zutatenText = sorted.map(({ing})=>{
-      const all=(ing.allergens||[]).length ? ` (<b>${esc(ing.allergens.join(", "))}</b>)` : "";
-      return `${esc(ing.name)}${all}`;
-    }).join(", ");
-
-    const additivesUnique=[...new Set(additives.filter(Boolean))];
-
-    return {
-      totalG,
-      per100g,
-      zutatenText,
-      allergens:[...allergensSet],
-      traces:[...tracesSet],
-      additives:additivesUnique,
-      azo,
-      missingNutrition: sorted.filter(x=>!hasAnyNutrition(x.ing)).map(x=>x.ing.name)
-    };
-  }
-
-  function fmt1(x){ return (Math.round(num(x)*10)/10).toFixed(1); }
-  function fmtSalt(x){
-    const v=num(x);
-    if(v<0.01) return (Math.round(v*1000)/1000).toFixed(3);
-    return (Math.round(v*100)/100).toFixed(2);
-  }
-
-  function renderPreview(){
-    const flavor=$("#rFlavor").value||"";
-    const denom=($("#rDenom").value||"Milcheis").trim();
-    const pack=$("#rPack").value;
-    const storage=($("#rStorage").value||"").trim();
-
-    const r=calcRecipe();
-    $("#rTotal").textContent=`Gesamt: ${Math.round(r.totalG)} g`;
-    $("#rAzo").textContent=`Farbstoff-Warnung: ${r.azo ? "JA" : "nein"}`;
-
-    if(r.missingNutrition.length){
-      $("#rPer100").textContent=`Nährwerte: FEHLT (${r.missingNutrition.length})`;
-      $("#rPer100").className="badge warn";
-    }else{
-      $("#rPer100").textContent="Nährwerte: OK";
-      $("#rPer100").className="badge ok";
-    }
-
-    const warn = r.azo ? `<div class="badge warn">⚠ Pflicht-Hinweis: „${esc(AZO_WARNING_DE)}“</div>` : `<div class="badge ok">Kein Southampton-Farbstoff erkannt</div>`;
-    const add = r.additives.length ? `<div class="muted" style="margin-top:8px;"><b>Zusatzstoffe:</b> ${r.additives.map(esc).join(", ")}</div>` : `<div class="muted" style="margin-top:8px;">Zusatzstoffe: —</div>`;
-    const spuren = r.traces.length ? `<div class="muted" style="margin-top:8px;"><b>Kann Spuren enthalten:</b> ${esc(r.traces.join(", "))}</div>` : "";
-
-    const prev = `
-      <div class="card" style="box-shadow:none;border:1px dashed var(--line2);">
-        <div class="flex" style="justify-content:space-between;align-items:flex-start;">
-          <div>
-            <div style="font-weight:1000;">Vorschau (Etikett-Text)</div>
-            <div class="muted">${esc(denom)} • ${esc(flavor)} • ${esc(pack)} g</div>
-          </div>
-          ${warn}
-        </div>
-        <div class="hr"></div>
-        <div style="font-weight:950;">Zutaten:</div>
-        <div style="font-size:13px;line-height:1.3;">${r.zutatenText||"<span class='muted'>—</span>"}</div>
-        ${spuren}
-        ${add}
-        ${storage?`<div class="muted" style="margin-top:8px;"><b>Aufbewahrung:</b> ${esc(storage)}</div>`:""}
-        <div class="hr"></div>
-        <div style="font-weight:950;">Nährwerte je 100 g:</div>
-        <div class="scroll" style="border:1px solid var(--line);margin-top:8px;">
-          <table>
-            <tbody>
-              <tr><td>Energie</td><td class="right"><b>${Math.round(r.per100g.kj)} kJ</b> / <b>${Math.round(r.per100g.kcal)} kcal</b></td></tr>
-              <tr><td>Fett</td><td class="right">${fmt1(r.per100g.fat)} g</td></tr>
-              <tr><td class="muted">davon gesättigte Fettsäuren</td><td class="right">${fmt1(r.per100g.sat)} g</td></tr>
-              <tr><td>Kohlenhydrate</td><td class="right">${fmt1(r.per100g.carb)} g</td></tr>
-              <tr><td class="muted">davon Zucker</td><td class="right">${fmt1(r.per100g.sug)} g</td></tr>
-              <tr><td>Eiweiß</td><td class="right">${fmt1(r.per100g.pro)} g</td></tr>
-              <tr><td>Salz</td><td class="right">${fmtSalt(r.per100g.salt)} g</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
-    $("#rPreview").innerHTML = prev;
-  }
-
-  function loadRecipeToForm(){
-    const key=$("#rFlavor").value||"";
-    const saved=db.recipes[key];
-    if(saved){
-      $("#rDenom").value=saved.denom||"Milcheis";
-      $("#rPack").value=String(saved.pack||170);
-      $("#rStorage").value=saved.storage||"";
-      rLines=(saved.lines||[]).map(x=>({ingId:x.ingId, grams:num(x.grams)}));
-      if(!rLines.length) rAddLine();
-      renderRecipeLines();
-    }else{
-      $("#rDenom").value="Milcheis";
-      $("#rPack").value="170";
-      $("#rStorage").value="Bei -18°C lagern. Nach dem Auftauen nicht wieder einfrieren.";
-      rLines=[];
-      rAddLine();
-    }
-    renderPreview();
-  }
-
-  $("#rAddLine").onclick=()=>rAddLine();
-  $("#rClear").onclick=()=>{ rLines=[]; rAddLine(); renderPreview(); };
-
-  $("#rSave").onclick=()=>{
-    const key=$("#rFlavor").value||"";
-    if(!key) return;
-    db.recipes[key]={
-      denom: ($("#rDenom").value||"Milcheis").trim(),
-      pack: num($("#rPack").value||170),
-      storage: ($("#rStorage").value||"").trim(),
-      lines: rLines.map(l=>({ingId:l.ingId, grams:num(l.grams)}))
-    };
-    saveDB(db);
-    alert("Rezept gespeichert ✅");
-  };
-
-  $("#rFlavor").onchange=()=>loadRecipeToForm();
-  $("#rDenom").oninput=()=>renderPreview();
-  $("#rPack").onchange=()=>renderPreview();
-  $("#rStorage").oninput=()=>renderPreview();
-
-  // ===== init
-  renderAllergenCheckboxes();
-  renderFlavorSelect();
-  renderIngredients();
-  loadRecipeToForm();
-})();
-</script>
-</body>
-</html>
-<!doctype html>
-<html lang="de">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Etiketten</title>
-  <style>
-    :root{--bg:#f3f4f6;--card:#fff;--text:#0f172a;--muted:#64748b;--line:#e5e7eb;--line2:#d1d5db;--accent:#2563eb;--ok:#16a34a;--danger:#dc2626;--warn:#f59e0b;--shadow:0 14px 40px rgba(15,23,42,.10);--r:16px;--r2:14px;--tap:46px}
-    *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#f8fafc,#f3f4f6);color:var(--text)}
-    header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
-    .wrap{max-width:900px;margin:0 auto;padding:12px 14px}
-    .head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    h1{margin:0;font-size:18px;font-weight:900}
-    .btn{min-height:var(--tap);display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 14px;border-radius:var(--r2);border:1px solid var(--line2);background:#fff;color:var(--text);cursor:pointer;font-weight:900;font-size:13px}
-    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-    .btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
-    .btn.small{min-height:38px;padding:8px 10px;font-size:12px;border-radius:12px}
-    main{padding:16px 0 30px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
-    label{font-size:12px;color:var(--muted);display:block;margin:0 0 6px;font-weight:800}
-    input,select,textarea{width:100%;min-height:var(--tap);padding:12px 12px;border-radius:var(--r2);border:1px solid var(--line2);background:#fff;color:var(--text);outline:none;font-size:15px}
-    .row{display:grid;gap:10px}
-    .row.cols{grid-template-columns:1fr}
-    @media(min-width:720px){.row.cols{grid-template-columns:1fr 1fr}}
-    .flex{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .muted{color:var(--muted);font-size:12px}
-    .hr{height:1px;background:var(--line);margin:12px 0}
-    .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid var(--line2);background:#fff;font-size:12px;font-weight:900}
-    .badge.warn{border-color:rgba(245,158,11,.45)}
-    .badge.ok{border-color:rgba(22,163,74,.35)}
-    .scroll{overflow:auto;-webkit-overflow-scrolling:touch;border-radius:var(--r2)}
-    table{width:100%;border-collapse:collapse}
-    @media print{
-      header,.no-print{display:none!important}
-      body{background:#fff;color:#000}
-      .print-area{display:block!important}
-      .print-page{page-break-after:always;padding:12mm 10mm;font-family:Arial,Helvetica,sans-serif}
-      .print-page:last-child{page-break-after:auto}
-      .etikett{border:1.5px solid #000;border-radius:8px;padding:10px}
-      .etikett .title{font-size:15px;font-weight:800;margin:0 0 6px}
-      .etikett .meta{font-size:11px;color:#111;margin-bottom:6px}
-      .etikett .ing{font-size:10.6px;line-height:1.25;margin:6px 0}
-      .etikett .warn{font-size:10.8px;margin:6px 0;font-weight:800}
-      .etikett table{width:100%;border-collapse:collapse;margin-top:6px}
-      .etikett th,.etikett td{border:1px solid #000;padding:4px 5px;font-size:10.5px}
-      .etikett th{background:#f2f2f2;text-align:left}
-      .etikett .foot{font-size:10.5px;margin-top:6px}
-    }
-  </style>
-</head>
-<body>
-<header class="no-print">
-  <div class="wrap">
-    <div class="head">
-      <h1>Etiketten</h1>
-      <div class="flex">
-        <a class="btn small" href="./bestellung_production.html">← Bestellung</a>
-        <a class="btn small" href="./rezepte_naehrwerte.html">Rezepte</a>
-      </div>
-    </div>
-  </div>
-</header>
-
-<main class="wrap">
-  <div class="card">
-    <div class="row cols">
-      <div>
-        <label>Sorte</label>
-        <select id="flavor"></select>
-      </div>
-      <div>
-        <label>Packung</label>
-        <select id="pack">
-          <option value="170">170 g</option>
-          <option value="750">750 g</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="row cols" style="margin-top:10px;">
-      <div>
-        <label>MHD / Charge (Text)</label>
-        <input id="lot" placeholder="z.B. MHD: 01.06.2026 • Charge: 25-01">
-      </div>
-      <div>
-        <label>Unternehmer (Text)</label>
-        <input id="oper" value="Eiscafé Sanremo, Bad Berleburg, Tel.: 0176 72809926">
-      </div>
-    </div>
-
-    <div class="hr"></div>
-
-    <div class="flex">
-      <button class="btn primary" id="previewBtn">Vorschau</button>
-      <button class="btn ok" id="printBtn">Drucken</button>
-      <span id="status" class="muted"></span>
-    </div>
-
-    <div class="hr"></div>
-    <div id="preview"></div>
-  </div>
-
-  <section class="print-area hidden" id="printArea"></section>
-</main>
-
-<script>
-(() => {
-  const DB_KEY = "SANREMO_DB_V1";
-  const azoSet = new Set(["E102","E104","E110","E122","E124","E129"]);
-  const AZO_WARNING_DE = "Kann Aktivität und Aufmerksamkeit bei Kindern beeinträchtigen.";
-
-  const $ = (s)=>document.querySelector(s);
-  function num(x){ const n=Number(x); return isFinite(n)?n:0; }
-  function esc(s){ return String(s).replace(/[&<>"']/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
-
-  function loadDB(){
-    try{
-      const raw=localStorage.getItem(DB_KEY);
-      if(raw){ const db=JSON.parse(raw); if(db && typeof db==="object") return db; }
-    }catch(e){}
-    return {flavors:[], ingredients:[], recipes:{}};
-  }
-
-  function normalizeE(e){
-    const m=String(e||"").toUpperCase().replace(/\s+/g,"").match(/^E(\d{3,4}[A-Z]?)$/);
-    return m?("E"+m[1]):"";
-  }
-
-  function calcRecipe(db, flavor){
-    const r=db.recipes?.[flavor];
-    if(!r) return null;
-
-    const lines=(r.lines||[]).filter(l=>num(l.grams)>0);
-    const items=lines.map(l=>{
-      const ing=db.ingredients.find(x=>x.id===l.ingId);
-      return ing ? {ing, grams:num(l.grams)} : null;
-    }).filter(Boolean);
-
-    const totalG=items.reduce((s,x)=>s+x.grams,0);
-
-    const totals={kj:0,kcal:0,fat:0,sat:0,carb:0,sug:0,pro:0,salt:0};
-    const tracesSet=new Set();
-    const additives=[];
-    let azo=false;
-
-    items.forEach(({ing,grams})=>{
-      const factor=grams/100;
-      totals.kj += factor*num(ing.n?.kj);
-      totals.kcal += factor*num(ing.n?.kcal);
-      totals.fat += factor*num(ing.n?.fat);
-      totals.sat += factor*num(ing.n?.sat);
-      totals.carb += factor*num(ing.n?.carb);
-      totals.sug += factor*num(ing.n?.sug);
-      totals.pro += factor*num(ing.n?.pro);
-      totals.salt += factor*num(ing.n?.salt);
-
-      (ing.traces||[]).forEach(t=>tracesSet.add(t));
-
-      const eNorm=normalizeE(ing.addE);
-      if(ing.azo || (eNorm && azoSet.has(eNorm))) azo=true;
-
-      if(ing.addClass){
-        additives.push( ing.addE ? `${ing.addClass}: ${ing.addE}` : `${ing.addClass}` );
-      }
-    });
-
-    const per100=(k)=> totalG>0 ? (totals[k]/totalG*100) : 0;
-    const per100g={
-      kj: per100("kj"), kcal: per100("kcal"),
-      fat: per100("fat"), sat: per100("sat"),
-      carb: per100("carb"), sug: per100("sug"),
-      pro: per100("pro"), salt: per100("salt")
-    };
-
-    // Zutatenliste (sorted)
-    const sorted=[...items].sort((a,b)=>b.grams-a.grams);
-    const zutaten = sorted.map(({ing})=>{
-      const all=(ing.allergens||[]).length ? ` (<b>${esc((ing.allergens||[]).join(", "))}</b>)` : "";
-      return `${esc(ing.name)}${all}`;
-    }).join(", ");
-
-    const additivesUnique=[...new Set(additives.filter(Boolean))];
-    const missingNut = sorted.filter(x=>{
-      const n=x.ing.n||{};
-      return (num(n.kj)+num(n.kcal)+num(n.fat)+num(n.sat)+num(n.carb)+num(n.sug)+num(n.pro)+num(n.salt))<=0;
-    }).map(x=>x.ing.name);
-
-    return {
-      denom: r.denom || "Milcheis",
-      storage: r.storage || "Bei -18°C lagern. Nach dem Auftauen nicht wieder einfrieren.",
-      per100g, zutaten, traces:[...tracesSet], additives:additivesUnique, azo,
-      missingNut
-    };
-  }
-
-  function fmt1(x){ return (Math.round(num(x)*10)/10).toFixed(1); }
-  function fmtSalt(x){
-    const v=num(x);
-    if(v<0.01) return (Math.round(v*1000)/1000).toFixed(3);
-    return (Math.round(v*100)/100).toFixed(2);
-  }
-
-  function renderFlavorList(db){
-    const sel=$("#flavor");
-    sel.innerHTML=(db.flavors||[]).map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join("");
-  }
-
-  function renderPreview(){
-    const db=loadDB();
-    renderFlavorList(db);
-
-    const flavor=$("#flavor").value || db.flavors?.[0] || "";
-    $("#flavor").value = flavor;
-
-    const rec=calcRecipe(db, flavor);
-    const status=$("#status");
-
-    if(!rec){
-      status.textContent="⚠ Kein Rezept gefunden. Bitte zuerst im Rezepte-Modul speichern.";
-      $("#preview").innerHTML="";
-      return null;
-    }
-
-    if(rec.missingNut.length){
-      status.textContent=`⚠ Achtung: Nährwerte fehlen bei: ${rec.missingNut.join(", ")}`;
-    }else{
-      status.textContent="OK";
-    }
-
-    const pack=$("#pack").value;
-    const lot=$("#lot").value.trim();
-    const oper=$("#oper").value.trim();
-
-    const warn = rec.azo ? `<div class="badge warn">⚠ Pflicht-Hinweis: „${esc(AZO_WARNING_DE)}“</div>` : `<div class="badge ok">Kein Southampton-Farbstoff erkannt</div>`;
-    const spuren = rec.traces.length ? `<div class="muted" style="margin-top:8px;"><b>Kann Spuren enthalten:</b> ${esc(rec.traces.join(", "))}</div>` : "";
-    const add = rec.additives.length ? `<div class="muted" style="margin-top:8px;"><b>Zusatzstoffe:</b> ${rec.additives.map(esc).join(", ")}</div>` : "";
-
-    $("#preview").innerHTML=`
-      <div class="card" style="box-shadow:none;border:1px dashed var(--line2);">
-        <div class="flex" style="justify-content:space-between;align-items:flex-start;">
-          <div>
-            <div style="font-weight:1000;">${esc(rec.denom)} – ${esc(flavor)}</div>
-            <div class="muted">Nettofüllmenge: <b>${esc(pack)} g</b></div>
-          </div>
-          ${warn}
-        </div>
-        <div class="hr"></div>
-        <div style="font-weight:950;">Zutaten:</div>
-        <div style="font-size:13px;line-height:1.3;">${rec.zutaten}</div>
-        ${spuren}
-        ${add}
-        <div class="muted" style="margin-top:8px;"><b>Aufbewahrung:</b> ${esc(rec.storage)}</div>
-        ${lot?`<div class="muted" style="margin-top:8px;"><b>${esc(lot)}</b></div>`:""}
-        <div class="muted" style="margin-top:8px;"><b>Unternehmer:</b> ${esc(oper)}</div>
-
-        <div class="hr"></div>
-        <div style="font-weight:950;">Nährwerte je 100 g:</div>
-        <div class="scroll" style="border:1px solid var(--line); margin-top:8px;">
-          <table>
-            <tbody>
-              <tr><td>Energie</td><td class="right"><b>${Math.round(rec.per100g.kj)} kJ</b> / <b>${Math.round(rec.per100g.kcal)} kcal</b></td></tr>
-              <tr><td>Fett</td><td class="right">${fmt1(rec.per100g.fat)} g</td></tr>
-              <tr><td class="muted">davon gesättigte Fettsäuren</td><td class="right">${fmt1(rec.per100g.sat)} g</td></tr>
-              <tr><td>Kohlenhydrate</td><td class="right">${fmt1(rec.per100g.carb)} g</td></tr>
-              <tr><td class="muted">davon Zucker</td><td class="right">${fmt1(rec.per100g.sug)} g</td></tr>
-              <tr><td>Eiweiß</td><td class="right">${fmt1(rec.per100g.pro)} g</td></tr>
-              <tr><td>Salz</td><td class="right">${fmtSalt(rec.per100g.salt)} g</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
-
-    return {db, flavor, rec, pack, lot, oper};
-  }
-
-  function doPrint(model){
-    // safety: missing nutrition
-    if(model.rec.missingNut.length){
-      const ok = confirm("⚠ Achtung: Für folgende Zutaten fehlen Nährwerte:\n" + model.rec.missingNut.join(", ") + "\n\nTrotzdem Etikett drucken?");
-      if(!ok) return;
-    }
-
-    const warn = model.rec.azo ? `<div class="warn">Hinweis: ${esc(AZO_WARNING_DE)}</div>` : "";
-    const spuren = model.rec.traces.length ? `<div class="ing"><b>Kann Spuren enthalten:</b> ${esc(model.rec.traces.join(", "))}</div>` : "";
-    const add = model.rec.additives.length ? `<div class="ing"><b>Zusatzstoffe:</b> ${model.rec.additives.map(esc).join(", ")}</div>` : "";
-
-    const html=`
-      <div class="print-page">
-        <div class="etikett">
-          <div class="title">${esc(model.rec.denom)} – ${esc(model.flavor)}</div>
-          <div class="meta">Nettofüllmenge: <b>${esc(model.pack)} g</b></div>
-
-          <div class="ing"><b>Zutaten:</b> ${model.rec.zutaten}</div>
-          ${spuren}
-          ${add}
-          ${warn}
-
-          <div class="ing"><b>Aufbewahrung:</b> ${esc(model.rec.storage)}</div>
-          ${model.lot?`<div class="ing"><b>${esc(model.lot)}</b></div>`:""}
-          <div class="ing"><b>Unternehmer:</b> ${esc(model.oper)}</div>
-
-          <div class="ing" style="margin-top:8px;"><b>Nährwerte je 100 g</b></div>
-          <table>
-            <tbody>
-              <tr><th>Energie</th><td class="right"><b>${Math.round(model.rec.per100g.kj)} kJ</b> / <b>${Math.round(model.rec.per100g.kcal)} kcal</b></td></tr>
-              <tr><th>Fett</th><td class="right">${(Math.round(model.rec.per100g.fat*10)/10).toFixed(1)} g</td></tr>
-              <tr><th>davon gesättigte Fettsäuren</th><td class="right">${(Math.round(model.rec.per100g.sat*10)/10).toFixed(1)} g</td></tr>
-              <tr><th>Kohlenhydrate</th><td class="right">${(Math.round(model.rec.per100g.carb*10)/10).toFixed(1)} g</td></tr>
-              <tr><th>davon Zucker</th><td class="right">${(Math.round(model.rec.per100g.sug*10)/10).toFixed(1)} g</td></tr>
-              <tr><th>Eiweiß</th><td class="right">${(Math.round(model.rec.per100g.pro*10)/10).toFixed(1)} g</td></tr>
-              <tr><th>Salz</th><td class="right">${(model.rec.per100g.salt<0.01 ? (Math.round(model.rec.per100g.salt*1000)/1000).toFixed(3) : (Math.round(model.rec.per100g.salt*100)/100).toFixed(2))} g</td></tr>
-            </tbody>
-          </table>
-
-          <div class="foot">Eiscafé Sanremo • Bad Berleburg</div>
-        </div>
-      </div>
-    `;
-
-    const area=$("#printArea");
-    area.innerHTML=html;
-    area.classList.remove("hidden");
-    window.print();
-    area.classList.add("hidden");
-  }
-
-  $("#previewBtn").onclick=()=>renderPreview();
-  $("#printBtn").onclick=()=>{
-    const model=renderPreview();
-    if(model) doPrint(model);
-  };
-
-  // init
-  renderPreview();
-})();
-</script>
-</body>
-</html>
