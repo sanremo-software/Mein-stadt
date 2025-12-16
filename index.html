@@ -4,68 +4,78 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Sanremo – Supermarkt Bestellungen</title>
+  <title>Bestellung REWE</title>
   <style>
     :root{
-      --bg0:#070A12; --bg1:#0A1120;
-      --card:#0F1B2E; --card2:#0C1626;
-      --muted:#9DB2D0; --text:#EAF2FF;
-      --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.14);
-      --accent:#2F7CF6; --ok:#22C55E; --danger:#EF4444;
-      --shadow: 0 18px 55px rgba(0,0,0,.40);
-      --radius:18px; --radius2:14px; --tap:46px;
+      --bg:#f3f4f6;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line:#e5e7eb;
+      --line2:#d1d5db;
+      --accent:#2563eb;
+      --ok:#16a34a;
+      --danger:#dc2626;
+      --shadow: 0 14px 40px rgba(15,23,42,.10);
+      --radius:16px;
+      --radius2:14px;
+      --tap:46px;
     }
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
       margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background: linear-gradient(180deg,#f8fafc, #f3f4f6);
       color:var(--text);
-      background:
-        radial-gradient(900px 550px at 20% -10%, rgba(47,124,246,.22), transparent 55%),
-        radial-gradient(900px 550px at 90% 10%, rgba(34,197,94,.10), transparent 60%),
-        linear-gradient(180deg,var(--bg0),var(--bg1));
       overflow-x:hidden;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
     }
+
     header{
       position:sticky; top:0; z-index:20;
-      background:rgba(7,10,18,.72);
+      background:rgba(255,255,255,.92);
       backdrop-filter: blur(10px);
       border-bottom:1px solid var(--line);
       padding-top: env(safe-area-inset-top);
     }
-    .wrap{ max-width:1100px; margin:0 auto; padding:14px 14px; }
-    h1{ margin:0; font-size:16px; letter-spacing:.2px; }
-    .sub{ margin-top:4px; font-size:12px; color:var(--muted); }
-    nav{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; padding-bottom:2px; }
+    .wrap{ max-width:1150px; margin:0 auto; padding:12px 14px; }
+    .head-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    h1{
+      margin:0;
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    nav{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+
     .tab{
-      min-height:42px;
-      padding:10px 12px;
-      border:1px solid var(--line);
+      min-height:40px;
+      padding:9px 12px;
+      border:1px solid var(--line2);
       border-radius:999px;
-      background:rgba(255,255,255,.04);
+      background:#fff;
       color:var(--text);
       cursor:pointer;
-      font-weight:900;
+      font-weight:850;
       font-size:13px;
       transition:transform .06s ease, background .15s ease, border-color .15s ease;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
     }
-    .tab:active{ transform:scale(.98); }
+    .tab:active{ transform:scale(.985); }
     .tab.active{
-      background:linear-gradient(180deg, rgba(47,124,246,.95), rgba(47,124,246,.70));
-      border-color:transparent;
-      box-shadow:0 10px 28px rgba(47,124,246,.22);
+      background: var(--accent);
+      border-color: var(--accent);
+      color:#fff;
+      box-shadow:0 10px 24px rgba(37,99,235,.18);
     }
+
     main{ padding:16px 0 30px; }
     .grid{ display:grid; grid-template-columns:1fr; gap:12px; }
-    @media (min-width:900px){ .grid.two{ grid-template-columns:1.08fr .92fr; } }
+    @media (min-width:920px){ .grid.two{ grid-template-columns:1.08fr .92fr; } }
 
     .card{
-      background:linear-gradient(180deg, rgba(15,27,46,.92), rgba(12,22,38,.92));
+      background:var(--card);
       border:1px solid var(--line);
       border-radius: var(--radius);
       padding:14px;
@@ -73,28 +83,28 @@
     }
     .card h2{ margin:0 0 10px; font-size:14px; letter-spacing:.2px; }
 
-    .row{ display:grid; gap:10px; }
-    .row.cols{ grid-template-columns:1fr; }
-    @media (min-width:700px){ .row.cols{ grid-template-columns:1fr 1fr; } }
-
-    label{ font-size:12px; color:var(--muted); display:block; margin:0 0 6px; }
-
+    label{ font-size:12px; color:var(--muted); display:block; margin:0 0 6px; font-weight:800; }
     input, select, textarea{
       width:100%;
       min-height: var(--tap);
       padding:12px 12px;
       border-radius: var(--radius2);
       border:1px solid var(--line2);
-      background:rgba(255,255,255,.04);
+      background:#fff;
       color:var(--text);
       outline:none;
       transition:border-color .15s ease, box-shadow .15s ease;
+      font-size:15px;
     }
     input:focus, select:focus, textarea:focus{
-      border-color: rgba(47,124,246,.75);
-      box-shadow:0 0 0 3px rgba(47,124,246,.18);
+      border-color: rgba(37,99,235,.75);
+      box-shadow:0 0 0 3px rgba(37,99,235,.15);
     }
     textarea{ min-height:92px; resize:vertical; }
+
+    .row{ display:grid; gap:10px; }
+    .row.cols{ grid-template-columns:1fr; }
+    @media (min-width:720px){ .row.cols{ grid-template-columns:1fr 1fr; } }
 
     .btn{
       min-height: var(--tap);
@@ -102,46 +112,36 @@
       padding:12px 14px;
       border-radius: var(--radius2);
       border:1px solid var(--line2);
-      background:rgba(255,255,255,.04);
+      background:#fff;
       color:var(--text);
       cursor:pointer;
-      font-weight:950;
+      font-weight:900;
       font-size:13px;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
       transition: transform .06s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
     }
     .btn:active{ transform:scale(.985); }
-    .btn.primary{
-      background:linear-gradient(180deg, rgba(47,124,246,.95), rgba(47,124,246,.70));
-      border-color: transparent;
-      box-shadow:0 12px 30px rgba(47,124,246,.18);
-    }
-    .btn.ok{
-      background:linear-gradient(180deg, rgba(34,197,94,.92), rgba(34,197,94,.66));
-      border-color: transparent;
-      box-shadow:0 12px 30px rgba(34,197,94,.12);
-    }
-    .btn.danger{
-      background:linear-gradient(180deg, rgba(239,68,68,.90), rgba(239,68,68,.62));
-      border-color: transparent;
-      box-shadow:0 12px 30px rgba(239,68,68,.14);
-    }
+    .btn.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
+    .btn.ok{ background:var(--ok); border-color:var(--ok); color:#fff; }
+    .btn.danger{ background:var(--danger); border-color:var(--danger); color:#fff; }
     .btn.small{ min-height:38px; padding:8px 10px; font-size:12px; border-radius:12px; }
+
+    .flex{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
     .muted{ color:var(--muted); font-size:12px; }
     .hr{ height:1px; background:var(--line); margin:12px 0; }
     .pill{
       display:inline-flex; align-items:center; gap:8px;
       padding:8px 10px;
-      border:1px solid var(--line);
+      border:1px solid var(--line2);
       border-radius:999px;
-      background:rgba(255,255,255,.03);
-      font-size:12px; color:#D7E6FF;
+      background:#fff;
+      font-size:12px; color:var(--text);
       font-weight:900;
     }
-    .pill.ok{ border-color: rgba(34,197,94,.35); }
-    .pill.wait{ border-color: rgba(47,124,246,.30); }
-    .flex{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .pill.ok{ border-color: rgba(22,163,74,.35); }
+    .pill.wait{ border-color: rgba(37,99,235,.30); }
+
     .hidden{ display:none !important; }
 
     .scrollBox{
@@ -163,15 +163,14 @@
       border:1px solid var(--line);
       border-radius: var(--radius2);
       overflow:hidden;
-      background:rgba(0,0,0,.08);
+      background:#fff;
     }
     thead th{
       position: sticky;
       top: 0;
       z-index: 2;
-      background: rgba(10,17,32,.92);
-      backdrop-filter: blur(6px);
-      color:#CFE0FF;
+      background: #f8fafc;
+      color:#334155;
       text-align:left;
       font-size:12px;
       text-transform:uppercase;
@@ -181,11 +180,96 @@
     }
     tbody td{
       padding:10px;
-      border-bottom:1px solid rgba(255,255,255,.08);
+      border-bottom:1px solid var(--line);
       font-size:13px;
     }
     tbody tr:last-child td{ border-bottom:none; }
     .right{ text-align:right; }
+
+    /* PRODUÇÃO XL (LUVAS) */
+    .xl-top{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .xl-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap:14px;
+      margin-top:14px;
+    }
+    .xl-tile{
+      border:2px solid var(--line2);
+      border-radius:18px;
+      background:#fff;
+      box-shadow: 0 10px 24px rgba(15,23,42,.08);
+      padding:14px;
+      min-height:170px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .xl-flavor{
+      font-weight:1000;
+      font-size:18px;
+      line-height:1.15;
+    }
+    .xl-numbers{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:10px;
+    }
+    .xl-left{
+      font-size:54px;
+      font-weight:1100;
+      letter-spacing:-1px;
+    }
+    .xl-meta{
+      text-align:right;
+      color:var(--muted);
+      font-weight:900;
+      font-size:12px;
+    }
+    .xl-actions{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+    }
+    .xl-btn{
+      flex:1;
+      min-height:70px;
+      border-radius:16px;
+      border:2px solid var(--line2);
+      background:#fff;
+      font-weight:1000;
+      font-size:18px;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .xl-btn:active{ transform:scale(.99); }
+    .xl-btn.plus{
+      background:var(--ok);
+      border-color:var(--ok);
+      color:#fff;
+    }
+    .xl-btn.minus{
+      background:#fff;
+    }
+    .xl-summary{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+      padding-top:14px;
+      border-top:1px solid var(--line);
+      font-size:16px;
+      font-weight:950;
+    }
 
     @media print{
       body{ background:#fff; color:#000; }
@@ -213,14 +297,18 @@
     }
   </style>
 </head>
+
 <body>
 <header class="no-print">
   <div class="wrap">
-    <h1>Supermarkt Bestellungen </h1>
-    <div class="sub">750g & 170g • KG + Baldes 6kg por sabor + total • Statistik conta SÓ o que foi IMPRESSO</div>
+    <div class="head-row">
+      <h1>Bestellung REWE</h1>
+    </div>
+
     <nav>
       <button class="tab active" data-view="bestellung">Bestellung</button>
       <button class="tab" data-view="produktion">Produktion</button>
+      <button class="tab" data-view="xl">Produktion XL</button>
       <button class="tab" data-view="plan">Baldes-Plan</button>
       <button class="tab" data-view="statistik">Statistik</button>
       <button class="tab" data-view="kunden">Kunden</button>
@@ -251,7 +339,7 @@
       <div class="hr"></div>
 
       <div class="flex">
-        <button class="btn primary" id="addLine">+ Position hinzufügen</button>
+        <button class="btn primary" id="addLine">+ Position</button>
         <button class="btn" id="clearOrder">Leeren</button>
         <span id="saveHint" class="muted"></span>
       </div>
@@ -264,7 +352,7 @@
             <tr>
               <th style="width:120px;">Größe</th>
               <th>Sorte</th>
-              <th style="width:120px;" class="right">Menge</th>
+              <th style="width:150px;" class="right">Menge (0–100)</th>
               <th style="width:90px;" class="right">Aktion</th>
             </tr>
           </thead>
@@ -287,23 +375,17 @@
       <textarea id="orderNotes" placeholder="z.B. bitte bis 09:00 liefern, Hintereingang..."></textarea>
 
       <div class="flex" style="margin-top:12px;">
-        <button class="btn ok" id="saveOrder">Bestellung speichern</button>
+        <button class="btn ok" id="saveOrder">Speichern</button>
         <button class="btn" id="printProduktion">Drucken: Produktion</button>
         <button class="btn" id="printLieferschein">Drucken: Lieferschein</button>
         <button class="btn" id="printPicklist">Drucken: Pick-List</button>
         <button class="btn" id="printPlan">Drucken: Baldes-Plan</button>
       </div>
-
-      <div class="muted" style="margin-top:8px;">
-        ⚠️ Para a <b>Statistik</b> contar, tens de imprimir (Produktion / Lieferschein / Pick-List / Baldes-Plan).
-      </div>
     </div>
 
     <div class="card">
-      <h2>Überblick – Produktion für Datum</h2>
-      <div class="muted">Soma automática das encomendas do dia. (Conta nas estatísticas só após imprimir.)</div>
+      <h2>Produktion – Überblick (Datum)</h2>
 
-      <div class="hr"></div>
       <div class="flex">
         <span class="pill" id="tot750">750g: 0</span>
         <span class="pill" id="tot170">170g: 0</span>
@@ -314,7 +396,6 @@
 
       <div class="hr"></div>
 
-      <h2 style="margin:0 0 8px;">Produktion nach Sorte</h2>
       <div class="scrollBox maxH-520" style="border:1px solid var(--line);">
         <table>
           <thead>
@@ -378,13 +459,46 @@
     </div>
   </section>
 
+  <!-- PRODUÇÃO XL (LUVAS) -->
+  <section id="view-xl" class="grid hidden">
+    <div class="card">
+      <div class="xl-top">
+        <div style="min-width:240px; flex:1;">
+          <h2 style="margin:0 0 8px;">Produktion XL (Luvas)</h2>
+          <div class="muted">1 toque em “+1” = 1 balde (6kg) feito</div>
+        </div>
+        <div style="min-width:240px;">
+          <label>Datum</label>
+          <input type="date" id="xlDate" />
+        </div>
+        <div class="flex" style="align-items:end;">
+          <button class="btn primary" id="xlRefresh">Anzeigen</button>
+          <button class="btn danger" id="xlReset">Reset (dia)</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="flex">
+        <span class="pill" id="xl_totKg">KG: 0</span>
+        <span class="pill" id="xl_totBuckets">Baldes: 0</span>
+        <span class="pill ok" id="xl_done">Feitos: 0</span>
+        <span class="pill wait" id="xl_left">Faltam: 0</span>
+      </div>
+
+      <div class="xl-grid" id="xlGrid"></div>
+
+      <div class="xl-summary">
+        <div>Feitos: <span id="xlDoneBig">0</span></div>
+        <div>Faltam: <span id="xlLeftBig">0</span></div>
+      </div>
+    </div>
+  </section>
+
   <!-- BALDES-PLAN (SCREEN) -->
   <section id="view-plan" class="grid hidden">
     <div class="card">
-      <h2>Baldes-Plan (6kg) – Bildschirm</h2>
-      <div class="muted">Planeamento por sabor • Marcar baldes feitos • Guardado por data</div>
-
-      <div class="hr"></div>
+      <h2>Baldes-Plan (6kg)</h2>
 
       <div class="row cols">
         <div>
@@ -433,7 +547,7 @@
       <h2>Statistik – Monat</h2>
       <div class="row cols">
         <div>
-          <label>Monat wählen</label>
+          <label>Monat</label>
           <input type="month" id="statMonth" />
         </div>
         <div class="flex" style="align-items:end;">
@@ -449,7 +563,6 @@
         <span class="pill ok" id="sm_totKg">KG: 0</span>
         <span class="pill ok" id="sm_totBuckets">Baldes: 0</span>
       </div>
-      <div class="muted" style="margin-top:8px;">Conta somente encomendas <b>impressas</b>.</div>
 
       <div class="hr"></div>
       <div class="scrollBox maxH-520" style="border:1px solid var(--line);">
@@ -473,7 +586,7 @@
       <h2>Statistik – Jahr</h2>
       <div class="row cols">
         <div>
-          <label>Ano</label>
+          <label>Jahr</label>
           <input type="number" id="statYear" min="2020" step="1" />
         </div>
         <div class="flex" style="align-items:end;">
@@ -489,7 +602,6 @@
         <span class="pill ok" id="sy_totKg">KG: 0</span>
         <span class="pill ok" id="sy_totBuckets">Baldes: 0</span>
       </div>
-      <div class="muted" style="margin-top:8px;">Conta somente encomendas <b>impressas</b>.</div>
 
       <div class="hr"></div>
       <div class="scrollBox maxH-520" style="border:1px solid var(--line);">
@@ -513,10 +625,10 @@
   <!-- KUNDEN -->
   <section id="view-kunden" class="grid two hidden">
     <div class="card">
-      <h2>Kunden verwalten</h2>
+      <h2>Kunden</h2>
       <div class="row cols">
         <div>
-          <label>Kunde (Name)</label>
+          <label>Name</label>
           <input id="newCustomerName" placeholder="z.B. REWE Bad Berleburg" />
         </div>
         <div>
@@ -525,13 +637,12 @@
         </div>
       </div>
       <div class="flex" style="margin-top:10px;">
-        <button class="btn ok" id="addCustomer">Kunde hinzufügen</button>
-        <span class="muted">Podes apagar depois, se quiseres.</span>
+        <button class="btn ok" id="addCustomer">Hinzufügen</button>
       </div>
     </div>
 
     <div class="card">
-      <h2>Bestehende Kunden</h2>
+      <h2>Liste</h2>
       <div class="scrollBox maxH-520" style="border:1px solid var(--line); padding:10px;">
         <div id="customersList"></div>
       </div>
@@ -541,22 +652,21 @@
   <!-- SORTEN -->
   <section id="view-sorten" class="grid two hidden">
     <div class="card">
-      <h2>Sorten verwalten</h2>
+      <h2>Sorten</h2>
       <div class="row cols">
         <div>
           <label>Neue Sorte</label>
           <input id="newFlavor" placeholder="z.B. Haselnuss, Zitrone..." />
         </div>
         <div class="flex" style="align-items:end;">
-          <button class="btn ok" id="addFlavor">Sorte hinzufügen</button>
-          <button class="btn" id="resetDefaults">Standard wiederherstellen</button>
+          <button class="btn ok" id="addFlavor">Hinzufügen</button>
+          <button class="btn" id="resetDefaults">Standard</button>
         </div>
       </div>
-      <div class="muted" style="margin-top:10px;">Tudo fica guardado neste dispositivo (browser).</div>
     </div>
 
     <div class="card">
-      <h2>Bestehende Sorten</h2>
+      <h2>Liste</h2>
       <div class="scrollBox maxH-520" style="border:1px solid var(--line); padding:10px;">
         <div id="flavorsList"></div>
       </div>
@@ -566,11 +676,11 @@
   <!-- HISTORY -->
   <section id="view-history" class="grid hidden">
     <div class="card">
-      <h2>Historie (Bestellungen)</h2>
+      <h2>Historie</h2>
       <div class="row cols">
         <div>
-          <label>Suche (Kunde oder Datum)</label>
-          <input id="historySearch" placeholder="z.B. REWE ou 2025-12-16" />
+          <label>Suche</label>
+          <input id="historySearch" placeholder="REWE ou 2025-12-16" />
         </div>
         <div class="flex" style="align-items:end;">
           <button class="btn primary" id="historyRefresh">Aktualisieren</button>
@@ -591,10 +701,10 @@
 
 <script>
 (() => {
-  const KEY_V6 = "sanremo_bestellungen_v6";
+  const KEY = "sanremo_bestellungen_v8";
   const KEY_TRY = [
-    "sanremo_bestellungen_v6","sanremo_bestellungen_v5","sanremo_bestellungen_v4",
-    "sanremo_bestellungen_v3","sanremo_bestellungen_v2","sanremo_bestellungen_v1"
+    "sanremo_bestellungen_v8","sanremo_bestellungen_v7","sanremo_bestellungen_v6",
+    "sanremo_bestellungen_v5","sanremo_bestellungen_v4","sanremo_bestellungen_v3"
   ];
 
   const KG_750 = 0.75;
@@ -611,7 +721,12 @@
     { id: uid(), name: "EDEKA", note: "" }
   ];
 
+  // Progress (Plan + XL): saved per date, per flavor = done buckets
+  const PROG_KEY = "sanremo_bucket_progress_v1";
+
   function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
+  const $ = (s)=>document.querySelector(s);
+  const $$ = (s)=>Array.from(document.querySelectorAll(s));
 
   function loadAny(){
     for(const k of KEY_TRY){
@@ -624,24 +739,28 @@
     }
     return null;
   }
-  function save(state){ localStorage.setItem(KEY_V6, JSON.stringify(state)); }
+  function save(state){ localStorage.setItem(KEY, JSON.stringify(state)); }
 
-  let state = loadAny() || { flavors:[...defaultFlavors], customers:[...defaultCustomers], orders:[] };
-  state.flavors = Array.isArray(state.flavors) ? state.flavors : [...defaultFlavors];
-  state.customers = Array.isArray(state.customers) ? state.customers : [...defaultCustomers];
-  state.orders = Array.isArray(state.orders) ? state.orders : [];
-  state.orders = state.orders.map(o => ({
-    id: o.id || uid(),
-    date: o.date || "",
-    customerId: o.customerId || "",
-    notes: o.notes || "",
-    lines: Array.isArray(o.lines) ? o.lines : [],
-    countedAt: o.countedAt || null
-  }));
-  save(state);
-
-  const $ = (s)=>document.querySelector(s);
-  const $$ = (s)=>Array.from(document.querySelectorAll(s));
+  function loadProg(){
+    try{ return JSON.parse(localStorage.getItem(PROG_KEY) || "{}"); }catch(e){ return {}; }
+  }
+  function saveProg(obj){
+    localStorage.setItem(PROG_KEY, JSON.stringify(obj));
+  }
+  function getProg(date){
+    const all = loadProg();
+    return all[date] || {};
+  }
+  function setProg(date, prog){
+    const all = loadProg();
+    all[date] = prog;
+    saveProg(all);
+  }
+  function resetProg(date){
+    const all = loadProg();
+    delete all[date];
+    saveProg(all);
+  }
 
   function setTodayIfEmpty(el){
     if(!el || el.value) return;
@@ -659,15 +778,39 @@
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
+
   function renderTabs(active){
     $$(".tab").forEach(b=>b.classList.toggle("active", b.dataset.view===active));
     $$("main section[id^='view-']").forEach(sec=>sec.classList.add("hidden"));
     $("#view-"+active).classList.remove("hidden");
   }
 
+  let state = loadAny() || { flavors:[...defaultFlavors], customers:[...defaultCustomers], orders:[] };
+  state.flavors = Array.isArray(state.flavors) ? state.flavors : [...defaultFlavors];
+  state.customers = Array.isArray(state.customers) ? state.customers : [...defaultCustomers];
+  state.orders = Array.isArray(state.orders) ? state.orders : [];
+  state.orders = state.orders.map(o => ({
+    id: o.id || uid(),
+    date: o.date || "",
+    customerId: o.customerId || "",
+    notes: o.notes || "",
+    lines: Array.isArray(o.lines) ? o.lines : [],
+    countedAt: o.countedAt || null
+  }));
+  save(state);
+
   function customerName(id){
     const c=state.customers.find(x=>x.id===id);
     return c ? (c.note?`${c.name} – ${c.note}`:c.name) : "Unbekannt";
+  }
+
+  // qty options 0..100
+  function qtySelectHTML(selected){
+    let out = "";
+    for(let i=0;i<=100;i++){
+      out += `<option value="${i}" ${i===selected?"selected":""}>${i}</option>`;
+    }
+    return out;
   }
 
   // ---------------- Customers
@@ -680,6 +823,10 @@
       opt.textContent=c.note?`${c.name} – ${c.note}`:c.name;
       sel.appendChild(opt);
     });
+
+    // default select REWE if exists
+    const rewe = state.customers.find(c=>c.name.toLowerCase().includes("rewe"));
+    if(rewe) sel.value = rewe.id;
 
     const box=$("#customersList");
     box.innerHTML="";
@@ -767,10 +914,11 @@
 
   // ---------------- Orders
   let currentLines=[];
-  function addLine(size="750g", flavor=null, qty=1){
+  function addLine(size="750g", flavor=null, qty=0){
     currentLines.push({ size, flavor: flavor || (state.flavors[0]||""), qty });
     renderLines();
   }
+
   function renderLines(){
     const tb=$("#linesTbody");
     tb.innerHTML="";
@@ -787,10 +935,10 @@
       flavorSel.value=ln.flavor;
       flavorSel.onchange=()=>{ ln.flavor=flavorSel.value; refreshOrderDraftSummary(); };
 
-      const qtyInp=document.createElement("input");
-      qtyInp.type="number"; qtyInp.min="0"; qtyInp.step="1";
-      qtyInp.value=ln.qty;
-      qtyInp.oninput=()=>{ ln.qty=Math.max(0, parseInt(qtyInp.value||"0",10)); refreshOrderDraftSummary(); };
+      const qtySel=document.createElement("select");
+      qtySel.innerHTML = qtySelectHTML(Number(ln.qty||0));
+      qtySel.value = String(Number(ln.qty||0));
+      qtySel.onchange=()=>{ ln.qty = Number(qtySel.value||0); refreshOrderDraftSummary(); };
 
       const delBtn=document.createElement("button");
       delBtn.className="btn small danger";
@@ -800,14 +948,14 @@
       tr.innerHTML=`<td></td><td></td><td class="right"></td><td class="right"></td>`;
       tr.children[0].appendChild(sizeSel);
       tr.children[1].appendChild(flavorSel);
-      tr.children[2].appendChild(qtyInp);
+      tr.children[2].appendChild(qtySel);
       tr.children[3].appendChild(delBtn);
       tb.appendChild(tr);
     });
     refreshOrderDraftSummary();
   }
 
-  $("#addLine").onclick=()=>addLine();
+  $("#addLine").onclick=()=>addLine("750g", state.flavors[0]||"", 0);
   $("#clearOrder").onclick=()=>{
     currentLines=[];
     $("#orderNotes").value="";
@@ -832,7 +980,7 @@
     save(state);
 
     $("#saveHint").textContent="Gespeichert ✅";
-    setTimeout(()=>$("#saveHint").textContent="", 1600);
+    setTimeout(()=>$("#saveHint").textContent="", 1200);
 
     currentLines=[];
     $("#orderNotes").value="";
@@ -840,7 +988,8 @@
     renderHistory();
     refreshOverview();
     refreshStats();
-    renderPlanScreen(); // para atualizar se estiver aberto
+    renderPlanScreen();
+    renderXL();
   };
 
   function ordersByDate(date){ return state.orders.filter(o=>o.date===date); }
@@ -921,9 +1070,9 @@
     $("#prodTbody2").innerHTML=rowsHtml;
   }
 
-  $("#prodRefresh").onclick=()=>{ refreshOverview(); renderPlanScreen(); };
-  $("#orderDate").onchange=()=>{ refreshOverview(); renderPlanScreen(); };
-  $("#prodDate").onchange=()=>{ refreshOverview(); renderPlanScreen(); };
+  $("#prodRefresh").onclick=()=>{ refreshOverview(); renderPlanScreen(); renderXL(); };
+  $("#orderDate").onchange=()=>{ refreshOverview(); renderPlanScreen(); renderXL(); };
+  $("#prodDate").onchange=()=>{ refreshOverview(); renderPlanScreen(); renderXL(); };
 
   // ---------------- Draft summary
   function refreshOrderDraftSummary(){
@@ -987,7 +1136,7 @@
         const id=btn.getAttribute("data-del-order");
         state.orders=state.orders.filter(o=>o.id!==id);
         save(state);
-        renderHistory(); refreshOverview(); refreshStats(); renderPlanScreen();
+        renderHistory(); refreshOverview(); refreshStats(); renderPlanScreen(); renderXL();
       };
     });
 
@@ -1013,7 +1162,7 @@
         if(!confirm("Remover 'Contado'? Usa isto só se imprimiste por engano.")) return;
         o.countedAt = null;
         save(state);
-        renderHistory(); refreshStats(); renderPlanScreen();
+        renderHistory(); refreshStats();
       };
     });
   }
@@ -1024,7 +1173,7 @@
     if(!confirm("Wirklich ALLE Bestellungen löschen?")) return;
     state.orders=[];
     save(state);
-    renderHistory(); refreshOverview(); refreshStats(); renderPlanScreen();
+    renderHistory(); refreshOverview(); refreshStats(); renderPlanScreen(); renderXL();
   };
 
   // ---------------- Counting (only when printed)
@@ -1059,7 +1208,6 @@
     `;
   }
 
-  // ---------------- Print: Produktion
   function printProduktion(date){
     if(!date){ alert("Bitte Datum wählen."); return; }
     const all = ordersByDate(date);
@@ -1103,7 +1251,6 @@
     $("#printArea").classList.add("hidden");
   }
 
-  // ---------------- Print: Lieferschein (no prices)
   function printLieferschein(date){
     if(!date){ alert("Bitte Datum wählen."); return; }
     const orders=ordersByDate(date);
@@ -1156,9 +1303,8 @@
     $("#printArea").classList.add("hidden");
   }
 
-  // ---------------- Pick-List (Flavor summary) + totals
   function summarizeLinesToFlavor(orders){
-    const map = new Map(); // flavor -> {g750,g170}
+    const map = new Map();
     orders.forEach(o=>{
       o.lines.forEach(l=>{
         if(!map.has(l.flavor)) map.set(l.flavor, {f:l.flavor, g750:0, g170:0});
@@ -1220,7 +1366,6 @@
     if(orders.length===0){ alert("Keine Bestellungen für dieses Datum."); return; }
     markCountedForDate(date);
 
-    // general
     const allRows = summarizeLinesToFlavor(orders);
     const allTotals = totalsFromRows(allRows);
 
@@ -1238,7 +1383,6 @@
       </div>
     `;
 
-    // per customer
     const customerPages = orders.map(o=>{
       const cname = customerName(o.customerId);
       const rows = summarizeLinesToFlavor([o]);
@@ -1265,7 +1409,6 @@
     $("#printArea").classList.add("hidden");
   }
 
-  // ---------------- Print: Baldes-Plan (simple sheet)
   function printBucketsPlan(date){
     if(!date){ alert("Bitte Datum wählen."); return; }
     const orders = ordersByDate(date);
@@ -1294,7 +1437,7 @@
         <div class="p-head">
           <div>
             <h2 class="p-title">Baldes-Plan (6kg) – ${escapeHtml(date)}</h2>
-            <div class="p-sub">Planeamento por sabor (baldes a fazer) + checkboxes</div>
+            <div class="p-sub">Planeamento por sabor (baldes a fazer)</div>
           </div>
           ${companyBlock()}
         </div>
@@ -1314,10 +1457,6 @@
             ${listHtml}
           </tbody>
         </table>
-
-        <div style="margin-top:8mm;" class="small">
-          “Baldes (fazer)” é arredondado para cima para não faltar.
-        </div>
       </div>
     `;
 
@@ -1386,29 +1525,7 @@
   $("#statMonthRefresh").onclick=()=>refreshStats();
   $("#statYearRefresh").onclick=()=>refreshStats();
 
-  // ---------------- Baldes-Plan screen progress
-  const PLAN_KEY = "sanremo_plan_progress_v1";
-  function loadPlanProgress(){
-    try{ return JSON.parse(localStorage.getItem(PLAN_KEY) || "{}"); }catch(e){ return {}; }
-  }
-  function savePlanProgress(obj){
-    localStorage.setItem(PLAN_KEY, JSON.stringify(obj));
-  }
-  function getPlanForDate(date){
-    const all = loadPlanProgress();
-    return all[date] || {};
-  }
-  function setPlanForDate(date, planObj){
-    const all = loadPlanProgress();
-    all[date] = planObj;
-    savePlanProgress(all);
-  }
-  function resetPlanForDate(date){
-    const all = loadPlanProgress();
-    delete all[date];
-    savePlanProgress(all);
-  }
-
+  // ---------------- Baldes-Plan screen
   function renderPlanScreen(){
     const date = $("#planDate").value;
     if(!date) return;
@@ -1426,7 +1543,7 @@
     }
 
     const prod = calcProductionFromOrders(orders);
-    const progress = getPlanForDate(date);
+    const progress = getProg(date);
 
     const rows = [...prod.rows]
       .filter(r => r.bucketsToMake > 0)
@@ -1468,35 +1585,142 @@
     $$("[data-done]").forEach(btn=>{
       btn.onclick = ()=>{
         const f = btn.getAttribute("data-done");
-        const p = getPlanForDate(date);
+        const p = getProg(date);
         p[f] = (Number(p[f]||0) + 1);
-        setPlanForDate(date, p);
+        setProg(date, p);
         renderPlanScreen();
+        renderXL(); // mantém sincronizado com XL
       };
     });
     $$("[data-undo]").forEach(btn=>{
       btn.onclick = ()=>{
         const f = btn.getAttribute("data-undo");
-        const p = getPlanForDate(date);
+        const p = getProg(date);
         p[f] = Math.max(0, Number(p[f]||0) - 1);
-        setPlanForDate(date, p);
+        setProg(date, p);
         renderPlanScreen();
+        renderXL();
       };
     });
   }
 
   $("#planRefresh").onclick = ()=>renderPlanScreen();
-  $("#planDate").onchange = ()=>renderPlanScreen();
+  $("#planDate").onchange = ()=>{ renderPlanScreen(); renderXL(); };
   $("#planReset").onclick = ()=>{
     const date = $("#planDate").value;
     if(!date) return;
     if(!confirm("Reset do plano deste dia?")) return;
-    resetPlanForDate(date);
+    resetProg(date);
     renderPlanScreen();
+    renderXL();
   };
   $("#planPrint").onclick = ()=>printBucketsPlan($("#planDate").value);
 
-  // ---------------- Buttons print
+  // ---------------- PRODUÇÃO XL (LUVAS)
+  function renderXL(){
+    const date = $("#xlDate").value;
+    if(!date) return;
+
+    const orders = ordersByDate(date);
+    const grid = $("#xlGrid");
+
+    if(!orders.length){
+      grid.innerHTML = `<div class="muted">Keine Bestellungen für dieses Datum.</div>`;
+      $("#xl_totKg").textContent = `KG: 0`;
+      $("#xl_totBuckets").textContent = `Baldes: 0`;
+      $("#xl_done").textContent = `Feitos: 0`;
+      $("#xl_left").textContent = `Faltam: 0`;
+      $("#xlDoneBig").textContent = `0`;
+      $("#xlLeftBig").textContent = `0`;
+      return;
+    }
+
+    const prod = calcProductionFromOrders(orders);
+    const progress = getProg(date);
+
+    const rows = [...prod.rows]
+      .filter(r => r.bucketsToMake > 0)
+      .sort((a,b)=> (b.bucketsToMake - a.bucketsToMake) || (b.kg - a.kg) || a.f.localeCompare(b.f));
+
+    let totalToMake = 0;
+    let totalDone = 0;
+
+    grid.innerHTML = rows.map(r=>{
+      const done = Math.max(0, Math.min(r.bucketsToMake, Number(progress[r.f] || 0)));
+      const left = Math.max(0, r.bucketsToMake - done);
+
+      totalToMake += r.bucketsToMake;
+      totalDone += done;
+
+      return `
+        <div class="xl-tile">
+          <div>
+            <div class="xl-flavor">${escapeHtml(r.f)}</div>
+            <div class="xl-numbers">
+              <div class="xl-left">${left}</div>
+              <div class="xl-meta">
+                KG: <b>${r.kg.toFixed(2)}</b><br>
+                Fazer: <b>${r.bucketsToMake}</b> • Feitos: <b>${done}</b>
+              </div>
+            </div>
+          </div>
+
+          <div class="xl-actions">
+            <button class="xl-btn minus" data-xl-minus="${escapeHtml(r.f)}">-1</button>
+            <button class="xl-btn plus" data-xl-plus="${escapeHtml(r.f)}">+1</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    const totalLeft = Math.max(0, totalToMake - totalDone);
+
+    $("#xl_totKg").textContent = `KG: ${prod.totalKg.toFixed(2)}`;
+    $("#xl_totBuckets").textContent = `Baldes: ${prod.totalBucketsExact.toFixed(2)} (~${prod.totalBucketsToMake})`;
+    $("#xl_done").textContent = `Feitos: ${totalDone}`;
+    $("#xl_left").textContent = `Faltam: ${totalLeft}`;
+    $("#xlDoneBig").textContent = String(totalDone);
+    $("#xlLeftBig").textContent = String(totalLeft);
+
+    $$("[data-xl-plus]").forEach(btn=>{
+      btn.onclick = ()=>{
+        const f = btn.getAttribute("data-xl-plus");
+        const p = getProg(date);
+        // só incrementa se ainda faltar
+        const row = rows.find(x=>x.f===f);
+        const max = row ? row.bucketsToMake : 0;
+        const cur = Number(p[f]||0);
+        if(cur >= max) return;
+        p[f] = cur + 1;
+        setProg(date, p);
+        renderXL();
+        renderPlanScreen();
+      };
+    });
+    $$("[data-xl-minus]").forEach(btn=>{
+      btn.onclick = ()=>{
+        const f = btn.getAttribute("data-xl-minus");
+        const p = getProg(date);
+        p[f] = Math.max(0, Number(p[f]||0) - 1);
+        setProg(date, p);
+        renderXL();
+        renderPlanScreen();
+      };
+    });
+  }
+
+  $("#xlRefresh").onclick = ()=>renderXL();
+  $("#xlDate").onchange = ()=>{ renderXL(); renderPlanScreen(); };
+  $("#xlReset").onclick = ()=>{
+    const date = $("#xlDate").value;
+    if(!date) return;
+    if(!confirm("Reset do progresso XL deste dia?")) return;
+    resetProg(date);
+    renderXL();
+    renderPlanScreen();
+  };
+
+  // ---------------- Print buttons
   $("#printProduktion").onclick=()=>printProduktion($("#orderDate").value);
   $("#printLieferschein").onclick=()=>printLieferschein($("#orderDate").value);
   $("#printPicklist").onclick=()=>printPickList($("#orderDate").value);
@@ -1513,6 +1737,7 @@
       renderTabs(v);
       if(v==="produktion") refreshOverview();
       if(v==="plan") renderPlanScreen();
+      if(v==="xl") renderXL();
       if(v==="history") renderHistory();
       if(v==="kunden") renderCustomers();
       if(v==="sorten") renderFlavors();
@@ -1529,15 +1754,17 @@
     refreshOverview();
     refreshStats();
     renderPlanScreen();
+    renderXL();
   }
 
   setTodayIfEmpty($("#orderDate"));
   setTodayIfEmpty($("#prodDate"));
   setTodayIfEmpty($("#planDate"));
+  setTodayIfEmpty($("#xlDate"));
   setCurrentMonthIfEmpty($("#statMonth"));
   $("#statYear").value = $("#statYear").value || String(new Date().getFullYear());
 
-  if(currentLines.length===0) addLine("750g", state.flavors[0]||"", 1);
+  if(currentLines.length===0) addLine("750g", state.flavors[0]||"", 0);
   renderAll();
 })();
 </script>
