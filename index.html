@@ -802,6 +802,9 @@
                 <button class="nav-btn" data-view="recipes">
                     <i class="fas fa-book"></i> Rezepte
                 </button>
+                <button class="nav-btn" data-view="flavors">
+                    <i class="fas fa-ice-cream"></i> Sorten
+                </button>
                 <button class="nav-btn" data-view="labels">
                     <i class="fas fa-tag"></i> Etiketten
                 </button>
@@ -1075,7 +1078,7 @@
                         <button class="btn btn-success" id="start-production">
                             <i class="fas fa-play"></i> Produktion starten
                         </button>
-                        <button class="btn btn-warning" id="print-production-plan">
+                        <button class="btn btn-primary" id="print-production-plan">
                             <i class="fas fa-print"></i> Plan drucken
                         </button>
                     </div>
@@ -1185,6 +1188,81 @@
                 </div>
             </section>
 
+            <!-- FLAVORS VIEW -->
+            <section id="flavors-view" class="view-container">
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-ice-cream"></i> Sortenverwaltung
+                    </div>
+                    
+                    <div class="order-form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Neue Sorte</label>
+                            <input type="text" class="form-input" id="new-flavor-name" 
+                                   placeholder="z.B. Haselnuss, Zitrone, Toffifee...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Kategorie</label>
+                            <select class="form-select" id="new-flavor-category">
+                                <option value="milcheis">Milcheis</option>
+                                <option value="sorbet">Sorbet</option>
+                                <option value="fruchteis">Fruchteis</option>
+                                <option value="speiseeis">Speiseeis</option>
+                                <option value="spezial">Spezial</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Beschreibung (optional)</label>
+                        <textarea class="form-textarea" id="new-flavor-description" 
+                                  placeholder="Kurze Beschreibung der Sorte..."></textarea>
+                    </div>
+                    
+                    <div class="d-flex gap-3 mb-4">
+                        <button class="btn btn-success" id="add-flavor-btn">
+                            <i class="fas fa-plus"></i> Sorte hinzufügen
+                        </button>
+                        <button class="btn btn-outline" id="reset-flavors-btn">
+                            <i class="fas fa-undo"></i> Standard-Sorten
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Sorte</th>
+                                    <th>Kategorie</th>
+                                    <th>Beschreibung</th>
+                                    <th>Status</th>
+                                    <th>Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="flavors-list">
+                                <!-- Sabores serão carregados aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-info-circle"></i> Informationen
+                    </div>
+                    <div class="alert alert-info">
+                        <div class="alert-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="alert-content">
+                            <strong>Tipp:</strong> Sorten werden automatisch in allen Modulen verfügbar. 
+                            Deaktivierte Sorten erscheinen nicht in den Auswahllisten.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- LABELS VIEW -->
             <section id="labels-view" class="view-container">
                 <div class="card">
@@ -1248,14 +1326,11 @@
                         <button class="btn btn-primary" id="generate-label">
                             <i class="fas fa-sync"></i> Vorschau aktualisieren
                         </button>
-                        <button class="btn btn-success" id="print-label">
+                        <button class="btn btn-primary" id="print-label">
                             <i class="fas fa-print"></i> Etikett drucken
                         </button>
                         <button class="btn btn-warning" id="print-batch">
                             <i class="fas fa-print"></i> Charge drucken (10x)
-                        </button>
-                        <button class="btn btn-outline" id="export-label">
-                            <i class="fas fa-download"></i> Als PDF exportieren
                         </button>
                     </div>
                 </div>
@@ -1417,10 +1492,7 @@
                         <button class="btn btn-primary" id="generate-report">
                             <i class="fas fa-chart-line"></i> Bericht generieren
                         </button>
-                        <button class="btn btn-success" id="export-report">
-                            <i class="fas fa-file-excel"></i> Als Excel exportieren
-                        </button>
-                        <button class="btn btn-warning" id="print-report">
+                        <button class="btn btn-primary" id="print-report">
                             <i class="fas fa-print"></i> Bericht drucken
                         </button>
                     </div>
@@ -1583,96 +1655,6 @@
         </div>
     </div>
 
-    <!-- TEMPLATES (Hidden) -->
-    <div id="templates" style="display: none;">
-        <!-- Order Item Template -->
-        <div class="order-item-template">
-            <select class="form-select order-flavor">
-                <option value="">Sorte wählen...</option>
-            </select>
-            <select class="form-select order-size">
-                <option value="170">170 g</option>
-                <option value="750">750 g</option>
-                <option value="1000">1000 g</option>
-            </select>
-            <input type="number" class="form-input order-quantity" value="1" min="1" max="100">
-            <button class="btn btn-danger btn-sm remove-item">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
-        
-        <!-- Recipe Card Template -->
-        <div class="recipe-card-template">
-            <div class="ingredient-card">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="ingredient-name">Vanille</div>
-                    <div class="d-flex gap-1">
-                        <button class="btn-icon edit-recipe">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn-icon delete-recipe">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="ingredient-meta">
-                    <span class="badge badge-primary">Milcheis</span>
-                    <span class="badge badge-success">4 Zutaten</span>
-                </div>
-                <div class="nutrition-grid">
-                    <div class="nutrition-item">
-                        <div class="nutrition-label">Energie</div>
-                        <div class="nutrition-value">850 kJ</div>
-                    </div>
-                    <div class="nutrition-item">
-                        <div class="nutrition-label">Fett</div>
-                        <div class="nutrition-value">8.5g</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Label Preview Template -->
-        <div class="label-preview-template">
-            <div style="border: 2px solid #333; padding: 20px; border-radius: 8px; background: white; max-width: 400px; margin: 0 auto;">
-                <div style="text-align: center; border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 15px;">
-                    <div style="font-size: 18px; font-weight: bold;">MILCHEIS - VANILLE</div>
-                    <div style="font-size: 12px; color: #666;">Nettofüllmenge: 750 g</div>
-                </div>
-                <div style="font-size: 11px; line-height: 1.4;">
-                    <div><strong>Zutaten:</strong> Vollmilch, Sahne, Zucker, Eigelb, Vanilleextrakt</div>
-                    <div style="margin-top: 8px;"><strong>Allergene:</strong> Milch, Ei</div>
-                    <div style="margin-top: 8px;"><strong>MHD:</strong> 15.03.2024</div>
-                    <div style="margin-top: 8px;"><strong>Charge:</strong> 2024-03-15-001</div>
-                </div>
-                <div style="text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid #ccc;">
-                    <div style="font-size: 10px;">Eiscafé Sanremo • Bad Berleburg • Tel: 0176 72809926</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Customer Row Template -->
-        <tr class="customer-row-template">
-            <td class="customer-name">REWE</td>
-            <td class="customer-location">Bad Berleburg</td>
-            <td class="customer-contact">Herr Müller</td>
-            <td>
-                <span class="badge badge-primary customer-type">Supermarkt</span>
-            </td>
-            <td class="customer-last-order">15.03.2024</td>
-            <td>
-                <div class="table-actions">
-                    <button class="btn-icon edit-customer">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn-icon delete-customer">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    </div>
-
     <script>
         // ===== DATABASE MANAGEMENT =====
         const DB = {
@@ -1681,6 +1663,7 @@
                 ORDERS: 'sanremo_orders',
                 CUSTOMERS: 'sanremo_customers',
                 RECIPES: 'sanremo_recipes',
+                FLAVORS: 'sanremo_flavors',
                 INGREDIENTS: 'sanremo_ingredients',
                 PRODUCTION: 'sanremo_production',
                 SETTINGS: 'sanremo_settings',
@@ -1722,45 +1705,26 @@
                 if (!localStorage.getItem(this.KEYS.RECIPES)) {
                     localStorage.setItem(this.KEYS.RECIPES, JSON.stringify([]));
                 }
-                if (!localStorage.getItem(this.KEYS.INGREDIENTS)) {
-                    localStorage.setItem(this.KEYS.INGREDIENTS, JSON.stringify([
-                        {
-                            id: '1',
-                            name: 'Vollmilch 3,5%',
-                            category: 'milchprodukte',
-                            allergens: ['MILCH'],
-                            nutrition: {
-                                energy_kj: 267,
-                                energy_kcal: 64,
-                                fat: 3.5,
-                                saturated_fat: 2.4,
-                                carbs: 4.8,
-                                sugar: 4.8,
-                                protein: 3.3,
-                                salt: 0.1
-                            },
-                            unit: 'g',
-                            price_per_unit: 0.012
-                        },
-                        {
-                            id: '2',
-                            name: 'Zucker',
-                            category: 'zucker',
-                            allergens: [],
-                            nutrition: {
-                                energy_kj: 1700,
-                                energy_kcal: 405,
-                                fat: 0,
-                                saturated_fat: 0,
-                                carbs: 100,
-                                sugar: 100,
-                                protein: 0,
-                                salt: 0
-                            },
-                            unit: 'g',
-                            price_per_unit: 0.001
-                        }
+                if (!localStorage.getItem(this.KEYS.FLAVORS)) {
+                    localStorage.setItem(this.KEYS.FLAVORS, JSON.stringify([
+                        { id: '1', name: 'Stracciatella', category: 'milcheis', description: 'Milcheis mit Schokostückchen', active: true },
+                        { id: '2', name: 'Amarena Kirsch', category: 'sorbet', description: 'Sauerkirsch-Sorbet mit Amarena', active: true },
+                        { id: '3', name: 'Vanille', category: 'milcheis', description: 'Klassische Vanille', active: true },
+                        { id: '4', name: 'Spaghetti', category: 'speiseeis', description: 'Eis mit Spaghetti-Optik', active: true },
+                        { id: '5', name: 'Toffifee', category: 'milcheis', description: 'Mit Toffifee-Stückchen', active: true },
+                        { id: '6', name: 'Cookies', category: 'milcheis', description: 'Mit Cookie-Stückchen', active: true },
+                        { id: '7', name: 'Weiß Schokolade Pistazien', category: 'milcheis', description: 'Weiße Schokolade mit Pistazien', active: true },
+                        { id: '8', name: 'Erdbeer', category: 'fruchteis', description: 'Frisches Erdbeereis', active: true },
+                        { id: '9', name: 'Joghurt Orange', category: 'fruchteis', description: 'Joghurt-Eis mit Orangen', active: true },
+                        { id: '10', name: 'Kinder Buenos', category: 'milcheis', description: 'Mit Kinder Buenos', active: true },
+                        { id: '11', name: 'Kinder Riegel', category: 'milcheis', description: 'Mit Kinder Riegel', active: true },
+                        { id: '12', name: 'Joghurete Schokolade', category: 'milcheis', description: 'Joghurt-Eis mit Schokolade', active: true },
+                        { id: '13', name: 'Mango', category: 'sorbet', description: 'Mango-Sorbet', active: true },
+                        { id: '14', name: 'Hanutta', category: 'spezial', description: 'Spezialität', active: true }
                     ]));
+                }
+                if (!localStorage.getItem(this.KEYS.INGREDIENTS)) {
+                    localStorage.setItem(this.KEYS.INGREDIENTS, JSON.stringify([]));
                 }
                 if (!localStorage.getItem(this.KEYS.PRODUCTION)) {
                     localStorage.setItem(this.KEYS.PRODUCTION, JSON.stringify([]));
@@ -1840,6 +1804,16 @@
                 return this.set(this.KEYS.CUSTOMERS, filtered);
             },
             
+            // Get all flavors
+            getFlavors() {
+                return this.get(this.KEYS.FLAVORS);
+            },
+            
+            // Save flavors
+            saveFlavors(flavors) {
+                return this.set(this.KEYS.FLAVORS, flavors);
+            },
+            
             // Get all recipes
             getRecipes() {
                 return this.get(this.KEYS.RECIPES);
@@ -1873,6 +1847,7 @@
                     orders: this.getOrders(),
                     customers: this.getCustomers(),
                     recipes: this.getRecipes(),
+                    flavors: this.getFlavors(),
                     ingredients: this.get(this.KEYS.INGREDIENTS),
                     production: this.get(this.KEYS.PRODUCTION),
                     settings: this.getSettings(),
@@ -1895,6 +1870,7 @@
                     this.set(this.KEYS.ORDERS, backup.orders || []);
                     this.set(this.KEYS.CUSTOMERS, backup.customers || []);
                     this.set(this.KEYS.RECIPES, backup.recipes || []);
+                    this.set(this.KEYS.FLAVORS, backup.flavors || []);
                     this.set(this.KEYS.INGREDIENTS, backup.ingredients || []);
                     this.set(this.KEYS.PRODUCTION, backup.production || []);
                     this.set(this.KEYS.SETTINGS, backup.settings || {});
@@ -2099,6 +2075,9 @@
                     case 'recipes':
                         Recipes.init();
                         break;
+                    case 'flavors':
+                        Flavors.init();
+                        break;
                     case 'labels':
                         Labels.init();
                         break;
@@ -2204,6 +2183,442 @@
             }
         };
 
+        // ===== FLAVORS MODULE =====
+        const Flavors = {
+            init() {
+                this.setupEventListeners();
+                this.loadFlavors();
+                this.updateAllFlavorSelects();
+            },
+            
+            // Sabores padrão
+            defaultFlavors: [
+                { id: '1', name: 'Stracciatella', category: 'milcheis', description: 'Milcheis mit Schokostückchen', active: true },
+                { id: '2', name: 'Amarena Kirsch', category: 'sorbet', description: 'Sauerkirsch-Sorbet mit Amarena', active: true },
+                { id: '3', name: 'Vanille', category: 'milcheis', description: 'Klassische Vanille', active: true },
+                { id: '4', name: 'Spaghetti', category: 'speiseeis', description: 'Eis mit Spaghetti-Optik', active: true },
+                { id: '5', name: 'Toffifee', category: 'milcheis', description: 'Mit Toffifee-Stückchen', active: true },
+                { id: '6', name: 'Cookies', category: 'milcheis', description: 'Mit Cookie-Stückchen', active: true },
+                { id: '7', name: 'Weiß Schokolade Pistazien', category: 'milcheis', description: 'Weiße Schokolade mit Pistazien', active: true },
+                { id: '8', name: 'Erdbeer', category: 'fruchteis', description: 'Frisches Erdbeereis', active: true },
+                { id: '9', name: 'Joghurt Orange', category: 'fruchteis', description: 'Joghurt-Eis mit Orangen', active: true },
+                { id: '10', name: 'Kinder Buenos', category: 'milcheis', description: 'Mit Kinder Buenos', active: true },
+                { id: '11', name: 'Kinder Riegel', category: 'milcheis', description: 'Mit Kinder Riegel', active: true },
+                { id: '12', name: 'Joghurete Schokolade', category: 'milcheis', description: 'Joghurt-Eis mit Schokolade', active: true },
+                { id: '13', name: 'Mango', category: 'sorbet', description: 'Mango-Sorbet', active: true },
+                { id: '14', name: 'Hanutta', category: 'spezial', description: 'Spezialität', active: true }
+            ],
+            
+            setupEventListeners() {
+                // Add flavor button
+                document.getElementById('add-flavor-btn')?.addEventListener('click', () => {
+                    this.handleAddFlavor();
+                });
+                
+                // Reset flavors button
+                document.getElementById('reset-flavors-btn')?.addEventListener('click', () => {
+                    this.resetToDefaults();
+                });
+            },
+            
+            // Get all active flavors
+            getActiveFlavors() {
+                const flavors = DB.getFlavors();
+                return flavors.filter(f => f.active !== false);
+            },
+            
+            // Add new flavor
+            handleAddFlavor() {
+                const nameInput = document.getElementById('new-flavor-name');
+                const categoryInput = document.getElementById('new-flavor-category');
+                const descriptionInput = document.getElementById('new-flavor-description');
+                
+                const name = nameInput.value.trim();
+                const category = categoryInput.value;
+                const description = descriptionInput.value.trim();
+                
+                if (!name) {
+                    Utils.showNotification('Bitte geben Sie einen Namen für die Sorte ein', 'warning');
+                    return;
+                }
+                
+                const flavorData = {
+                    name: name.charAt(0).toUpperCase() + name.slice(1).toLowerCase(),
+                    category,
+                    description,
+                    active: true
+                };
+                
+                if (this.addFlavor(flavorData)) {
+                    // Clear form
+                    nameInput.value = '';
+                    descriptionInput.value = '';
+                    nameInput.focus();
+                }
+            },
+            
+            addFlavor(flavorData) {
+                const flavors = DB.getFlavors();
+                
+                // Check if already exists
+                const exists = flavors.some(f => 
+                    f.name.toLowerCase() === flavorData.name.toLowerCase()
+                );
+                
+                if (exists) {
+                    Utils.showNotification('Diese Sorte existiert bereits', 'warning');
+                    return false;
+                }
+                
+                // Add ID and timestamp
+                const newFlavor = {
+                    id: Utils.generateId(),
+                    ...flavorData,
+                    created: new Date().toISOString()
+                };
+                
+                flavors.push(newFlavor);
+                
+                if (DB.saveFlavors(flavors)) {
+                    Utils.showNotification(`Sorte "${flavorData.name}" hinzugefügt`, 'success');
+                    this.loadFlavors();
+                    this.updateAllFlavorSelects();
+                    return true;
+                }
+                
+                return false;
+            },
+            
+            loadFlavors() {
+                const flavors = DB.getFlavors();
+                const tbody = document.getElementById('flavors-list');
+                
+                if (!tbody) return;
+                
+                tbody.innerHTML = '';
+                
+                flavors.forEach(flavor => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="flavor-color" style="width: 12px; height: 12px; border-radius: 50%; 
+                                      background: ${this.getCategoryColor(flavor.category)};"></div>
+                                <strong>${flavor.name}</strong>
+                                ${!flavor.active ? '<span class="badge badge-danger">Inaktiv</span>' : ''}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge ${this.getCategoryClass(flavor.category)}">
+                                ${this.getCategoryName(flavor.category)}
+                            </span>
+                        </td>
+                        <td class="text-muted fs-sm">${flavor.description || '—'}</td>
+                        <td>
+                            <span class="badge ${flavor.active ? 'badge-success' : 'badge-danger'}">
+                                ${flavor.active ? 'Aktiv' : 'Inaktiv'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn-icon edit-flavor" data-id="${flavor.id}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon toggle-flavor" data-id="${flavor.id}" 
+                                        data-active="${flavor.active}">
+                                    <i class="fas ${flavor.active ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                                </button>
+                                <button class="btn-icon delete-flavor" data-id="${flavor.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(tr);
+                });
+                
+                // Add event listeners
+                this.addFlavorEventListeners();
+            },
+            
+            addFlavorEventListeners() {
+                // Edit flavor
+                document.querySelectorAll('.edit-flavor').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const flavorId = e.target.closest('button').getAttribute('data-id');
+                        this.editFlavor(flavorId);
+                    });
+                });
+                
+                // Toggle flavor active status
+                document.querySelectorAll('.toggle-flavor').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const flavorId = e.target.closest('button').getAttribute('data-id');
+                        const currentActive = e.target.closest('button').getAttribute('data-active') === 'true';
+                        this.toggleFlavorActive(flavorId, !currentActive);
+                    });
+                });
+                
+                // Delete flavor
+                document.querySelectorAll('.delete-flavor').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const flavorId = e.target.closest('button').getAttribute('data-id');
+                        this.deleteFlavor(flavorId);
+                    });
+                });
+            },
+            
+            editFlavor(flavorId) {
+                const flavors = DB.getFlavors();
+                const flavor = flavors.find(f => f.id === flavorId);
+                
+                if (!flavor) return;
+                
+                // Create edit modal
+                const content = `
+                    <div class="form-group">
+                        <label class="form-label">Name der Sorte</label>
+                        <input type="text" class="form-input" id="edit-flavor-name" 
+                               value="${flavor.name}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Kategorie</label>
+                        <select class="form-select" id="edit-flavor-category">
+                            <option value="milcheis" ${flavor.category === 'milcheis' ? 'selected' : ''}>Milcheis</option>
+                            <option value="sorbet" ${flavor.category === 'sorbet' ? 'selected' : ''}>Sorbet</option>
+                            <option value="fruchteis" ${flavor.category === 'fruchteis' ? 'selected' : ''}>Fruchteis</option>
+                            <option value="speiseeis" ${flavor.category === 'speiseeis' ? 'selected' : ''}>Speiseeis</option>
+                            <option value="spezial" ${flavor.category === 'spezial' ? 'selected' : ''}>Spezial</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Beschreibung</label>
+                        <textarea class="form-textarea" id="edit-flavor-description">${flavor.description || ''}</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="edit-flavor-active">
+                            <option value="true" ${flavor.active ? 'selected' : ''}>Aktiv</option>
+                            <option value="false" ${!flavor.active ? 'selected' : ''}>Inaktiv</option>
+                        </select>
+                    </div>
+                `;
+                
+                Utils.showModal('Sorte bearbeiten', content, [
+                    {
+                        id: 'cancel',
+                        label: 'Abbrechen',
+                        type: 'outline',
+                        onClick: () => {}
+                    },
+                    {
+                        id: 'save',
+                        label: 'Änderungen speichern',
+                        type: 'success',
+                        onClick: () => {
+                            const updatedName = document.getElementById('edit-flavor-name').value.trim();
+                            const updatedCategory = document.getElementById('edit-flavor-category').value;
+                            const updatedDescription = document.getElementById('edit-flavor-description').value.trim();
+                            const updatedActive = document.getElementById('edit-flavor-active').value === 'true';
+                            
+                            if (!updatedName) {
+                                Utils.showNotification('Name darf nicht leer sein', 'warning');
+                                return;
+                            }
+                            
+                            // Update flavor
+                            flavor.name = updatedName;
+                            flavor.category = updatedCategory;
+                            flavor.description = updatedDescription;
+                            flavor.active = updatedActive;
+                            flavor.updated = new Date().toISOString();
+                            
+                            if (DB.saveFlavors(flavors)) {
+                                Utils.showNotification('Sorte aktualisiert', 'success');
+                                this.loadFlavors();
+                                this.updateAllFlavorSelects();
+                            }
+                        }
+                    }
+                ]);
+            },
+            
+            toggleFlavorActive(flavorId, active) {
+                const flavors = DB.getFlavors();
+                const flavor = flavors.find(f => f.id === flavorId);
+                
+                if (flavor) {
+                    flavor.active = active;
+                    flavor.updated = new Date().toISOString();
+                    
+                    if (DB.saveFlavors(flavors)) {
+                        Utils.showNotification(
+                            `Sorte ${active ? 'aktiviert' : 'deaktiviert'}`,
+                            'success'
+                        );
+                        this.loadFlavors();
+                        this.updateAllFlavorSelects();
+                    }
+                }
+            },
+            
+            deleteFlavor(flavorId) {
+                const flavors = DB.getFlavors();
+                const flavor = flavors.find(f => f.id === flavorId);
+                
+                if (!flavor) return;
+                
+                Utils.showModal('Sorte löschen',
+                    `Sind Sie sicher, dass Sie die Sorte "${flavor.name}" löschen möchten?`,
+                    [
+                        {
+                            id: 'cancel',
+                            label: 'Abbrechen',
+                            type: 'outline',
+                            onClick: () => {}
+                        },
+                        {
+                            id: 'delete',
+                            label: 'Löschen',
+                            type: 'danger',
+                            onClick: () => {
+                                const filtered = flavors.filter(f => f.id !== flavorId);
+                                
+                                if (DB.saveFlavors(filtered)) {
+                                    Utils.showNotification('Sorte gelöscht', 'success');
+                                    this.loadFlavors();
+                                    this.updateAllFlavorSelects();
+                                }
+                            }
+                        }
+                    ]);
+            },
+            
+            resetToDefaults() {
+                Utils.showModal('Standard-Sorten wiederherstellen',
+                    'Möchten Sie die Standard-Sorten wiederherstellen? Dies löscht alle selbst erstellten Sorten.',
+                    [
+                        {
+                            id: 'cancel',
+                            label: 'Abbrechen',
+                            type: 'outline',
+                            onClick: () => {}
+                        },
+                        {
+                            id: 'reset',
+                            label: 'Wiederherstellen',
+                            type: 'danger',
+                            onClick: () => {
+                                if (DB.saveFlavors(this.defaultFlavors)) {
+                                    Utils.showNotification('Standard-Sorten wiederhergestellt', 'success');
+                                    this.loadFlavors();
+                                    this.updateAllFlavorSelects();
+                                }
+                            }
+                        }
+                    ]);
+            },
+            
+            // Update all flavor selects in the system
+            updateAllFlavorSelects() {
+                const flavors = this.getActiveFlavors();
+                
+                // Update in orders module
+                this.updateFlavorSelect('order-flavor', flavors);
+                
+                // Update in recipes module
+                this.updateFlavorSelect('recipe-flavor', flavors);
+                
+                // Update in labels module
+                this.updateFlavorSelect('label-flavor', flavors);
+                
+                // Update dynamic selects in order items
+                document.querySelectorAll('.order-flavor-select').forEach(select => {
+                    this.updateFlavorSelectElement(select, flavors);
+                });
+            },
+            
+            updateFlavorSelect(selectId, flavors) {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    this.updateFlavorSelectElement(select, flavors);
+                }
+            },
+            
+            updateFlavorSelectElement(selectElement, flavors) {
+                const currentValue = selectElement.value;
+                
+                // Clear and rebuild
+                selectElement.innerHTML = '<option value="">Sorte auswählen...</option>';
+                
+                // Group by category
+                const grouped = {};
+                flavors.forEach(flavor => {
+                    if (!grouped[flavor.category]) {
+                        grouped[flavor.category] = [];
+                    }
+                    grouped[flavor.category].push(flavor);
+                });
+                
+                // Add by category
+                Object.keys(grouped).forEach(category => {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = this.getCategoryName(category);
+                    
+                    grouped[category].forEach(flavor => {
+                        const option = document.createElement('option');
+                        option.value = flavor.name;
+                        option.textContent = flavor.name;
+                        optgroup.appendChild(option);
+                    });
+                    
+                    selectElement.appendChild(optgroup);
+                });
+                
+                // Restore selected value if still exists
+                if (currentValue && Array.from(selectElement.options).some(opt => opt.value === currentValue)) {
+                    selectElement.value = currentValue;
+                }
+            },
+            
+            getCategoryName(category) {
+                const names = {
+                    'milcheis': 'Milcheis',
+                    'sorbet': 'Sorbet',
+                    'fruchteis': 'Fruchteis',
+                    'speiseeis': 'Speiseeis',
+                    'spezial': 'Spezial'
+                };
+                return names[category] || 'Unbekannt';
+            },
+            
+            getCategoryClass(category) {
+                const classes = {
+                    'milcheis': 'badge-primary',
+                    'sorbet': 'badge-success',
+                    'fruchteis': 'badge-warning',
+                    'speiseeis': 'badge-danger',
+                    'spezial': 'badge-info'
+                };
+                return classes[category] || 'badge-secondary';
+            },
+            
+            getCategoryColor(category) {
+                const colors = {
+                    'milcheis': '#3b82f6',
+                    'sorbet': '#10b981',
+                    'fruchteis': '#f59e0b',
+                    'speiseeis': '#ef4444',
+                    'spezial': '#8b5cf6'
+                };
+                return colors[category] || '#6b7280';
+            }
+        };
+
         // ===== ORDERS MODULE =====
         const Orders = {
             init() {
@@ -2257,7 +2672,7 @@
                 
                 // Print order
                 document.getElementById('print-order').addEventListener('click', () => {
-                    this.printOrder();
+                    Printing.printOrder();
                 });
                 
                 // Export order
@@ -2287,11 +2702,6 @@
                     div.innerHTML = `
                         <select class="form-select order-flavor" data-index="${index}">
                             <option value="">Sorte wählen...</option>
-                            <option value="vanille">Vanille</option>
-                            <option value="schokolade">Schokolade</option>
-                            <option value="erdbeer">Erdbeer</option>
-                            <option value="zitrone">Zitrone</option>
-                            <option value="stracciatella">Stracciatella</option>
                         </select>
                         <select class="form-select order-size" data-index="${index}">
                             <option value="170">170 g</option>
@@ -2305,8 +2715,18 @@
                         </button>
                     `;
                     
+                    // Populate flavor options
+                    const flavorSelect = div.querySelector('.order-flavor');
+                    const flavors = Flavors.getActiveFlavors();
+                    flavors.forEach(flavor => {
+                        const option = document.createElement('option');
+                        option.value = flavor.name;
+                        option.textContent = flavor.name;
+                        flavorSelect.appendChild(option);
+                    });
+                    
                     // Set selected values
-                    div.querySelector('.order-flavor').value = item.flavor;
+                    flavorSelect.value = item.flavor;
                     div.querySelector('.order-size').value = item.size;
                     
                     container.appendChild(div);
@@ -2571,10 +2991,6 @@
                     ]);
             },
             
-            printOrder() {
-                Utils.showNotification('Druckfunktion in Entwicklung', 'info');
-            },
-            
             exportOrder() {
                 Utils.showNotification('Exportfunktion in Entwicklung', 'info');
             }
@@ -2606,7 +3022,7 @@
                 
                 // Print production plan
                 document.getElementById('print-production-plan').addEventListener('click', () => {
-                    this.printProductionPlan();
+                    Printing.printProductionPlan();
                 });
                 
                 // Date change
@@ -2764,33 +3180,14 @@
                             }
                         }
                     ]);
-            },
-            
-            printProductionPlan() {
-                Utils.showNotification('Druckfunktion in Entwicklung', 'info');
             }
         };
 
         // ===== RECIPES MODULE =====
         const Recipes = {
             init() {
-                this.loadFlavors();
                 this.setupEventListeners();
                 this.loadRecipes();
-            },
-            
-            loadFlavors() {
-                // This would typically load from database
-                const flavors = ['Vanille', 'Schokolade', 'Erdbeer', 'Zitrone', 'Stracciatella'];
-                const select = document.getElementById('recipe-flavor');
-                select.innerHTML = '<option value="">Sorte auswählen...</option>';
-                
-                flavors.forEach(flavor => {
-                    const option = document.createElement('option');
-                    option.value = flavor.toLowerCase();
-                    option.textContent = flavor;
-                    select.appendChild(option);
-                });
             },
             
             setupEventListeners() {
@@ -2967,7 +3364,7 @@
                 let totalCarbs = 0;
                 let totalProtein = 0;
                 
-                document.querySelectorAll('.ingredient-row').forEach(row => {
+                document.querySelectorAll('#ingredients-list > div').forEach(row => {
                     const quantity = parseFloat(row.querySelector('.ingredient-quantity').value) || 0;
                     totalWeight += quantity;
                     
@@ -3053,6 +3450,17 @@
                     Utils.showNotification('Rezept erfolgreich gespeichert', 'success');
                     this.hideRecipeForm();
                     this.loadRecipes();
+                    
+                    // Update flavors if this is a new flavor
+                    const flavors = DB.getFlavors();
+                    const flavorExists = flavors.some(f => f.name === name);
+                    if (!flavorExists) {
+                        Flavors.addFlavor({
+                            name,
+                            category: type,
+                            description
+                        });
+                    }
                 } else {
                     Utils.showNotification('Fehler beim Speichern des Rezepts', 'danger');
                 }
@@ -3149,23 +3557,9 @@
         // ===== LABELS MODULE =====
         const Labels = {
             init() {
-                this.loadFlavors();
                 this.setDefaultDates();
                 this.setupEventListeners();
                 this.loadRecentLabels();
-            },
-            
-            loadFlavors() {
-                const flavors = ['Vanille', 'Schokolade', 'Erdbeer', 'Zitrone', 'Stracciatella'];
-                const select = document.getElementById('label-flavor');
-                select.innerHTML = '<option value="">Sorte auswählen...</option>';
-                
-                flavors.forEach(flavor => {
-                    const option = document.createElement('option');
-                    option.value = flavor.toLowerCase();
-                    option.textContent = flavor;
-                    select.appendChild(option);
-                });
             },
             
             setDefaultDates() {
@@ -3192,26 +3586,21 @@
                 
                 // Print single label
                 document.getElementById('print-label').addEventListener('click', () => {
-                    this.printLabel();
+                    Printing.printLabel();
                 });
                 
                 // Print batch
                 document.getElementById('print-batch').addEventListener('click', () => {
-                    this.printBatch();
-                });
-                
-                // Export as PDF
-                document.getElementById('export-label').addEventListener('click', () => {
-                    this.exportLabel();
+                    Printing.printBatchLabels();
                 });
             },
             
             generateLabelPreview() {
-                const flavor = document.getElementById('label-flavor').value;
-                const size = document.getElementById('label-size').value;
-                const batch = document.getElementById('label-batch').value;
-                const expiry = document.getElementById('label-expiry').value;
-                const notes = document.getElementById('label-notes').value;
+                const flavor = document.getElementById('label-flavor')?.value;
+                const size = document.getElementById('label-size')?.value;
+                const batch = document.getElementById('label-batch')?.value;
+                const expiry = document.getElementById('label-expiry')?.value;
+                const notes = document.getElementById('label-notes')?.value;
                 
                 if (!flavor) {
                     Utils.showNotification('Bitte eine Sorte auswählen', 'warning');
@@ -3304,64 +3693,6 @@
                 } else {
                     document.getElementById('label-warnings').style.display = 'none';
                 }
-            },
-            
-            printLabel() {
-                Utils.showNotification('Etikett wird gedruckt...', 'info');
-                // In a real app, this would trigger the print dialog
-                setTimeout(() => {
-                    Utils.showNotification('Etikett erfolgreich gedruckt', 'success');
-                    this.saveLabelToHistory();
-                }, 1000);
-            },
-            
-            printBatch() {
-                Utils.showModal('Charge drucken',
-                    'Möchten Sie 10 identische Etiketten für diese Charge drucken?',
-                    [
-                        {
-                            id: 'cancel',
-                            label: 'Abbrechen',
-                            type: 'outline',
-                            onClick: () => {}
-                        },
-                        {
-                            id: 'print',
-                            label: '10x Drucken',
-                            type: 'primary',
-                            onClick: () => {
-                                Utils.showNotification('10 Etiketten werden gedruckt...', 'info');
-                                setTimeout(() => {
-                                    Utils.showNotification('Charge erfolgreich gedruckt', 'success');
-                                    this.saveLabelToHistory(10);
-                                }, 2000);
-                            }
-                        }
-                    ]);
-            },
-            
-            exportLabel() {
-                Utils.showNotification('Exportfunktion in Entwicklung', 'info');
-            },
-            
-            saveLabelToHistory(quantity = 1) {
-                // Save label printing to history
-                const history = DB.get(DB.KEYS.STATISTICS);
-                const labelData = {
-                    id: Utils.generateId(),
-                    date: new Date().toISOString(),
-                    flavor: document.getElementById('label-flavor').value,
-                    size: document.getElementById('label-size').value,
-                    batch: document.getElementById('label-batch').value,
-                    quantity: quantity,
-                    type: 'label_print'
-                };
-                
-                history.push(labelData);
-                DB.set(DB.KEYS.STATISTICS, history);
-                
-                // Reload recent labels
-                this.loadRecentLabels();
             },
             
             loadRecentLabels() {
@@ -3603,24 +3934,19 @@
                     this.generateReport();
                 });
                 
-                // Export report
-                document.getElementById('export-report').addEventListener('click', () => {
-                    this.exportReport();
-                });
-                
                 // Print report
                 document.getElementById('print-report').addEventListener('click', () => {
-                    this.printReport();
+                    Printing.printReport();
                 });
             },
             
             loadStatistics() {
                 // Load flavor statistics
-                const flavors = ['Vanille', 'Schokolade', 'Erdbeer', 'Zitrone'];
+                const flavors = Flavors.getActiveFlavors();
                 const tbody = document.getElementById('flavor-stats');
                 tbody.innerHTML = '';
                 
-                flavors.forEach(flavor => {
+                flavors.slice(0, 5).forEach(flavor => {
                     // Generate random data for demo
                     const quantity = Math.floor(Math.random() * 1000) + 100;
                     const revenue = quantity * 2.5;
@@ -3628,7 +3954,7 @@
                     
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td><strong>${flavor}</strong></td>
+                        <td><strong>${flavor.name}</strong></td>
                         <td>${quantity} kg</td>
                         <td>${revenue.toFixed(2)} €</td>
                         <td>${percentage}%</td>
@@ -3711,14 +4037,6 @@
                 });
                 
                 Utils.showNotification(`${title} für ${period} generiert`, 'success');
-            },
-            
-            exportReport() {
-                Utils.showNotification('Exportfunktion in Entwicklung', 'info');
-            },
-            
-            printReport() {
-                Utils.showNotification('Druckfunktion in Entwicklung', 'info');
             }
         };
 
@@ -3912,6 +4230,480 @@
             }
         };
 
+        // ===== PRINTING MODULE =====
+        const Printing = {
+            init() {
+                // This module is initialized by button clicks
+            },
+            
+            printOrder() {
+                const orders = DB.getOrders();
+                const customers = DB.getCustomers();
+                
+                if (orders.length === 0) {
+                    Utils.showNotification('Keine Bestellung zum Drucken gefunden', 'warning');
+                    return;
+                }
+                
+                // Get the latest order
+                const order = orders[orders.length - 1];
+                const customer = customers.find(c => c.id === order.customerId);
+                
+                this.printDocument(this.generateOrderHTML(order, customer), 'Bestellung');
+            },
+            
+            printProductionPlan() {
+                const date = document.getElementById('production-date')?.value || new Date().toISOString().split('T')[0];
+                const orders = DB.getOrders();
+                
+                // Aggregate production for the selected date
+                const productionData = this.aggregateProductionData(orders, date);
+                
+                this.printDocument(this.generateProductionHTML(productionData, date), 'Produktionsplan');
+            },
+            
+            printLabel() {
+                const flavor = document.getElementById('label-flavor')?.value;
+                const size = document.getElementById('label-size')?.value;
+                const batch = document.getElementById('label-batch')?.value;
+                const expiry = document.getElementById('label-expiry')?.value;
+                
+                if (!flavor) {
+                    Utils.showNotification('Bitte eine Sorte auswählen', 'warning');
+                    return;
+                }
+                
+                this.printDocument(this.generateLabelHTML(flavor, size, batch, expiry), 'Etikett');
+            },
+            
+            printBatchLabels() {
+                const flavor = document.getElementById('label-flavor')?.value;
+                const size = document.getElementById('label-size')?.value;
+                const batch = document.getElementById('label-batch')?.value;
+                const expiry = document.getElementById('label-expiry')?.value;
+                
+                if (!flavor) {
+                    Utils.showNotification('Bitte eine Sorte auswählen', 'warning');
+                    return;
+                }
+                
+                // Generate 10 labels
+                let labelsHTML = '';
+                for (let i = 1; i <= 10; i++) {
+                    labelsHTML += this.generateSingleLabelHTML(flavor, size, batch, expiry, i);
+                }
+                
+                this.printDocument(this.generateBatchLabelsHTML(labelsHTML), 'Etiketten-Batch');
+            },
+            
+            printReport() {
+                const period = document.getElementById('stat-period')?.value || 'month';
+                const type = document.getElementById('stat-type')?.value || 'sales';
+                
+                this.printDocument(this.generateReportHTML(period, type), 'Bericht');
+            },
+            
+            // Helper methods
+            printDocument(content, title) {
+                const printWindow = window.open('', '_blank');
+                if (!printWindow) {
+                    Utils.showNotification('Pop-up-Blocker aktiviert. Bitte erlauben Sie Pop-ups für diese Seite.', 'warning');
+                    return;
+                }
+                
+                printWindow.document.write(content);
+                printWindow.document.close();
+                
+                // Auto-print after a short delay
+                setTimeout(() => {
+                    printWindow.print();
+                }, 500);
+            },
+            
+            aggregateProductionData(orders, date) {
+                const productionMap = {};
+                
+                orders
+                    .filter(o => o.date === date)
+                    .forEach(order => {
+                        order.items?.forEach(item => {
+                            if (!productionMap[item.flavor]) {
+                                productionMap[item.flavor] = {
+                                    flavor: item.flavor,
+                                    size750: 0,
+                                    size170: 0,
+                                    kg: 0
+                                };
+                            }
+                            
+                            productionMap[item.flavor].kg += Utils.calculateWeight(item.size, item.quantity);
+                            if (item.size === '750') productionMap[item.flavor].size750 += item.quantity;
+                            if (item.size === '170') productionMap[item.flavor].size170 += item.quantity;
+                        });
+                    });
+                
+                return Object.values(productionMap).sort((a, b) => b.kg - a.kg);
+            },
+            
+            // HTML Generators
+            generateOrderHTML(order, customer) {
+                const totalKg = order.items?.reduce((sum, item) => {
+                    return sum + Utils.calculateWeight(item.size, item.quantity);
+                }, 0) || 0;
+                
+                const bucketSize = DB.getSettings().bucket_size || 6;
+                const bucketsNeeded = Utils.calculateBuckets(totalKg, bucketSize);
+                
+                return `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Bestellung - ${order.date}</title>
+                        <style>
+                            @media print {
+                                @page { margin: 15mm; }
+                                body { font-family: Arial, sans-serif; font-size: 12pt; }
+                                .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+                                .header h1 { margin: 0; font-size: 18pt; }
+                                .company-info { font-size: 10pt; color: #666; margin-top: 5px; }
+                                .order-info { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+                                .info-box { border: 1px solid #000; padding: 10px; border-radius: 5px; }
+                                .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                                .table th { background: #f2f2f2; border: 1px solid #000; padding: 8px; text-align: left; }
+                                .table td { border: 1px solid #000; padding: 8px; }
+                                .summary { margin-top: 30px; padding: 15px; border: 1px solid #000; background: #f9f9f9; }
+                                .signature { margin-top: 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+                                .signature-line { border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 5px; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>BESTELLUNG / LIEFERSCHEIN</h1>
+                            <div class="company-info">Eiscafé Sanremo • Bad Berleburg • Tel: 0176 72809926</div>
+                        </div>
+                        
+                        <div class="order-info">
+                            <div class="info-box">
+                                <h3>KUNDENINFORMATION</h3>
+                                <p><strong>Name:</strong> ${customer?.name || 'Unbekannt'}</p>
+                                <p><strong>Standort:</strong> ${customer?.location || '—'}</p>
+                                <p><strong>Kontakt:</strong> ${customer?.contact || '—'}</p>
+                            </div>
+                            
+                            <div class="info-box">
+                                <h3>BESTELLINFORMATION</h3>
+                                <p><strong>Datum:</strong> ${Utils.formatDate(order.date)}</p>
+                                <p><strong>Lieferdatum:</strong> ${Utils.formatDate(order.date)}</p>
+                                <p><strong>Priorität:</strong> ${order.priority}</p>
+                            </div>
+                        </div>
+                        
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Pos.</th>
+                                    <th>Sorte</th>
+                                    <th>Größe</th>
+                                    <th>Menge</th>
+                                    <th>Gewicht (kg)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${order.items?.map((item, index) => `
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td>${item.flavor}</td>
+                                        <td>${item.size} g</td>
+                                        <td>${item.quantity} Stk.</td>
+                                        <td>${Utils.calculateWeight(item.size, item.quantity).toFixed(2)}</td>
+                                    </tr>
+                                `).join('') || ''}
+                            </tbody>
+                        </table>
+                        
+                        <div class="summary">
+                            <p><strong>Gesamtmenge:</strong> ${totalKg.toFixed(1)} kg</p>
+                            <p><strong>Benötigte Eimer (${bucketSize}kg):</strong> ${bucketsNeeded}</p>
+                            ${order.notes ? `<p><strong>Notizen:</strong> ${order.notes}</p>` : ''}
+                        </div>
+                        
+                        <div class="signature">
+                            <div>
+                                <div class="signature-line"></div>
+                                <div>Unterschrift Kunde</div>
+                            </div>
+                            <div>
+                                <div class="signature-line"></div>
+                                <div>Unterschrift Lieferant</div>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `;
+            },
+            
+            generateProductionHTML(productionData, date) {
+                const totalKg = productionData.reduce((sum, item) => sum + item.kg, 0);
+                const bucketSize = DB.getSettings().bucket_size || 6;
+                const totalBuckets = Utils.calculateBuckets(totalKg, bucketSize);
+                
+                return `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Produktionsplan - ${date}</title>
+                        <style>
+                            @media print {
+                                @page { margin: 10mm; }
+                                body { font-family: Arial, sans-serif; font-size: 11pt; }
+                                .header { text-align: center; margin-bottom: 15px; }
+                                .header h1 { margin: 0; font-size: 16pt; }
+                                .table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                                .table th { background: #f2f2f2; border: 1px solid #000; padding: 6px; text-align: left; }
+                                .table td { border: 1px solid #000; padding: 6px; }
+                                .checkboxes { display: flex; flex-wrap: wrap; gap: 2px; }
+                                .checkbox { width: 16px; height: 16px; border: 1px solid #000; display: inline-block; margin-right: 2px; }
+                                .footer { margin-top: 30px; border-top: 1px solid #000; padding-top: 10px; font-size: 9pt; color: #666; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>PRODUKTIONSPLAN</h1>
+                            <div>Datum: ${Utils.formatDate(date)} • Eiscafé Sanremo</div>
+                            <div>Gesamtmenge: ${totalKg.toFixed(1)} kg • Benötigte Eimer: ${totalBuckets}</div>
+                        </div>
+                        
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Sorte</th>
+                                    <th>750g</th>
+                                    <th>170g</th>
+                                    <th>KG</th>
+                                    <th>Eimer</th>
+                                    <th>Kontrolle</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${productionData.map(item => {
+                                    const buckets = Utils.calculateBuckets(item.kg, bucketSize);
+                                    return `
+                                        <tr>
+                                            <td><strong>${item.flavor}</strong></td>
+                                            <td>${item.size750}</td>
+                                            <td>${item.size170}</td>
+                                            <td>${item.kg.toFixed(2)}</td>
+                                            <td><strong>${buckets}</strong></td>
+                                            <td>
+                                                <div class="checkboxes">
+                                                    ${Array.from({length: Math.min(buckets, 10)}, (_, i) => 
+                                                        `<div class="checkbox"></div>`
+                                                    ).join('')}
+                                                    ${buckets > 10 ? `<small>+${buckets - 10}</small>` : ''}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                        
+                        <div class="footer">
+                            <p>Generiert am ${Utils.formatDate(new Date(), true)} • Eiscafé Sanremo</p>
+                        </div>
+                    </body>
+                    </html>
+                `;
+            },
+            
+            generateLabelHTML(flavor, size, batch, expiry) {
+                const expiryDate = expiry ? new Date(expiry) : new Date();
+                expiryDate.setMonth(expiryDate.getMonth() + 6);
+                const formattedExpiry = expiryDate.toLocaleDateString('de-DE');
+                
+                return `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Etikett - ${flavor}</title>
+                        <style>
+                            @media print {
+                                @page { margin: 5mm; }
+                                body { 
+                                    font-family: Arial, sans-serif; 
+                                    margin: 0; 
+                                    padding: 10px;
+                                    width: 90mm;
+                                    height: 140mm;
+                                    border: 1px solid #000;
+                                    border-radius: 8px;
+                                }
+                                .product-name { 
+                                    font-size: 16pt; 
+                                    font-weight: bold; 
+                                    text-align: center;
+                                    margin: 5px 0;
+                                }
+                                .product-size { 
+                                    font-size: 12pt; 
+                                    text-align: center;
+                                    margin-bottom: 10px;
+                                }
+                                .section { 
+                                    margin: 8px 0; 
+                                    font-size: 9pt;
+                                    line-height: 1.3;
+                                }
+                                .section-title { 
+                                    font-weight: bold;
+                                    margin-bottom: 2px;
+                                }
+                                .footer { 
+                                    text-align: center; 
+                                    margin-top: 15px;
+                                    padding-top: 10px;
+                                    border-top: 1px solid #ccc;
+                                    font-size: 8pt;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="product-name">${flavor.toUpperCase()}</div>
+                        <div class="product-size">Milcheis • ${size} g</div>
+                        
+                        <div class="section">
+                            <div class="section-title">ZUTATEN:</div>
+                            <div>Vollmilch, Sahne, Zucker, Eigelb, natürliches Aroma.</div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title">NÄHRWERTE je 100 g:</div>
+                            <div>Energie: 850 kJ / 203 kcal</div>
+                            <div>Fett: 8,5 g (davon gesättigt: 5,2 g)</div>
+                            <div>Kohlenhydrate: 25 g (davon Zucker: 22 g)</div>
+                            <div>Eiweiß: 3,8 g • Salz: 0,12 g</div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title">HERSTELLER & DATEN:</div>
+                            <div>Hersteller: Eiscafé Sanremo, Bad Berleburg</div>
+                            <div>Tel.: 0176 72809926</div>
+                            <div>Mindestens haltbar bis: ${formattedExpiry}</div>
+                            ${batch ? `<div>Charge: ${batch}</div>` : ''}
+                        </div>
+                        
+                        <div class="footer">
+                            <div>Bei -18°C lagern</div>
+                            <div>Nach dem Auftauen nicht wieder einfrieren</div>
+                        </div>
+                    </body>
+                    </html>
+                `;
+            },
+            
+            generateSingleLabelHTML(flavor, size, batch, expiry, count) {
+                const expiryDate = expiry ? new Date(expiry) : new Date();
+                expiryDate.setMonth(expiryDate.getMonth() + 6);
+                const formattedExpiry = expiryDate.toLocaleDateString('de-DE');
+                
+                return `
+                    <div style="padding: 8px; border: 1px solid #ccc; border-radius: 6px; margin: 5px; break-inside: avoid;">
+                        <div style="text-align: center; border-bottom: 1px solid #2563eb; padding-bottom: 5px; margin-bottom: 8px;">
+                            <div style="font-size: 10pt; font-weight: bold;">${flavor.toUpperCase()}</div>
+                            <div style="font-size: 8pt; color: #666;">${size} g • Milcheis</div>
+                        </div>
+                        
+                        <div style="font-size: 7pt; line-height: 1.2;">
+                            <div><strong>Zutaten:</strong> Vollmilch, Sahne, Zucker, Eigelb, Aroma.</div>
+                            <div style="margin-top: 4px;"><strong>MHD:</strong> ${formattedExpiry}</div>
+                            <div><strong>Charge:</strong> ${batch || '—'}</div>
+                            <div style="margin-top: 4px;"><strong>Nährwerte/100g:</strong> 850kJ/203kcal</div>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 8px; padding-top: 5px; border-top: 1px dashed #ccc;">
+                            <div style="font-size: 6pt; color: #666;">Eiscafé Sanremo • Bad Berleburg</div>
+                        </div>
+                    </div>
+                `;
+            },
+            
+            generateBatchLabelsHTML(labelsHTML) {
+                return `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Etiketten-Batch</title>
+                        <style>
+                            @media print {
+                                @page { margin: 10mm; }
+                                body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+                                .labels-container { 
+                                    display: grid; 
+                                    grid-template-columns: repeat(2, 1fr); 
+                                    gap: 15mm 20mm;
+                                }
+                                .label-item { 
+                                    page-break-inside: avoid;
+                                    break-inside: avoid;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="labels-container">
+                            ${labelsHTML}
+                        </div>
+                    </body>
+                    </html>
+                `;
+            },
+            
+            generateReportHTML(period, type) {
+                const now = new Date();
+                const reportDate = Utils.formatDate(now, true);
+                
+                return `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Bericht - ${period}</title>
+                        <style>
+                            @media print {
+                                @page { margin: 15mm; }
+                                body { font-family: Arial, sans-serif; font-size: 11pt; }
+                                .header { text-align: center; margin-bottom: 20px; }
+                                .header h1 { margin: 0; font-size: 18pt; }
+                                .summary { background: #f8fafc; border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; margin: 20px 0; }
+                                .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                                .table th { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
+                                .table td { border: 1px solid #cbd5e1; padding: 10px; }
+                                .footer { margin-top: 40px; border-top: 1px solid #e5e7eb; padding-top: 10px; font-size: 9pt; color: #666; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>${type.toUpperCase()} BERICHT</h1>
+                            <div>Zeitraum: ${period} • Generiert am: ${reportDate}</div>
+                            <div>Eiscafé Sanremo • Bad Berleburg</div>
+                        </div>
+                        
+                        <div class="summary">
+                            <p>Dieser Bericht wurde automatisch generiert vom Sanremo Produktionsmanagementsystem.</p>
+                        </div>
+                        
+                        <div class="footer">
+                            <p>Für mehr Informationen kontaktieren Sie uns unter 0176 72809926</p>
+                        </div>
+                    </body>
+                    </html>
+                `;
+            }
+        };
+
         // ===== INITIALIZATION =====
         document.addEventListener('DOMContentLoaded', () => {
             // Initialize database
@@ -3923,6 +4715,9 @@
             // Set initial theme
             const settings = DB.getSettings();
             Settings.applyTheme(settings.theme || 'light');
+            
+            // Initialize flavors module
+            Flavors.init();
             
             // Auto-save indicator
             let saveTimeout;
@@ -3950,4 +4745,4 @@
         });
     </script>
 </body>
-  </html>
+</html>
