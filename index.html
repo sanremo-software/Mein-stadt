@@ -1756,7 +1756,7 @@
     <script>
         // ===== DATABASE MANAGEMENT =====
         const DB = {
-            VERSION: '1.4.0',
+            VERSION: '1.5.0',
             KEYS: {
                 ORDERS: 'sanremo_orders',
                 CUSTOMERS: 'sanremo_customers',
@@ -1771,12 +1771,12 @@
                 LABELS: 'sanremo_labels'
             },
             
-            init() {
-                // Initialize all databases with default data
-                this.initDatabase(this.KEYS.ORDERS, []);
-                this.initDatabase(this.KEYS.CUSTOMERS, [
+            // Default data for initialization
+            DEFAULT_DATA: {
+                ORDERS: [],
+                CUSTOMERS: [
                     {
-                        id: '1',
+                        id: 'customer_1',
                         name: 'REWE',
                         location: 'Bad Berleburg',
                         contact: 'Herr Schmidt',
@@ -1789,7 +1789,7 @@
                         totalRevenue: 1450.80
                     },
                     {
-                        id: '2',
+                        id: 'customer_2',
                         name: 'EDEKA',
                         location: 'Bad Berleburg',
                         contact: 'Frau Meyer',
@@ -1801,28 +1801,28 @@
                         totalOrders: 8,
                         totalRevenue: 980.50
                     }
-                ]);
-                this.initDatabase(this.KEYS.RECIPES, []);
-                this.initDatabase(this.KEYS.FLAVORS, [
-                    { id: '1', name: 'Stracciatella', category: 'milcheis', description: 'Milcheis mit Schokostückchen', active: true },
-                    { id: '2', name: 'Amarena Kirsch', category: 'sorbet', description: 'Sauerkirsch-Sorbet mit Amarena', active: true },
-                    { id: '3', name: 'Vanille', category: 'milcheis', description: 'Klassische Vanille', active: true },
-                    { id: '4', name: 'Spaghetti', category: 'speiseeis', description: 'Eis mit Spaghetti-Optik', active: true },
-                    { id: '5', name: 'Toffifee', category: 'milcheis', description: 'Mit Toffifee-Stückchen', active: true },
-                    { id: '6', name: 'Cookies', category: 'milcheis', description: 'Mit Cookie-Stückchen', active: true },
-                    { id: '7', name: 'Weiß Schokolade Pistazien', category: 'milcheis', description: 'Weiße Schokolade mit Pistazien', active: true },
-                    { id: '8', name: 'Erdbeer', category: 'fruchteis', description: 'Frisches Erdbeereis', active: true },
-                    { id: '9', name: 'Joghurt Orange', category: 'fruchteis', description: 'Joghurt-Eis mit Orangen', active: true },
-                    { id: '10', name: 'Kinder Buenos', category: 'milcheis', description: 'Mit Kinder Buenos', active: true },
-                    { id: '11', name: 'Kinder Riegel', category: 'milcheis', description: 'Mit Kinder Riegel', active: true },
-                    { id: '12', name: 'Joghurete Schokolade', category: 'milcheis', description: 'Joghurt-Eis mit Schokolade', active: true },
-                    { id: '13', name: 'Mango', category: 'sorbet', description: 'Mango-Sorbet', active: true },
-                    { id: '14', name: 'Hanutta', category: 'spezial', description: 'Spezialität', active: true }
-                ]);
-                this.initDatabase(this.KEYS.INGREDIENTS, []);
-                this.initDatabase(this.KEYS.PRODUCTION, []);
-                this.initDatabase(this.KEYS.PRODUCTION_HISTORY, []);
-                this.initDatabase(this.KEYS.SETTINGS, {
+                ],
+                RECIPES: [],
+                FLAVORS: [
+                    { id: 'flavor_1', name: 'Stracciatella', category: 'milcheis', description: 'Milcheis mit Schokostückchen', active: true },
+                    { id: 'flavor_2', name: 'Amarena Kirsch', category: 'sorbet', description: 'Sauerkirsch-Sorbet mit Amarena', active: true },
+                    { id: 'flavor_3', name: 'Vanille', category: 'milcheis', description: 'Klassische Vanille', active: true },
+                    { id: 'flavor_4', name: 'Spaghetti', category: 'speiseeis', description: 'Eis mit Spaghetti-Optik', active: true },
+                    { id: 'flavor_5', name: 'Toffifee', category: 'milcheis', description: 'Mit Toffifee-Stückchen', active: true },
+                    { id: 'flavor_6', name: 'Cookies', category: 'milcheis', description: 'Mit Cookie-Stückchen', active: true },
+                    { id: 'flavor_7', name: 'Weiß Schokolade Pistazien', category: 'milcheis', description: 'Weiße Schokolade mit Pistazien', active: true },
+                    { id: 'flavor_8', name: 'Erdbeer', category: 'fruchteis', description: 'Frisches Erdbeereis', active: true },
+                    { id: 'flavor_9', name: 'Joghurt Orange', category: 'fruchteis', description: 'Joghurt-Eis mit Orangen', active: true },
+                    { id: 'flavor_10', name: 'Kinder Buenos', category: 'milcheis', description: 'Mit Kinder Buenos', active: true },
+                    { id: 'flavor_11', name: 'Kinder Riegel', category: 'milcheis', description: 'Mit Kinder Riegel', active: true },
+                    { id: 'flavor_12', name: 'Joghurete Schokolade', category: 'milcheis', description: 'Joghurt-Eis mit Schokolade', active: true },
+                    { id: 'flavor_13', name: 'Mango', category: 'sorbet', description: 'Mango-Sorbet', active: true },
+                    { id: 'flavor_14', name: 'Hanutta', category: 'spezial', description: 'Spezialität', active: true }
+                ],
+                INGREDIENTS: [],
+                PRODUCTION: [],
+                PRODUCTION_HISTORY: [],
+                SETTINGS: {
                     company_name: 'Eiscafé Sanremo',
                     company_address: 'Bad Berleburg',
                     company_phone: '0176 72809926',
@@ -1831,29 +1831,41 @@
                     default_expiry_days: 180,
                     theme: 'light',
                     language: 'de'
-                });
-                this.initDatabase(this.KEYS.STATISTICS, []);
-                this.initDatabase(this.KEYS.PRICES, {
+                },
+                STATISTICS: [],
+                PRICES: {
                     small: 2.26,
                     large: 5.90
+                },
+                LABELS: []
+            },
+            
+            init() {
+                // Initialize all databases with default data if they don't exist
+                Object.keys(this.KEYS).forEach(keyName => {
+                    const key = this.KEYS[keyName];
+                    const defaultValue = this.DEFAULT_DATA[keyName] || (keyName.endsWith('S') ? [] : {});
+                    
+                    if (!localStorage.getItem(key)) {
+                        localStorage.setItem(key, JSON.stringify(defaultValue));
+                    }
                 });
-                this.initDatabase(this.KEYS.LABELS, []);
             },
             
-            initDatabase(key, defaultValue) {
-                if (!localStorage.getItem(key)) {
-                    localStorage.setItem(key, JSON.stringify(defaultValue));
-                }
-            },
-            
-            // Generic get method
+            // Generic get method - CORRIGIDO
             get(key) {
                 try {
                     const data = localStorage.getItem(key);
-                    return data ? JSON.parse(data) : (Array.isArray(defaultValue) ? [] : {});
+                    if (!data) {
+                        // Get default value based on key name
+                        const keyName = Object.keys(this.KEYS).find(k => this.KEYS[k] === key);
+                        const defaultValue = this.DEFAULT_DATA[keyName] || (key.includes('_') ? [] : {});
+                        return defaultValue;
+                    }
+                    return JSON.parse(data);
                 } catch (e) {
                     console.error('Error reading from localStorage:', e);
-                    return Array.isArray(defaultValue) ? [] : {};
+                    return [];
                 }
             },
             
@@ -1951,8 +1963,11 @@
             },
             
             showNotification(message, type = 'info') {
+                // Remove existing notifications
+                document.querySelectorAll('.custom-notification').forEach(n => n.remove());
+                
                 const notification = document.createElement('div');
-                notification.className = `alert alert-${type}`;
+                notification.className = `alert alert-${type} custom-notification`;
                 notification.innerHTML = `
                     <div class="alert-icon">
                         <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'danger' ? 'times-circle' : 'info-circle'}"></i>
@@ -3322,22 +3337,7 @@
                             label: 'Wiederherstellen',
                             type: 'danger',
                             onClick: () => {
-                                const defaultFlavors = [
-                                    { id: '1', name: 'Stracciatella', category: 'milcheis', description: 'Milcheis mit Schokostückchen', active: true },
-                                    { id: '2', name: 'Amarena Kirsch', category: 'sorbet', description: 'Sauerkirsch-Sorbet mit Amarena', active: true },
-                                    { id: '3', name: 'Vanille', category: 'milcheis', description: 'Klassische Vanille', active: true },
-                                    { id: '4', name: 'Spaghetti', category: 'speiseeis', description: 'Eis mit Spaghetti-Optik', active: true },
-                                    { id: '5', name: 'Toffifee', category: 'milcheis', description: 'Mit Toffifee-Stückchen', active: true },
-                                    { id: '6', name: 'Cookies', category: 'milcheis', description: 'Mit Cookie-Stückchen', active: true },
-                                    { id: '7', name: 'Weiß Schokolade Pistazien', category: 'milcheis', description: 'Weiße Schokolade mit Pistazien', active: true },
-                                    { id: '8', name: 'Erdbeer', category: 'fruchteis', description: 'Frisches Erdbeereis', active: true },
-                                    { id: '9', name: 'Joghurt Orange', category: 'fruchteis', description: 'Joghurt-Eis mit Orangen', active: true },
-                                    { id: '10', name: 'Kinder Buenos', category: 'milcheis', description: 'Mit Kinder Buenos', active: true },
-                                    { id: '11', name: 'Kinder Riegel', category: 'milcheis', description: 'Mit Kinder Riegel', active: true },
-                                    { id: '12', name: 'Joghurete Schokolade', category: 'milcheis', description: 'Joghurt-Eis mit Schokolade', active: true },
-                                    { id: '13', name: 'Mango', category: 'sorbet', description: 'Mango-Sorbet', active: true },
-                                    { id: '14', name: 'Hanutta', category: 'spezial', description: 'Spezialität', active: true }
-                                ];
+                                const defaultFlavors = DB.DEFAULT_DATA.FLAVORS;
                                 
                                 if (DB.saveFlavors(defaultFlavors)) {
                                     Utils.showNotification('Standard-Sorten wiederhergestellt', 'success');
@@ -3354,14 +3354,14 @@
                 
                 // Update all flavor selects in the application
                 const flavorSelects = [
-                    'order-flavor',
+                    'order-customer', // Este é para clientes, não sabores
                     'recipe-flavor',
                     'label-flavor'
                 ];
                 
                 flavorSelects.forEach(selectId => {
                     const select = document.getElementById(selectId);
-                    if (select) {
+                    if (select && selectId !== 'order-customer') {
                         Utils.updateFlavorSelect(select, flavors);
                     }
                 });
@@ -3848,6 +3848,8 @@
                     .filter(o => o.date === date)
                     .forEach(order => {
                         order.items?.forEach(item => {
+                            if (!item.flavor) return;
+                            
                             if (!flavorMap[item.flavor]) {
                                 flavorMap[item.flavor] = {
                                     flavor: item.flavor,
@@ -4886,7 +4888,7 @@
                 }
             });
             
-            console.log('Sanremo Eisproduktionssystem gestartet - Version 1.4.0');
+            console.log('Sanremo Eisproduktionssystem gestartet - Version 1.5.0');
         });
     </script>
 </body>
