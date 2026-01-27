@@ -1,4 +1,3 @@
-            
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -1253,57 +1252,6 @@
                         </div>
                     </div>
                     
-                    <div class="form-group" id="recipe-form" style="display: none;">
-                        <div class="form-group">
-                            <label class="form-label">Name der Sorte</label>
-                            <input type="text" class="form-input" id="recipe-name" placeholder="z.B. Vanille, Schokolade...">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Produkttyp</label>
-                            <select class="form-select" id="recipe-type">
-                                <option value="milcheis">Milcheis</option>
-                                <option value="sorbet">Sorbet</option>
-                                <option value="fruchteis">Fruchteis</option>
-                                <option value="speiseeis">Speiseeis</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Beschreibung</label>
-                            <textarea class="form-textarea" id="recipe-description" placeholder="Kurze Beschreibung der Sorte..."></textarea>
-                        </div>
-                        
-                        <div class="card-title mt-4">
-                            <i class="fas fa-list"></i> Zutaten
-                        </div>
-                        
-                        <div id="ingredients-list">
-                            <!-- Ingredients will be added here -->
-                        </div>
-                        
-                        <button class="btn btn-outline w-100 mt-3" id="add-ingredient">
-                            <i class="fas fa-plus"></i> Zutat hinzufügen
-                        </button>
-                        
-                        <div class="card-title mt-4">
-                            <i class="fas fa-chart-pie"></i> Nährwertberechnung
-                        </div>
-                        
-                        <div class="nutrition-grid" id="nutrition-values">
-                            <!-- Nutrition values will be calculated -->
-                        </div>
-                        
-                        <div class="d-flex gap-3 mt-4">
-                            <button class="btn btn-success" id="save-recipe">
-                                <i class="fas fa-save"></i> Rezept speichern
-                            </button>
-                            <button class="btn btn-outline" id="cancel-recipe">
-                                <i class="fas fa-times"></i> Abbrechen
-                            </button>
-                        </div>
-                    </div>
-                    
                     <div class="card" id="recipe-list-card">
                         <div class="card-title">
                             <i class="fas fa-list-ul"></i> Alle Rezepte
@@ -1410,7 +1358,7 @@
                             <select class="form-select" id="label-size">
                                 <option value="170">170 g</option>
                                 <option value="500">500 g</option>
-                                <option value="750">750 g</option>
+                                <option value="750" selected>750 g</option>
                                 <option value="1000">1000 g</option>
                             </select>
                         </div>
@@ -1808,7 +1756,7 @@
     <script>
         // ===== DATABASE MANAGEMENT =====
         const DB = {
-            VERSION: '1.3.0',
+            VERSION: '1.4.0',
             KEYS: {
                 ORDERS: 'sanremo_orders',
                 CUSTOMERS: 'sanremo_customers',
@@ -1901,10 +1849,11 @@
             // Generic get method
             get(key) {
                 try {
-                    return JSON.parse(localStorage.getItem(key)) || [];
+                    const data = localStorage.getItem(key);
+                    return data ? JSON.parse(data) : (Array.isArray(defaultValue) ? [] : {});
                 } catch (e) {
                     console.error('Error reading from localStorage:', e);
-                    return [];
+                    return Array.isArray(defaultValue) ? [] : {};
                 }
             },
             
@@ -1944,10 +1893,17 @@
             // Add new item to database
             addOrder(order) {
                 const orders = this.getOrders();
-                order.id = order.id || 'order_' + Date.now();
-                order.created = order.created || new Date().toISOString();
+                order.id = 'order_' + Date.now();
+                order.created = new Date().toISOString();
                 orders.push(order);
                 return this.saveOrders(orders);
+            },
+            
+            addProductionHistory(record) {
+                const history = this.getProductionHistory();
+                record.id = 'history_' + Date.now();
+                history.push(record);
+                return this.saveProductionHistory(history);
             }
         };
 
@@ -2078,6 +2034,53 @@
                     3: { text: 'Ausgeliefert', class: 'primary' }
                 };
                 return statuses[status] || statuses[0];
+            },
+            
+            updateFlavorSelect(selectElement, flavors) {
+                if (!selectElement) return;
+                
+                const currentValue = selectElement.value;
+                selectElement.innerHTML = '<option value="">Sorte auswählen...</option>';
+                
+                // Group by category
+                const grouped = {};
+                flavors.forEach(flavor => {
+                    if (!grouped[flavor.category]) {
+                        grouped[flavor.category] = [];
+                    }
+                    grouped[flavor.category].push(flavor);
+                });
+                
+                // Add optgroups
+                Object.keys(grouped).forEach(category => {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = this.getCategoryName(category);
+                    
+                    grouped[category].forEach(flavor => {
+                        const option = document.createElement('option');
+                        option.value = flavor.name;
+                        option.textContent = flavor.name;
+                        optgroup.appendChild(option);
+                    });
+                    
+                    selectElement.appendChild(optgroup);
+                });
+                
+                // Restore previous value if it exists
+                if (currentValue) {
+                    selectElement.value = currentValue;
+                }
+            },
+            
+            getCategoryName(category) {
+                const names = {
+                    'milcheis': 'Milcheis',
+                    'sorbet': 'Sorbet',
+                    'fruchteis': 'Fruchteis',
+                    'speiseeis': 'Speiseeis',
+                    'spezial': 'Spezial'
+                };
+                return names[category] || 'Unbekannt';
             }
         };
 
@@ -2099,6 +2102,7 @@
         // ===== VIEW MANAGER =====
         const ViewManager = {
             init() {
+                // Setup navigation
                 document.querySelectorAll('.nav-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         const view = btn.getAttribute('data-view');
@@ -2106,18 +2110,22 @@
                     });
                 });
                 
+                // Initialize default view
                 this.switchView('dashboard');
             },
             
             switchView(viewName) {
+                // Update active nav button
                 document.querySelectorAll('.nav-btn').forEach(btn => {
                     btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
                 });
                 
+                // Hide all views
                 document.querySelectorAll('.view-container').forEach(view => {
                     view.classList.remove('active');
                 });
                 
+                // Show selected view
                 const targetView = document.getElementById(`${viewName}-view`);
                 if (targetView) {
                     targetView.classList.add('active');
@@ -2178,6 +2186,9 @@
             },
             
             loadTodayActivities() {
+                const tbody = document.getElementById('today-activities');
+                if (!tbody) return;
+                
                 const activities = [
                     {
                         time: '08:00',
@@ -2205,7 +2216,6 @@
                     }
                 ];
                 
-                const tbody = document.getElementById('today-activities');
                 tbody.innerHTML = '';
                 
                 activities.forEach(activity => {
@@ -2237,6 +2247,7 @@
         const Orders = {
             init() {
                 this.loadCustomers();
+                this.loadFlavors();
                 this.setDefaultDate();
                 this.setupEventListeners();
                 this.loadRecentOrders();
@@ -2256,6 +2267,14 @@
                 }
             },
             
+            loadFlavors() {
+                const flavors = Flavors.getActiveFlavors();
+                const selects = document.querySelectorAll('.order-flavor-select');
+                selects.forEach(select => {
+                    Utils.updateFlavorSelect(select, flavors);
+                });
+            },
+            
             setDefaultDate() {
                 const today = new Date().toISOString().split('T')[0];
                 const dateInput = document.getElementById('order-date');
@@ -2265,17 +2284,12 @@
             },
             
             setupEventListeners() {
-                const addItemBtn = document.getElementById('add-order-item');
-                const clearOrderBtn = document.getElementById('clear-order');
-                const saveOrderBtn = document.getElementById('save-order');
-                const printOrderBtn = document.getElementById('print-order');
-                const exportOrderBtn = document.getElementById('export-order');
-                
-                if (addItemBtn) addItemBtn.addEventListener('click', () => this.addOrderItem());
-                if (clearOrderBtn) clearOrderBtn.addEventListener('click', () => this.clearOrder());
-                if (saveOrderBtn) saveOrderBtn.addEventListener('click', () => this.saveOrder());
-                if (printOrderBtn) printOrderBtn.addEventListener('click', () => this.printOrder());
-                if (exportOrderBtn) exportOrderBtn.addEventListener('click', () => this.exportOrder());
+                // Order buttons
+                document.getElementById('add-order-item')?.addEventListener('click', () => this.addOrderItem());
+                document.getElementById('clear-order')?.addEventListener('click', () => this.clearOrder());
+                document.getElementById('save-order')?.addEventListener('click', () => this.saveOrder());
+                document.getElementById('print-order')?.addEventListener('click', () => this.printOrder());
+                document.getElementById('export-order')?.addEventListener('click', () => this.exportOrder());
             },
             
             addOrderItem() {
@@ -2299,7 +2313,7 @@
                     const div = document.createElement('div');
                     div.className = 'order-item';
                     div.innerHTML = `
-                        <select class="form-select order-flavor" data-index="${index}">
+                        <select class="form-select order-flavor-select" data-index="${index}">
                             <option value="">Sorte wählen...</option>
                         </select>
                         <select class="form-select order-size" data-index="${index}">
@@ -2314,15 +2328,12 @@
                         </button>
                     `;
                     
-                    const flavorSelect = div.querySelector('.order-flavor');
+                    // Populate flavor select
+                    const flavorSelect = div.querySelector('.order-flavor-select');
                     const flavors = Flavors.getActiveFlavors();
-                    flavors.forEach(flavor => {
-                        const option = document.createElement('option');
-                        option.value = flavor.name;
-                        option.textContent = flavor.name;
-                        flavorSelect.appendChild(option);
-                    });
+                    Utils.updateFlavorSelect(flavorSelect, flavors);
                     
+                    // Set values
                     flavorSelect.value = item.flavor;
                     div.querySelector('.order-size').value = item.size;
                     
@@ -2334,7 +2345,8 @@
             },
             
             addItemEventListeners() {
-                document.querySelectorAll('.order-flavor').forEach(select => {
+                // Flavor change
+                document.querySelectorAll('.order-flavor-select').forEach(select => {
                     select.addEventListener('change', (e) => {
                         const index = parseInt(e.target.getAttribute('data-index'));
                         AppState.currentOrder.items[index].flavor = e.target.value;
@@ -2342,6 +2354,7 @@
                     });
                 });
                 
+                // Size change
                 document.querySelectorAll('.order-size').forEach(select => {
                     select.addEventListener('change', (e) => {
                         const index = parseInt(e.target.getAttribute('data-index'));
@@ -2350,6 +2363,7 @@
                     });
                 });
                 
+                // Quantity change
                 document.querySelectorAll('.order-quantity').forEach(input => {
                     input.addEventListener('change', (e) => {
                         const index = parseInt(e.target.getAttribute('data-index'));
@@ -2358,6 +2372,7 @@
                     });
                 });
                 
+                // Remove item
                 document.querySelectorAll('.remove-item').forEach(button => {
                     button.addEventListener('click', (e) => {
                         const index = parseInt(e.target.closest('button').getAttribute('data-index'));
@@ -2389,7 +2404,7 @@
                 document.getElementById('total-170g').textContent = total170g;
                 document.getElementById('total-kg').textContent = totalKg.toFixed(1);
                 document.getElementById('total-buckets').textContent = totalBuckets;
-                document.getElementById('total-euros').textContent = totalEuros + ' €';
+                document.getElementById('total-euros').textContent = totalEuros;
             },
             
             saveOrder() {
@@ -2398,6 +2413,7 @@
                 const priority = document.getElementById('order-priority').value;
                 const notes = document.getElementById('order-notes').value;
                 
+                // Validation
                 if (!customerId) {
                     Utils.showNotification('Bitte einen Kunden auswählen', 'warning');
                     return;
@@ -2413,47 +2429,62 @@
                     return;
                 }
                 
+                // Check if all items have flavors
+                const missingFlavor = AppState.currentOrder.items.some(item => !item.flavor);
+                if (missingFlavor) {
+                    Utils.showNotification('Bitte für alle Positionen eine Sorte auswählen', 'warning');
+                    return;
+                }
+                
+                // Create order object
                 const order = {
+                    id: 'order_' + Date.now(),
                     customerId,
                     date,
                     priority,
                     notes,
                     items: [...AppState.currentOrder.items],
                     status: 'pending',
+                    totalPrice: Utils.calculatePrice(AppState.currentOrder.items),
                     created: new Date().toISOString()
                 };
                 
-                const orders = DB.getOrders();
-                order.id = order.id || 'order_' + Date.now();
-                orders.push(order);
-                
-                if (DB.saveOrders(orders)) {
+                // Save to database
+                if (DB.addOrder(order)) {
                     Utils.showNotification('Bestellung erfolgreich gespeichert', 'success');
                     
-                    AppState.currentOrder = {
-                        customerId: '',
-                        date: '',
-                        priority: 'normal',
-                        notes: '',
-                        items: []
-                    };
-                    this.renderOrderItems();
-                    this.updateOrderSummary();
+                    // Reset form
+                    this.clearOrder();
                     
-                    const notesTextarea = document.getElementById('order-notes');
-                    if (notesTextarea) notesTextarea.value = '';
-                    
+                    // Update recent orders
                     this.loadRecentOrders();
+                    
+                    // Update dashboard statistics
                     Dashboard.updateStatistics();
                 } else {
                     Utils.showNotification('Fehler beim Speichern der Bestellung', 'danger');
                 }
             },
             
+            clearOrder() {
+                AppState.currentOrder = {
+                    customerId: '',
+                    date: '',
+                    priority: 'normal',
+                    notes: '',
+                    items: []
+                };
+                this.renderOrderItems();
+                this.updateOrderSummary();
+                document.getElementById('order-notes').value = '';
+                Utils.showNotification('Bestellung geleert', 'info');
+            },
+            
             loadRecentOrders() {
                 const orders = DB.getOrders();
                 const customers = DB.getCustomers();
                 
+                // Sort by date (newest first)
                 orders.sort((a, b) => new Date(b.created) - new Date(a.created));
                 
                 const tbody = document.getElementById('recent-orders');
@@ -2461,7 +2492,8 @@
                 
                 tbody.innerHTML = '';
                 
-                orders.slice(0, 5).forEach(order => {
+                // Show last 10 orders
+                orders.slice(0, 10).forEach(order => {
                     const customer = customers.find(c => c.id === order.customerId);
                     const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
                     
@@ -2470,7 +2502,7 @@
                         <td>${Utils.formatDate(order.date)}</td>
                         <td>${customer ? customer.name : 'Unbekannt'}</td>
                         <td>${totalQuantity} Stk.</td>
-                        <td>${parseFloat(order.totalPrice || 0).toFixed(2)} €</td>
+                        <td>${order.totalPrice || '0.00'} €</td>
                         <td>
                             <span class="badge ${order.status === 'completed' ? 'badge-success' : order.status === 'pending' ? 'badge-warning' : 'badge-primary'}">
                                 ${order.status === 'completed' ? 'Erledigt' : order.status === 'pending' ? 'Ausstehend' : 'In Bearbeitung'}
@@ -2491,6 +2523,7 @@
                     tbody.appendChild(tr);
                 });
                 
+                // Add event listeners
                 this.addOrderActionListeners();
             },
             
@@ -2521,11 +2554,12 @@
                 
                 let content = `
                     <h3>Bestelldetails</h3>
+                    <p><strong>Bestellnummer:</strong> ${order.id}</p>
                     <p><strong>Datum:</strong> ${Utils.formatDate(order.date)}</p>
                     <p><strong>Kunde:</strong> ${customer ? customer.name : 'Unbekannt'}</p>
                     <p><strong>Status:</strong> ${order.status}</p>
                     <p><strong>Priorität:</strong> ${order.priority}</p>
-                    <p><strong>Gesamtpreis:</strong> ${parseFloat(order.totalPrice || 0).toFixed(2)} €</p>
+                    <p><strong>Gesamtpreis:</strong> ${order.totalPrice || '0.00'} €</p>
                     <p><strong>Notizen:</strong> ${order.notes || 'Keine'}</p>
                     <h4>Positionen:</h4>
                     <ul>
@@ -2589,7 +2623,7 @@
                             <div>
                                 <h3>Bestelldetails</h3>
                                 <p><strong>Datum:</strong> ${new Date().toLocaleDateString('de-DE')}</p>
-                                <p><strong>Bestellnummer:</strong> ${Utils.generateId().substr(0, 8)}</p>
+                                <p><strong>Bestellnummer:</strong> ${'order_' + Date.now().toString().substr(0, 8)}</p>
                             </div>
                             <div>
                                 <h3>Kunde</h3>
@@ -2627,7 +2661,7 @@
                             <h3>Zusammenfassung</h3>
                             <p><strong>Gesamtmenge:</strong> ${document.getElementById('total-items').textContent}</p>
                             <p><strong>Gesamtgewicht:</strong> ${document.getElementById('total-kg').textContent} kg</p>
-                            <p><strong>Gesamtpreis:</strong> ${document.getElementById('total-euros').textContent}</p>
+                            <p><strong>Gesamtpreis:</strong> ${document.getElementById('total-euros').textContent} €</p>
                         </div>
                     </div>
                 `;
@@ -2656,19 +2690,6 @@
                     </html>
                 `);
                 printWindow.document.close();
-            },
-            
-            clearOrder() {
-                AppState.currentOrder = {
-                    customerId: '',
-                    date: '',
-                    priority: 'normal',
-                    notes: '',
-                    items: []
-                };
-                this.renderOrderItems();
-                this.updateOrderSummary();
-                Utils.showNotification('Bestellung geleert', 'info');
             },
             
             exportOrder() {
@@ -2709,11 +2730,8 @@
             },
             
             setupEventListeners() {
-                const saveBtn = document.getElementById('save-customer');
-                const clearBtn = document.getElementById('clear-customer-form');
-                
-                if (saveBtn) saveBtn.addEventListener('click', () => this.saveCustomer());
-                if (clearBtn) clearBtn.addEventListener('click', () => this.clearForm());
+                document.getElementById('save-customer')?.addEventListener('click', () => this.saveCustomer());
+                document.getElementById('clear-customer-form')?.addEventListener('click', () => this.clearForm());
             },
             
             saveCustomer() {
@@ -2736,7 +2754,7 @@
                 }
                 
                 const customer = {
-                    id: Utils.generateId(),
+                    id: 'customer_' + Date.now(),
                     name,
                     location,
                     contact: contact || 'Nicht angegeben',
@@ -2777,10 +2795,11 @@
                 const customers = DB.getCustomers();
                 const orders = DB.getOrders();
                 
+                // Update customer statistics
                 customers.forEach(customer => {
                     const customerOrders = orders.filter(o => o.customerId === customer.id);
                     customer.totalOrders = customerOrders.length;
-                    customer.totalRevenue = customerOrders.reduce((sum, order) => sum + (parseFloat(order.totalPrice) || 0), 0);
+                    customer.totalRevenue = customerOrders.reduce((sum, order) => sum + parseFloat(order.totalPrice || 0), 0);
                     
                     if (customerOrders.length > 0) {
                         const lastOrder = customerOrders.sort((a, b) => new Date(b.created) - new Date(a.created))[0];
@@ -2790,8 +2809,10 @@
                     }
                 });
                 
+                // Save updated customer data
                 DB.saveCustomers(customers);
                 
+                // Render table
                 const tbody = document.getElementById('customers-list');
                 if (!tbody) return;
                 
@@ -3008,6 +3029,11 @@
 
         // ===== FLAVORS MODULE =====
         const Flavors = {
+            getActiveFlavors() {
+                const flavors = DB.getFlavors();
+                return flavors.filter(f => f.active !== false);
+            },
+            
             init() {
                 this.setupEventListeners();
                 this.loadFlavors();
@@ -3015,16 +3041,8 @@
             },
             
             setupEventListeners() {
-                const addBtn = document.getElementById('add-flavor-btn');
-                const resetBtn = document.getElementById('reset-flavors-btn');
-                
-                if (addBtn) addBtn.addEventListener('click', () => this.handleAddFlavor());
-                if (resetBtn) resetBtn.addEventListener('click', () => this.resetToDefaults());
-            },
-            
-            getActiveFlavors() {
-                const flavors = DB.getFlavors();
-                return flavors.filter(f => f.active !== false);
+                document.getElementById('add-flavor-btn')?.addEventListener('click', () => this.handleAddFlavor());
+                document.getElementById('reset-flavors-btn')?.addEventListener('click', () => this.resetToDefaults());
             },
             
             handleAddFlavor() {
@@ -3058,6 +3076,7 @@
             addFlavor(flavorData) {
                 const flavors = DB.getFlavors();
                 
+                // Check if flavor already exists
                 const exists = flavors.some(f => 
                     f.name.toLowerCase() === flavorData.name.toLowerCase()
                 );
@@ -3068,7 +3087,7 @@
                 }
                 
                 const newFlavor = {
-                    id: Utils.generateId(),
+                    id: 'flavor_' + Date.now(),
                     ...flavorData,
                     created: new Date().toISOString()
                 };
@@ -3106,7 +3125,7 @@
                         </td>
                         <td>
                             <span class="badge ${this.getCategoryClass(flavor.category)}">
-                                ${this.getCategoryName(flavor.category)}
+                                ${Utils.getCategoryName(flavor.category)}
                             </span>
                         </td>
                         <td class="text-muted fs-sm">${flavor.description || '—'}</td>
@@ -3333,62 +3352,24 @@
             updateAllFlavorSelects() {
                 const flavors = this.getActiveFlavors();
                 
-                this.updateFlavorSelect('order-flavor', flavors);
-                this.updateFlavorSelect('recipe-flavor', flavors);
-                this.updateFlavorSelect('label-flavor', flavors);
+                // Update all flavor selects in the application
+                const flavorSelects = [
+                    'order-flavor',
+                    'recipe-flavor',
+                    'label-flavor'
+                ];
                 
-                document.querySelectorAll('.order-flavor-select').forEach(select => {
-                    this.updateFlavorSelectElement(select, flavors);
-                });
-            },
-            
-            updateFlavorSelect(selectId, flavors) {
-                const select = document.getElementById(selectId);
-                if (select) {
-                    this.updateFlavorSelectElement(select, flavors);
-                }
-            },
-            
-            updateFlavorSelectElement(selectElement, flavors) {
-                const currentValue = selectElement.value;
-                selectElement.innerHTML = '<option value="">Sorte auswählen...</option>';
-                
-                const grouped = {};
-                flavors.forEach(flavor => {
-                    if (!grouped[flavor.category]) {
-                        grouped[flavor.category] = [];
+                flavorSelects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    if (select) {
+                        Utils.updateFlavorSelect(select, flavors);
                     }
-                    grouped[flavor.category].push(flavor);
                 });
                 
-                Object.keys(grouped).forEach(category => {
-                    const optgroup = document.createElement('optgroup');
-                    optgroup.label = this.getCategoryName(category);
-                    
-                    grouped[category].forEach(flavor => {
-                        const option = document.createElement('option');
-                        option.value = flavor.name;
-                        option.textContent = flavor.name;
-                        optgroup.appendChild(option);
-                    });
-                    
-                    selectElement.appendChild(optgroup);
+                // Also update dynamic order item selects
+                document.querySelectorAll('.order-flavor-select').forEach(select => {
+                    Utils.updateFlavorSelect(select, flavors);
                 });
-                
-                if (currentValue && Array.from(selectElement.options).some(opt => opt.value === currentValue)) {
-                    selectElement.value = currentValue;
-                }
-            },
-            
-            getCategoryName(category) {
-                const names = {
-                    'milcheis': 'Milcheis',
-                    'sorbet': 'Sorbet',
-                    'fruchteis': 'Fruchteis',
-                    'speiseeis': 'Speiseeis',
-                    'spezial': 'Spezial'
-                };
-                return names[category] || 'Unbekannt';
             },
             
             getCategoryClass(category) {
@@ -3414,6 +3395,28 @@
             }
         };
 
+        // ===== RECIPES MODULE =====
+        const Recipes = {
+            init() {
+                this.setupEventListeners();
+                this.loadFlavors();
+            },
+            
+            setupEventListeners() {
+                document.getElementById('new-recipe')?.addEventListener('click', () => {
+                    Utils.showNotification('Rezept-Modul in Entwicklung', 'info');
+                });
+            },
+            
+            loadFlavors() {
+                const flavors = Flavors.getActiveFlavors();
+                const select = document.getElementById('recipe-flavor');
+                if (select) {
+                    Utils.updateFlavorSelect(select, flavors);
+                }
+            }
+        };
+
         // ===== LABELS MODULE =====
         const Labels = {
             init() {
@@ -3421,33 +3424,26 @@
                 this.loadFlavors();
                 this.setDefaultDates();
                 this.generatePreview();
+                this.loadRecentLabels();
             },
             
             setupEventListeners() {
-                const generateBtn = document.getElementById('generate-label');
-                const printBtn = document.getElementById('print-label');
-                const batchBtn = document.getElementById('print-batch');
+                document.getElementById('generate-label')?.addEventListener('click', () => this.generatePreview());
+                document.getElementById('print-label')?.addEventListener('click', () => this.printLabel());
+                document.getElementById('print-batch')?.addEventListener('click', () => this.printBatch());
                 
-                if (generateBtn) generateBtn.addEventListener('click', () => this.generatePreview());
-                if (printBtn) printBtn.addEventListener('click', () => this.printLabel());
-                if (batchBtn) batchBtn.addEventListener('click', () => this.printBatch());
-                
-                const flavorSelect = document.getElementById('label-flavor');
-                const sizeSelect = document.getElementById('label-size');
-                const batchInput = document.getElementById('label-batch');
-                const expiryInput = document.getElementById('label-expiry');
-                
-                if (flavorSelect) flavorSelect.addEventListener('change', () => {
+                // Add change listeners for auto-update
+                document.getElementById('label-flavor')?.addEventListener('change', () => {
                     this.generatePreview();
                     this.checkWarnings();
                 });
                 
-                if (sizeSelect) sizeSelect.addEventListener('change', () => this.generatePreview());
-                if (batchInput) batchInput.addEventListener('input', () => {
+                document.getElementById('label-size')?.addEventListener('change', () => this.generatePreview());
+                document.getElementById('label-batch')?.addEventListener('input', () => {
                     this.generatePreview();
                     this.checkWarnings();
                 });
-                if (expiryInput) expiryInput.addEventListener('change', () => {
+                document.getElementById('label-expiry')?.addEventListener('change', () => {
                     this.generatePreview();
                     this.checkWarnings();
                 });
@@ -3457,13 +3453,7 @@
                 const flavors = Flavors.getActiveFlavors();
                 const select = document.getElementById('label-flavor');
                 if (select) {
-                    select.innerHTML = '<option value="">Sorte auswählen...</option>';
-                    flavors.forEach(flavor => {
-                        const option = document.createElement('option');
-                        option.value = flavor.name;
-                        option.textContent = flavor.name;
-                        select.appendChild(option);
-                    });
+                    Utils.updateFlavorSelect(select, flavors);
                 }
             },
             
@@ -3711,7 +3701,7 @@
                 const today = new Date().toISOString().split('T')[0];
                 
                 labels.push({
-                    id: Utils.generateId(),
+                    id: 'label_' + Date.now(),
                     date: today,
                     flavor: flavor,
                     size: document.getElementById('label-size')?.value || '170',
@@ -3770,8 +3760,6 @@
                 
                 if (!label) return;
                 
-                Utils.showNotification(`Nachdruck von ${label.flavor} (${label.quantity}x) gestartet`, 'info');
-                
                 // Set form values
                 document.getElementById('label-flavor').value = label.flavor;
                 document.getElementById('label-size').value = label.size;
@@ -3782,6 +3770,7 @@
                 
                 // Print
                 setTimeout(() => {
+                    Utils.showNotification(`Nachdruck von ${label.flavor} (${label.quantity}x) gestartet`, 'info');
                     this.printLabel();
                 }, 500);
             }
@@ -3793,6 +3782,7 @@
                 this.setDefaultDate();
                 this.setupEventListeners();
                 this.updateProductionStats();
+                this.loadProductionProgress();
             },
             
             setDefaultDate() {
@@ -3805,16 +3795,12 @@
             },
             
             setupEventListeners() {
-                const generateBtn = document.getElementById('generate-production-plan');
-                const startBtn = document.getElementById('start-production');
-                const printBtn = document.getElementById('print-production-plan');
-                const dateInput = document.getElementById('production-date');
+                document.getElementById('generate-production-plan')?.addEventListener('click', () => this.generateProductionPlan());
+                document.getElementById('start-production')?.addEventListener('click', () => this.startProduction());
+                document.getElementById('print-production-plan')?.addEventListener('click', () => this.printProductionPlan());
                 
-                if (generateBtn) generateBtn.addEventListener('click', () => this.generateProductionPlan());
-                if (startBtn) startBtn.addEventListener('click', () => this.startProduction());
-                if (printBtn) printBtn.addEventListener('click', () => this.printProductionPlan());
-                if (dateInput) dateInput.addEventListener('change', () => {
-                    AppState.currentProductionDate = dateInput.value;
+                document.getElementById('production-date')?.addEventListener('change', (e) => {
+                    AppState.currentProductionDate = e.target.value;
                     this.updateProductionStats();
                     this.loadProductionProgress();
                 });
@@ -3827,8 +3813,6 @@
                 const dateOrders = orders.filter(o => o.date === date);
                 
                 let totalKg = 0;
-                let total750g = 0;
-                let total170g = 0;
                 let openOrders = 0;
                 
                 dateOrders.forEach(order => {
@@ -3836,8 +3820,6 @@
                     
                     order.items?.forEach(item => {
                         totalKg += Utils.calculateWeight(item.size, item.quantity);
-                        if (item.size === '750') total750g += item.quantity;
-                        if (item.size === '170') total170g += item.quantity;
                     });
                 });
                 
@@ -3857,9 +3839,11 @@
                 const orders = DB.getOrders();
                 const production = DB.getProduction();
                 
+                // Remove existing production for this date
                 const filteredProduction = production.filter(p => p.date !== date);
                 const flavorMap = {};
                 
+                // Aggregate orders for the selected date
                 orders
                     .filter(o => o.date === date)
                     .forEach(order => {
@@ -3869,9 +3853,7 @@
                                     flavor: item.flavor,
                                     size750: 0,
                                     size170: 0,
-                                    kg: 0,
-                                    producedKg: 0,
-                                    status: 0
+                                    kg: 0
                                 };
                             }
                             
@@ -3881,12 +3863,14 @@
                         });
                     });
                 
+                // Convert to array and sort by kg
                 const flavors = Object.values(flavorMap)
                     .sort((a, b) => b.kg - a.kg);
                 
+                // Add to production plan
                 flavors.forEach(flavor => {
                     const productionItem = {
-                        id: Utils.generateId(),
+                        id: 'production_' + Date.now(),
                         date: date,
                         flavor: flavor.flavor,
                         plannedKg: flavor.kg,
@@ -4025,12 +4009,14 @@
                 
                 if (!item) return;
                 
+                const maxQuantity = item.plannedKg - item.producedKg;
+                
                 Utils.showModal('Produzierte Menge hinzufügen',
                     `<p>Wie viel KG von "${item.flavor}" wurde produziert?</p>
                     <div class="form-group">
                         <label class="form-label">Menge (KG)</label>
                         <input type="number" class="form-input" id="add-quantity" 
-                               value="1.0" step="0.1" min="0.1" max="${item.plannedKg - item.producedKg}">
+                               value="1.0" step="0.1" min="0.1" max="${maxQuantity.toFixed(1)}">
                     </div>`,
                     [
                         {
@@ -4094,7 +4080,7 @@
                     </div>
                     <div class="alert alert-warning mt-3">
                         <i class="fas fa-exclamation-triangle"></i>
-                        Diese Aktion entfernt produzierte Menge aus der Berechnung, behält aber den Verlauf im Logbuch.
+                        Diese Aktion entfernt produzierte Menge aus der Berechnung.
                     </div>`,
                     [
                         {
@@ -4285,7 +4271,7 @@
             
             startProduction() {
                 Utils.showModal('Produktion starten',
-                    'Möchten Sie die Produktion für den heutigen Tag starten? Dies wird den Status aller Bestellungen auf "In Bearbeitung" setzen.',
+                    'Möchten Sie die Produktion für den heutigen Tag starten?',
                     [
                         {
                             id: 'cancel',
@@ -4390,24 +4376,20 @@
                 this.setupEventListeners();
                 this.loadPrices();
                 this.loadStatistics();
+                this.loadFlavorStatistics();
             },
             
             setupEventListeners() {
-                const periodSelect = document.getElementById('stat-period');
-                const generateBtn = document.getElementById('generate-report');
-                const printBtn = document.getElementById('print-report');
-                const savePricesBtn = document.getElementById('save-prices');
-                
-                if (periodSelect) periodSelect.addEventListener('change', (e) => {
+                document.getElementById('stat-period')?.addEventListener('change', (e) => {
                     const customRange = document.getElementById('custom-date-range');
                     if (customRange) {
                         customRange.style.display = e.target.value === 'custom' ? 'block' : 'none';
                     }
                 });
                 
-                if (generateBtn) generateBtn.addEventListener('click', () => this.generateReport());
-                if (printBtn) printBtn.addEventListener('click', () => this.printReport());
-                if (savePricesBtn) savePricesBtn.addEventListener('click', () => this.savePrices());
+                document.getElementById('generate-report')?.addEventListener('click', () => this.generateReport());
+                document.getElementById('print-report')?.addEventListener('click', () => this.printReport());
+                document.getElementById('save-prices')?.addEventListener('click', () => this.savePrices());
             },
             
             loadPrices() {
@@ -4435,13 +4417,14 @@
                 
                 if (DB.savePrices(prices)) {
                     Utils.showNotification('Preise gespeichert', 'success');
+                    this.loadFlavorStatistics();
                 } else {
                     Utils.showNotification('Fehler beim Speichern der Preise', 'danger');
                 }
             },
             
             loadStatistics() {
-                this.loadFlavorStatistics();
+                // Placeholder for loading statistics
             },
             
             loadFlavorStatistics() {
@@ -4451,6 +4434,7 @@
                 
                 const flavorStats = {};
                 
+                // Initialize flavor stats
                 flavors.forEach(flavor => {
                     flavorStats[flavor.name] = {
                         name: flavor.name,
@@ -4460,6 +4444,7 @@
                     };
                 });
                 
+                // Calculate stats from orders
                 orders.forEach(order => {
                     order.items?.forEach(item => {
                         if (flavorStats[item.flavor]) {
@@ -4474,12 +4459,14 @@
                     });
                 });
                 
+                // Convert to array and filter out flavors with no sales
                 const statsArray = Object.values(flavorStats)
                     .filter(stat => stat.small > 0 || stat.large > 0)
                     .sort((a, b) => b.revenue - a.revenue);
                 
                 const totalRevenue = statsArray.reduce((sum, stat) => sum + stat.revenue, 0);
                 
+                // Render table
                 const tbody = document.getElementById('flavor-stats');
                 if (!tbody) return;
                 
@@ -4506,14 +4493,18 @@
                     tbody.appendChild(tr);
                 });
                 
+                // Add total row
                 if (statsArray.length > 0) {
+                    const totalSmall = statsArray.reduce((sum, stat) => sum + stat.small, 0);
+                    const totalLarge = statsArray.reduce((sum, stat) => sum + stat.large, 0);
+                    
                     const tr = document.createElement('tr');
                     tr.style.fontWeight = 'bold';
                     tr.style.background = '#f8fafc';
                     tr.innerHTML = `
                         <td>GESAMT</td>
-                        <td>${statsArray.reduce((sum, stat) => sum + stat.small, 0)} Stk.</td>
-                        <td>${statsArray.reduce((sum, stat) => sum + stat.large, 0)} Stk.</td>
+                        <td>${totalSmall} Stk.</td>
+                        <td>${totalLarge} Stk.</td>
                         <td>${totalRevenue.toFixed(2)} €</td>
                         <td>100%</td>
                         <td></td>
@@ -4585,30 +4576,6 @@
                             { metric: 'Durchsatz pro Tag', value: `${(totalProduced / 30).toFixed(1)} kg`, change: '+5%', trend: 'positive' }
                         ];
                         break;
-                        
-                    case 'customers':
-                        const customers = DB.getCustomers();
-                        let activeCustomers = 0;
-                        
-                        customers.forEach(customer => {
-                            const customerOrders = orders.filter(o => o.customerId === customer.id);
-                            if (customerOrders.length > 0) activeCustomers++;
-                        });
-                        
-                        title = 'Kundenstatistik';
-                        data = [
-                            { metric: 'Aktive Kunden', value: `${activeCustomers}`, change: '+2', trend: 'positive' },
-                            { metric: 'Neue Kunden', value: `${customers.filter(c => {
-                                const created = new Date(c.created);
-                                const monthAgo = new Date();
-                                monthAgo.setMonth(monthAgo.getMonth() - 1);
-                                return created > monthAgo;
-                            }).length}`, change: '+1', trend: 'positive' },
-                            { metric: 'Durchschnittlicher Auftragswert', value: `${avgOrderValue.toFixed(2)} €`, change: '+14%', trend: 'positive' },
-                            { metric: 'Kundenbindungsrate', value: '92%', change: '+3%', trend: 'positive' },
-                            { metric: 'Top-Kunde', value: this.getTopCustomer(), change: '—', trend: 'neutral' }
-                        ];
-                        break;
                 }
                 
                 const tbody = document.getElementById('statistics-data');
@@ -4638,37 +4605,6 @@
                 });
                 
                 Utils.showNotification(`${title} für ${period} generiert`, 'success');
-            },
-            
-            getTopCustomer() {
-                const orders = DB.getOrders();
-                const customers = DB.getCustomers();
-                
-                const customerRevenue = {};
-                
-                orders.forEach(order => {
-                    if (!customerRevenue[order.customerId]) {
-                        customerRevenue[order.customerId] = 0;
-                    }
-                    customerRevenue[order.customerId] += parseFloat(order.totalPrice || 0);
-                });
-                
-                let topCustomerId = null;
-                let maxRevenue = 0;
-                
-                Object.keys(customerRevenue).forEach(customerId => {
-                    if (customerRevenue[customerId] > maxRevenue) {
-                        maxRevenue = customerRevenue[customerId];
-                        topCustomerId = customerId;
-                    }
-                });
-                
-                if (topCustomerId) {
-                    const customer = customers.find(c => c.id === topCustomerId);
-                    return customer ? customer.name : 'Unbekannt';
-                }
-                
-                return 'Keine Daten';
             },
             
             printReport() {
@@ -4720,10 +4656,12 @@
             loadSettings() {
                 const settings = DB.getSettings();
                 
+                // Load company settings
                 document.getElementById('company-name').value = settings.company_name || '';
                 document.getElementById('company-address').value = settings.company_address || '';
                 document.getElementById('company-phone').value = settings.company_phone || '';
                 
+                // Load size settings
                 if (settings.sizes && settings.sizes.length >= 4) {
                     document.getElementById('size-170').value = settings.sizes[0] || 170;
                     document.getElementById('size-500').value = settings.sizes[1] || 500;
@@ -4731,6 +4669,7 @@
                     document.getElementById('size-1000').value = settings.sizes[3] || 1000;
                 }
                 
+                // Load other settings
                 document.getElementById('bucket-size').value = settings.bucket_size || 6;
                 document.getElementById('default-expiry').value = settings.default_expiry_days || 180;
                 document.getElementById('theme-select').value = settings.theme || 'light';
@@ -4738,17 +4677,11 @@
             },
             
             setupEventListeners() {
-                const saveBtn = document.getElementById('save-settings');
-                const backupBtn = document.getElementById('backup-data');
-                const restoreBtn = document.getElementById('restore-data');
-                const resetBtn = document.getElementById('reset-data');
-                const themeSelect = document.getElementById('theme-select');
-                
-                if (saveBtn) saveBtn.addEventListener('click', () => this.saveSettings());
-                if (backupBtn) backupBtn.addEventListener('click', () => this.backupData());
-                if (restoreBtn) restoreBtn.addEventListener('click', () => this.restoreData());
-                if (resetBtn) resetBtn.addEventListener('click', () => this.resetData());
-                if (themeSelect) themeSelect.addEventListener('change', (e) => this.applyTheme(e.target.value));
+                document.getElementById('save-settings')?.addEventListener('click', () => this.saveSettings());
+                document.getElementById('backup-data')?.addEventListener('click', () => this.backupData());
+                document.getElementById('restore-data')?.addEventListener('click', () => this.restoreData());
+                document.getElementById('reset-data')?.addEventListener('click', () => this.resetData());
+                document.getElementById('theme-select')?.addEventListener('change', (e) => this.applyTheme(e.target.value));
             },
             
             saveSettings() {
@@ -4855,6 +4788,7 @@
                                             const backup = JSON.parse(backupData);
                                             localStorage.clear();
                                             
+                                            // Restore all data
                                             Object.keys(backup).forEach(key => {
                                                 if (key !== 'version' && key !== 'timestamp') {
                                                     localStorage.setItem(`sanremo_${key}`, JSON.stringify(backup[key]));
@@ -4865,6 +4799,7 @@
                                             setTimeout(() => location.reload(), 2000);
                                         } catch (e) {
                                             Utils.showNotification('Fehler beim Wiederherstellen des Backups', 'danger');
+                                            console.error(e);
                                         }
                                     }
                                 }
@@ -4904,22 +4839,38 @@
 
         // ===== INITIALIZATION =====
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize database
             DB.init();
+            
+            // Initialize view manager
             ViewManager.init();
             
+            // Load settings and apply theme
             const settings = DB.getSettings();
             Settings.applyTheme(settings.theme || 'light');
             
+            // Initialize all modules
             Flavors.init();
             Orders.init();
             Customers.init();
             Labels.init();
             Production.init();
             Statistics.init();
+            Recipes.init();
             Settings.init();
             
-            console.log('Sanremo Eisproduktionssystem gestartet - Version 1.3.0');
+            // Set current time
+            Dashboard.updateTime();
             
+            // Set default dates
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                if (!input.value && input.id !== 'label-expiry') {
+                    input.value = today;
+                }
+            });
+            
+            // Auto-save indicator
             let saveTimeout;
             document.addEventListener('input', () => {
                 clearTimeout(saveTimeout);
@@ -4935,12 +4886,7 @@
                 }
             });
             
-            const today = new Date().toISOString().split('T')[0];
-            document.querySelectorAll('input[type="date"]').forEach(input => {
-                if (!input.value) {
-                    input.value = today;
-                }
-            });
+            console.log('Sanremo Eisproduktionssystem gestartet - Version 1.4.0');
         });
     </script>
 </body>
