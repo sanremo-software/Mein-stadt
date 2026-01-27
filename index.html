@@ -1,3 +1,4 @@
+            
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -665,6 +666,57 @@
             font-weight: 700;
         }
         
+        /* ===== LABEL PREVIEW ===== */
+        .label-preview {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-xl);
+            text-align: center;
+            max-width: 400px;
+            margin: 0 auto;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .label-header {
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: var(--space-sm);
+            margin-bottom: var(--space-md);
+        }
+        
+        .label-title {
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            color: var(--primary);
+        }
+        
+        .label-flavor {
+            font-size: var(--font-size-2xl);
+            font-weight: 900;
+            color: var(--dark);
+            margin: var(--space-md) 0;
+        }
+        
+        .label-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-sm);
+            margin: var(--space-md) 0;
+        }
+        
+        .label-info {
+            padding: var(--space-xs) var(--space-sm);
+            background: var(--light);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+        }
+        
+        .label-barcode {
+            margin-top: var(--space-lg);
+            padding: var(--space-sm);
+            border-top: 1px solid var(--border);
+        }
+        
         /* ===== PRINT STYLES ===== */
         @media print {
             .no-print {
@@ -675,15 +727,49 @@
                 display: block !important;
             }
             
-            body {
+            body, .app-container, .main-content {
                 background: white !important;
                 color: black !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
             }
             
             .card {
                 box-shadow: none !important;
                 border: 1px solid #ccc !important;
                 page-break-inside: avoid;
+                margin: 10px 0 !important;
+            }
+            
+            .table-container {
+                overflow: visible !important;
+            }
+            
+            .table {
+                width: 100% !important;
+                border: 1px solid #000 !important;
+            }
+            
+            .table th, .table td {
+                border: 1px solid #000 !important;
+                padding: 8px !important;
+            }
+            
+            .label-preview {
+                border: 1px solid black !important;
+                page-break-inside: avoid;
+                margin: 20px auto !important;
+            }
+            
+            .view-container.active {
+                display: block !important;
+            }
+            
+            .btn, .nav-btn, .app-header, .app-footer {
+                display: none !important;
             }
         }
         
@@ -762,6 +848,14 @@
                 grid-template-columns: 1fr;
                 gap: var(--space-sm);
             }
+            
+            .label-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-summary {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
         
         @media (max-width: 480px) {
@@ -775,6 +869,10 @@
             
             .summary-item {
                 min-width: 100px;
+            }
+            
+            .order-summary {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
         
@@ -1377,7 +1475,7 @@
                                     <th>Größe</th>
                                     <th>Charge</th>
                                     <th>Menge</th>
-                                    <th>Aktion</div>
+                                    <th>Aktion</th>
                                 </tr>
                             </thead>
                             <tbody id="recent-labels">
@@ -1435,7 +1533,7 @@
                     
                     <div class="form-group">
                         <label class="form-label">Notizen</label>
-                        <textarea class="form-textarea" id="customer-notes" placeholder="Besondere Vereinbarungen, Lieferzeiten..."></textarea>
+                        <textarea class="form-textarea" id="customer-notes" placeholder="Besondere Vereinbarungen, Lieberzeiten..."></textarea>
                     </div>
                     
                     <div class="d-flex gap-3">
@@ -1466,7 +1564,7 @@
                                 </tr>
                             </thead>
                             <tbody id="customers-list">
-                                <!-- Will be populated by JavaScript -->
+                                <!-- Kunden werden hier geladen -->
                             </tbody>
                         </table>
                     </div>
@@ -1710,7 +1808,7 @@
     <script>
         // ===== DATABASE MANAGEMENT =====
         const DB = {
-            VERSION: '1.1.0', // Updated version for new features
+            VERSION: '1.3.0',
             KEYS: {
                 ORDERS: 'sanremo_orders',
                 CUSTOMERS: 'sanremo_customers',
@@ -1721,91 +1819,82 @@
                 PRODUCTION_HISTORY: 'sanremo_production_history',
                 SETTINGS: 'sanremo_settings',
                 STATISTICS: 'sanremo_statistics',
-                PRICES: 'sanremo_prices'
+                PRICES: 'sanremo_prices',
+                LABELS: 'sanremo_labels'
             },
             
-            // Initialize all data
             init() {
-                // Initialize empty databases if they don't exist
-                if (!localStorage.getItem(this.KEYS.ORDERS)) {
-                    localStorage.setItem(this.KEYS.ORDERS, JSON.stringify([]));
-                }
-                if (!localStorage.getItem(this.KEYS.CUSTOMERS)) {
-                    localStorage.setItem(this.KEYS.CUSTOMERS, JSON.stringify([
-                        {
-                            id: '1',
-                            name: 'REWE',
-                            location: 'Bad Berleburg',
-                            contact: 'Herr Schmidt',
-                            phone: '02751 12345',
-                            email: 'rewe@example.com',
-                            type: 'supermarkt',
-                            notes: 'Lieferung bis 09:00 Uhr',
-                            created: new Date().toISOString()
-                        },
-                        {
-                            id: '2',
-                            name: 'EDEKA',
-                            location: 'Bad Berleburg',
-                            contact: 'Frau Meyer',
-                            phone: '02751 67890',
-                            email: 'edeka@example.com',
-                            type: 'supermarkt',
-                            notes: 'Hintereingang nutzen',
-                            created: new Date().toISOString()
-                        }
-                    ]));
-                }
-                if (!localStorage.getItem(this.KEYS.RECIPES)) {
-                    localStorage.setItem(this.KEYS.RECIPES, JSON.stringify([]));
-                }
-                if (!localStorage.getItem(this.KEYS.FLAVORS)) {
-                    localStorage.setItem(this.KEYS.FLAVORS, JSON.stringify([
-                        { id: '1', name: 'Stracciatella', category: 'milcheis', description: 'Milcheis mit Schokostückchen', active: true },
-                        { id: '2', name: 'Amarena Kirsch', category: 'sorbet', description: 'Sauerkirsch-Sorbet mit Amarena', active: true },
-                        { id: '3', name: 'Vanille', category: 'milcheis', description: 'Klassische Vanille', active: true },
-                        { id: '4', name: 'Spaghetti', category: 'speiseeis', description: 'Eis mit Spaghetti-Optik', active: true },
-                        { id: '5', name: 'Toffifee', category: 'milcheis', description: 'Mit Toffifee-Stückchen', active: true },
-                        { id: '6', name: 'Cookies', category: 'milcheis', description: 'Mit Cookie-Stückchen', active: true },
-                        { id: '7', name: 'Weiß Schokolade Pistazien', category: 'milcheis', description: 'Weiße Schokolade mit Pistazien', active: true },
-                        { id: '8', name: 'Erdbeer', category: 'fruchteis', description: 'Frisches Erdbeereis', active: true },
-                        { id: '9', name: 'Joghurt Orange', category: 'fruchteis', description: 'Joghurt-Eis mit Orangen', active: true },
-                        { id: '10', name: 'Kinder Buenos', category: 'milcheis', description: 'Mit Kinder Buenos', active: true },
-                        { id: '11', name: 'Kinder Riegel', category: 'milcheis', description: 'Mit Kinder Riegel', active: true },
-                        { id: '12', name: 'Joghurete Schokolade', category: 'milcheis', description: 'Joghurt-Eis mit Schokolade', active: true },
-                        { id: '13', name: 'Mango', category: 'sorbet', description: 'Mango-Sorbet', active: true },
-                        { id: '14', name: 'Hanutta', category: 'spezial', description: 'Spezialität', active: true }
-                    ]));
-                }
-                if (!localStorage.getItem(this.KEYS.INGREDIENTS)) {
-                    localStorage.setItem(this.KEYS.INGREDIENTS, JSON.stringify([]));
-                }
-                if (!localStorage.getItem(this.KEYS.PRODUCTION)) {
-                    localStorage.setItem(this.KEYS.PRODUCTION, JSON.stringify([]));
-                }
-                if (!localStorage.getItem(this.KEYS.PRODUCTION_HISTORY)) {
-                    localStorage.setItem(this.KEYS.PRODUCTION_HISTORY, JSON.stringify([]));
-                }
-                if (!localStorage.getItem(this.KEYS.SETTINGS)) {
-                    localStorage.setItem(this.KEYS.SETTINGS, JSON.stringify({
-                        company_name: 'Eiscafé Sanremo',
-                        company_address: 'Bad Berleburg',
-                        company_phone: '0176 72809926',
-                        sizes: [170, 500, 750, 1000],
-                        bucket_size: 6,
-                        default_expiry_days: 180,
-                        theme: 'light',
-                        language: 'de'
-                    }));
-                }
-                if (!localStorage.getItem(this.KEYS.STATISTICS)) {
-                    localStorage.setItem(this.KEYS.STATISTICS, JSON.stringify([]));
-                }
-                if (!localStorage.getItem(this.KEYS.PRICES)) {
-                    localStorage.setItem(this.KEYS.PRICES, JSON.stringify({
-                        small: 2.26,  // Preço para 170g
-                        large: 5.90    // Preço para 750g
-                    }));
+                // Initialize all databases with default data
+                this.initDatabase(this.KEYS.ORDERS, []);
+                this.initDatabase(this.KEYS.CUSTOMERS, [
+                    {
+                        id: '1',
+                        name: 'REWE',
+                        location: 'Bad Berleburg',
+                        contact: 'Herr Schmidt',
+                        phone: '02751 12345',
+                        email: 'rewe@example.com',
+                        type: 'supermarkt',
+                        notes: 'Lieferung bis 09:00 Uhr',
+                        created: new Date().toISOString(),
+                        totalOrders: 12,
+                        totalRevenue: 1450.80
+                    },
+                    {
+                        id: '2',
+                        name: 'EDEKA',
+                        location: 'Bad Berleburg',
+                        contact: 'Frau Meyer',
+                        phone: '02751 67890',
+                        email: 'edeka@example.com',
+                        type: 'supermarkt',
+                        notes: 'Hintereingang nutzen',
+                        created: new Date().toISOString(),
+                        totalOrders: 8,
+                        totalRevenue: 980.50
+                    }
+                ]);
+                this.initDatabase(this.KEYS.RECIPES, []);
+                this.initDatabase(this.KEYS.FLAVORS, [
+                    { id: '1', name: 'Stracciatella', category: 'milcheis', description: 'Milcheis mit Schokostückchen', active: true },
+                    { id: '2', name: 'Amarena Kirsch', category: 'sorbet', description: 'Sauerkirsch-Sorbet mit Amarena', active: true },
+                    { id: '3', name: 'Vanille', category: 'milcheis', description: 'Klassische Vanille', active: true },
+                    { id: '4', name: 'Spaghetti', category: 'speiseeis', description: 'Eis mit Spaghetti-Optik', active: true },
+                    { id: '5', name: 'Toffifee', category: 'milcheis', description: 'Mit Toffifee-Stückchen', active: true },
+                    { id: '6', name: 'Cookies', category: 'milcheis', description: 'Mit Cookie-Stückchen', active: true },
+                    { id: '7', name: 'Weiß Schokolade Pistazien', category: 'milcheis', description: 'Weiße Schokolade mit Pistazien', active: true },
+                    { id: '8', name: 'Erdbeer', category: 'fruchteis', description: 'Frisches Erdbeereis', active: true },
+                    { id: '9', name: 'Joghurt Orange', category: 'fruchteis', description: 'Joghurt-Eis mit Orangen', active: true },
+                    { id: '10', name: 'Kinder Buenos', category: 'milcheis', description: 'Mit Kinder Buenos', active: true },
+                    { id: '11', name: 'Kinder Riegel', category: 'milcheis', description: 'Mit Kinder Riegel', active: true },
+                    { id: '12', name: 'Joghurete Schokolade', category: 'milcheis', description: 'Joghurt-Eis mit Schokolade', active: true },
+                    { id: '13', name: 'Mango', category: 'sorbet', description: 'Mango-Sorbet', active: true },
+                    { id: '14', name: 'Hanutta', category: 'spezial', description: 'Spezialität', active: true }
+                ]);
+                this.initDatabase(this.KEYS.INGREDIENTS, []);
+                this.initDatabase(this.KEYS.PRODUCTION, []);
+                this.initDatabase(this.KEYS.PRODUCTION_HISTORY, []);
+                this.initDatabase(this.KEYS.SETTINGS, {
+                    company_name: 'Eiscafé Sanremo',
+                    company_address: 'Bad Berleburg',
+                    company_phone: '0176 72809926',
+                    sizes: [170, 500, 750, 1000],
+                    bucket_size: 6,
+                    default_expiry_days: 180,
+                    theme: 'light',
+                    language: 'de'
+                });
+                this.initDatabase(this.KEYS.STATISTICS, []);
+                this.initDatabase(this.KEYS.PRICES, {
+                    small: 2.26,
+                    large: 5.90
+                });
+                this.initDatabase(this.KEYS.LABELS, []);
+            },
+            
+            initDatabase(key, defaultValue) {
+                if (!localStorage.getItem(key)) {
+                    localStorage.setItem(key, JSON.stringify(defaultValue));
                 }
             },
             
@@ -1830,181 +1919,42 @@
                 }
             },
             
-            // Get all orders
-            getOrders() {
-                return this.get(this.KEYS.ORDERS);
-            },
+            // Get specific database
+            getOrders() { return this.get(this.KEYS.ORDERS); }
+            getCustomers() { return this.get(this.KEYS.CUSTOMERS); }
+            getFlavors() { return this.get(this.KEYS.FLAVORS); }
+            getRecipes() { return this.get(this.KEYS.RECIPES); }
+            getSettings() { return this.get(this.KEYS.SETTINGS); }
+            getPrices() { return this.get(this.KEYS.PRICES); }
+            getProduction() { return this.get(this.KEYS.PRODUCTION); }
+            getProductionHistory() { return this.get(this.KEYS.PRODUCTION_HISTORY); }
+            getLabels() { return this.get(this.KEYS.LABELS); }
             
-            // Save an order
-            saveOrder(order) {
+            // Save to specific database
+            saveOrders(orders) { return this.set(this.KEYS.ORDERS, orders); }
+            saveCustomers(customers) { return this.set(this.KEYS.CUSTOMERS, customers); }
+            saveFlavors(flavors) { return this.set(this.KEYS.FLAVORS, flavors); }
+            saveRecipes(recipes) { return this.set(this.KEYS.RECIPES, recipes); }
+            saveSettings(settings) { return this.set(this.KEYS.SETTINGS, settings); }
+            savePrices(prices) { return this.set(this.KEYS.PRICES, prices); }
+            saveProduction(production) { return this.set(this.KEYS.PRODUCTION, production); }
+            saveProductionHistory(history) { return this.set(this.KEYS.PRODUCTION_HISTORY, history); }
+            saveLabels(labels) { return this.set(this.KEYS.LABELS, labels); }
+            
+            // Add new item to database
+            addOrder(order) {
                 const orders = this.getOrders();
                 order.id = order.id || 'order_' + Date.now();
                 order.created = order.created || new Date().toISOString();
-                order.updated = new Date().toISOString();
-                
-                // Calculate total price
-                const prices = this.getPrices();
-                let totalPrice = 0;
-                order.items?.forEach(item => {
-                    const itemPrice = item.size === '170' ? prices.small : 
-                                     item.size === '750' ? prices.large : 0;
-                    totalPrice += itemPrice * item.quantity;
-                });
-                order.totalPrice = totalPrice;
-                
                 orders.push(order);
-                return this.set(this.KEYS.ORDERS, orders);
-            },
-            
-            // Get all customers
-            getCustomers() {
-                return this.get(this.KEYS.CUSTOMERS);
-            },
-            
-            // Save a customer
-            saveCustomer(customer) {
-                const customers = this.getCustomers();
-                customer.id = customer.id || 'customer_' + Date.now();
-                customer.created = customer.created || new Date().toISOString();
-                customer.updated = new Date().toISOString();
-                customers.push(customer);
-                return this.set(this.KEYS.CUSTOMERS, customers);
-            },
-            
-            // Delete a customer
-            deleteCustomer(id) {
-                const customers = this.getCustomers();
-                const filtered = customers.filter(c => c.id !== id);
-                return this.set(this.KEYS.CUSTOMERS, filtered);
-            },
-            
-            // Get all flavors
-            getFlavors() {
-                return this.get(this.KEYS.FLAVORS);
-            },
-            
-            // Save flavors
-            saveFlavors(flavors) {
-                return this.set(this.KEYS.FLAVORS, flavors);
-            },
-            
-            // Get all recipes
-            getRecipes() {
-                return this.get(this.KEYS.RECIPES);
-            },
-            
-            // Save a recipe
-            saveRecipe(recipe) {
-                const recipes = this.getRecipes();
-                recipe.id = recipe.id || 'recipe_' + Date.now();
-                recipe.created = recipe.created || new Date().toISOString();
-                recipe.updated = new Date().toISOString();
-                recipes.push(recipe);
-                return this.set(this.KEYS.RECIPES, recipes);
-            },
-            
-            // Get settings
-            getSettings() {
-                return this.get(this.KEYS.SETTINGS);
-            },
-            
-            // Save settings
-            saveSettings(settings) {
-                return this.set(this.KEYS.SETTINGS, settings);
-            },
-            
-            // Get prices
-            getPrices() {
-                return this.get(this.KEYS.PRICES);
-            },
-            
-            // Save prices
-            savePrices(prices) {
-                return this.set(this.KEYS.PRICES, prices);
-            },
-            
-            // Get production
-            getProduction() {
-                return this.get(this.KEYS.PRODUCTION);
-            },
-            
-            // Save production
-            saveProduction(production) {
-                return this.set(this.KEYS.PRODUCTION, production);
-            },
-            
-            // Get production history
-            getProductionHistory() {
-                return this.get(this.KEYS.PRODUCTION_HISTORY);
-            },
-            
-            // Save production history
-            saveProductionHistory(history) {
-                return this.set(this.KEYS.PRODUCTION_HISTORY, history);
-            },
-            
-            // Add production history record
-            addProductionHistory(record) {
-                const history = this.getProductionHistory();
-                record.id = 'prod_' + Date.now();
-                record.timestamp = new Date().toISOString();
-                history.push(record);
-                return this.set(this.KEYS.PRODUCTION_HISTORY, history);
-            },
-            
-            // Backup all data
-            backup() {
-                const backup = {
-                    version: this.VERSION,
-                    timestamp: new Date().toISOString(),
-                    orders: this.getOrders(),
-                    customers: this.getCustomers(),
-                    recipes: this.getRecipes(),
-                    flavors: this.getFlavors(),
-                    ingredients: this.get(this.KEYS.INGREDIENTS),
-                    production: this.getProduction(),
-                    production_history: this.getProductionHistory(),
-                    settings: this.getSettings(),
-                    statistics: this.get(this.KEYS.STATISTICS),
-                    prices: this.getPrices()
-                };
-                return JSON.stringify(backup, null, 2);
-            },
-            
-            // Restore from backup
-            restore(backupData) {
-                try {
-                    const backup = JSON.parse(backupData);
-                    
-                    // Validate backup structure
-                    if (!backup.version || !backup.timestamp) {
-                        throw new Error('Invalid backup format');
-                    }
-                    
-                    // Restore each database
-                    this.set(this.KEYS.ORDERS, backup.orders || []);
-                    this.set(this.KEYS.CUSTOMERS, backup.customers || []);
-                    this.set(this.KEYS.RECIPES, backup.recipes || []);
-                    this.set(this.KEYS.FLAVORS, backup.flavors || []);
-                    this.set(this.KEYS.INGREDIENTS, backup.ingredients || []);
-                    this.set(this.KEYS.PRODUCTION, backup.production || []);
-                    this.set(this.KEYS.PRODUCTION_HISTORY, backup.production_history || []);
-                    this.set(this.KEYS.SETTINGS, backup.settings || {});
-                    this.set(this.KEYS.STATISTICS, backup.statistics || []);
-                    this.set(this.KEYS.PRICES, backup.prices || { small: 2.26, large: 5.90 });
-                    
-                    return true;
-                } catch (e) {
-                    console.error('Error restoring backup:', e);
-                    return false;
-                }
+                return this.saveOrders(orders);
             }
         };
 
         // ===== UTILITY FUNCTIONS =====
         const Utils = {
-            // Format date to German format
             formatDate(date, includeTime = false) {
+                if (!date) return 'Nicht verfügbar';
                 const d = new Date(date);
                 const day = d.getDate().toString().padStart(2, '0');
                 const month = (d.getMonth() + 1).toString().padStart(2, '0');
@@ -2019,7 +1969,6 @@
                 return `${day}.${month}.${year}`;
             },
             
-            // Calculate weight in kg
             calculateWeight(size, quantity) {
                 const sizeMap = {
                     '170': 0.170,
@@ -2030,12 +1979,10 @@
                 return (sizeMap[size] || 0) * quantity;
             },
             
-            // Calculate number of buckets needed
             calculateBuckets(totalKg, bucketSize = 6) {
                 return Math.ceil(totalKg / bucketSize);
             },
             
-            // Calculate total price
             calculatePrice(items) {
                 const prices = DB.getPrices();
                 let total = 0;
@@ -2047,15 +1994,9 @@
                 return total.toFixed(2);
             },
             
-            // Show notification
             showNotification(message, type = 'info') {
-                // Remove existing notifications
-                const existing = document.querySelector('.notification');
-                if (existing) existing.remove();
-                
-                // Create notification element
                 const notification = document.createElement('div');
-                notification.className = `notification alert alert-${type}`;
+                notification.className = `alert alert-${type}`;
                 notification.innerHTML = `
                     <div class="alert-icon">
                         <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'danger' ? 'times-circle' : 'info-circle'}"></i>
@@ -2063,10 +2004,8 @@
                     <div class="alert-content">${message}</div>
                 `;
                 
-                // Add to body
                 document.body.appendChild(notification);
                 
-                // Position it
                 notification.style.position = 'fixed';
                 notification.style.top = '20px';
                 notification.style.right = '20px';
@@ -2074,7 +2013,6 @@
                 notification.style.maxWidth = '400px';
                 notification.style.boxShadow = 'var(--shadow-lg)';
                 
-                // Auto remove after 5 seconds
                 setTimeout(() => {
                     notification.style.opacity = '0';
                     notification.style.transform = 'translateX(100px)';
@@ -2082,12 +2020,10 @@
                 }, 5000);
             },
             
-            // Show modal
             showModal(title, content, buttons = []) {
                 const overlay = document.getElementById('modal-overlay');
                 const modalContent = document.getElementById('modal-content');
                 
-                // Build modal HTML
                 let html = `
                     <div class="card-title" style="margin-bottom: var(--space-lg);">
                         <i class="fas fa-info-circle"></i> ${title}
@@ -2097,7 +2033,6 @@
                     </div>
                 `;
                 
-                // Add buttons if provided
                 if (buttons.length > 0) {
                     html += '<div class="d-flex gap-3 justify-content-end">';
                     buttons.forEach(btn => {
@@ -2111,7 +2046,6 @@
                 modalContent.innerHTML = html;
                 overlay.style.display = 'flex';
                 
-                // Add event listeners
                 if (buttons.length > 0) {
                     buttons.forEach(btn => {
                         document.getElementById(`modal-btn-${btn.id}`).onclick = () => {
@@ -2125,7 +2059,6 @@
                     };
                 }
                 
-                // Close on overlay click
                 overlay.onclick = (e) => {
                     if (e.target === overlay) {
                         overlay.style.display = 'none';
@@ -2133,12 +2066,10 @@
                 };
             },
             
-            // Generate unique ID
             generateId() {
                 return Date.now().toString(36) + Math.random().toString(36).substr(2);
             },
             
-            // Get status text
             getStatusText(status) {
                 const statuses = {
                     0: { text: 'Geplant', class: 'warning' },
@@ -2161,13 +2092,13 @@
                 items: []
             },
             currentRecipe: null,
-            currentCustomer: null
+            currentCustomer: null,
+            currentProductionDate: new Date().toISOString().split('T')[0]
         };
 
         // ===== VIEW MANAGER =====
         const ViewManager = {
             init() {
-                // Set up navigation buttons
                 document.querySelectorAll('.nav-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         const view = btn.getAttribute('data-view');
@@ -2175,61 +2106,37 @@
                     });
                 });
                 
-                // Initialize all views
                 this.switchView('dashboard');
             },
             
             switchView(viewName) {
-                // Update active button
                 document.querySelectorAll('.nav-btn').forEach(btn => {
                     btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
                 });
                 
-                // Hide all views
                 document.querySelectorAll('.view-container').forEach(view => {
                     view.classList.remove('active');
                 });
                 
-                // Show selected view
                 const targetView = document.getElementById(`${viewName}-view`);
                 if (targetView) {
                     targetView.classList.add('active');
                     AppState.currentView = viewName;
-                    
-                    // Initialize view-specific content
                     this.initView(viewName);
                 }
             },
             
             initView(viewName) {
                 switch(viewName) {
-                    case 'dashboard':
-                        Dashboard.init();
-                        break;
-                    case 'orders':
-                        Orders.init();
-                        break;
-                    case 'production':
-                        Production.init();
-                        break;
-                    case 'recipes':
-                        Recipes.init();
-                        break;
-                    case 'flavors':
-                        Flavors.init();
-                        break;
-                    case 'labels':
-                        Labels.init();
-                        break;
-                    case 'customers':
-                        Customers.init();
-                        break;
-                    case 'statistics':
-                        Statistics.init();
-                        break;
-                    case 'settings':
-                        Settings.init();
-                        break;
+                    case 'dashboard': Dashboard.init(); break;
+                    case 'orders': Orders.init(); break;
+                    case 'production': Production.init(); break;
+                    case 'recipes': Recipes.init(); break;
+                    case 'flavors': Flavors.init(); break;
+                    case 'labels': Labels.init(); break;
+                    case 'customers': Customers.init(); break;
+                    case 'statistics': Statistics.init(); break;
+                    case 'settings': Settings.init(); break;
                 }
             }
         };
@@ -2239,10 +2146,8 @@
             init() {
                 this.updateStatistics();
                 this.loadTodayActivities();
-                
-                // Update time every minute
-                setInterval(() => this.updateTime(), 60000);
                 this.updateTime();
+                setInterval(() => this.updateTime(), 60000);
             },
             
             updateStatistics() {
@@ -2253,11 +2158,9 @@
                 const todayOrders = orders.filter(o => o.date === today);
                 document.getElementById('stat-today-orders').textContent = todayOrders.length;
                 
-                // Today's production (calculate from orders)
+                // Today's production
                 let todayProduction = 0;
-                let todayRevenue = 0;
                 todayOrders.forEach(order => {
-                    todayRevenue += parseFloat(order.totalPrice) || 0;
                     order.items?.forEach(item => {
                         todayProduction += Utils.calculateWeight(item.size, item.quantity);
                     });
@@ -2268,8 +2171,10 @@
                 const recipes = DB.getRecipes();
                 document.getElementById('stat-recipes').textContent = recipes.length;
                 
-                // Labels printed today (placeholder)
-                document.getElementById('stat-labels-today').textContent = todayOrders.length * 3; // Estimate
+                // Labels printed today
+                const labels = DB.getLabels();
+                const todayLabels = labels.filter(l => l.date === today);
+                document.getElementById('stat-labels-today').textContent = todayLabels.reduce((sum, label) => sum + label.quantity, 0);
             },
             
             loadTodayActivities() {
@@ -2321,7 +2226,783 @@
                     hour: '2-digit', 
                     minute: '2-digit' 
                 });
-                document.getElementById('current-time').textContent = timeString;
+                const timeElement = document.getElementById('current-time');
+                if (timeElement) {
+                    timeElement.textContent = timeString;
+                }
+            }
+        };
+
+        // ===== ORDERS MODULE =====
+        const Orders = {
+            init() {
+                this.loadCustomers();
+                this.setDefaultDate();
+                this.setupEventListeners();
+                this.loadRecentOrders();
+            },
+            
+            loadCustomers() {
+                const customers = DB.getCustomers();
+                const select = document.getElementById('order-customer');
+                if (select) {
+                    select.innerHTML = '<option value="">Kunde auswählen...</option>';
+                    customers.forEach(customer => {
+                        const option = document.createElement('option');
+                        option.value = customer.id;
+                        option.textContent = `${customer.name} - ${customer.location}`;
+                        select.appendChild(option);
+                    });
+                }
+            },
+            
+            setDefaultDate() {
+                const today = new Date().toISOString().split('T')[0];
+                const dateInput = document.getElementById('order-date');
+                if (dateInput) {
+                    dateInput.value = today;
+                }
+            },
+            
+            setupEventListeners() {
+                const addItemBtn = document.getElementById('add-order-item');
+                const clearOrderBtn = document.getElementById('clear-order');
+                const saveOrderBtn = document.getElementById('save-order');
+                const printOrderBtn = document.getElementById('print-order');
+                const exportOrderBtn = document.getElementById('export-order');
+                
+                if (addItemBtn) addItemBtn.addEventListener('click', () => this.addOrderItem());
+                if (clearOrderBtn) clearOrderBtn.addEventListener('click', () => this.clearOrder());
+                if (saveOrderBtn) saveOrderBtn.addEventListener('click', () => this.saveOrder());
+                if (printOrderBtn) printOrderBtn.addEventListener('click', () => this.printOrder());
+                if (exportOrderBtn) exportOrderBtn.addEventListener('click', () => this.exportOrder());
+            },
+            
+            addOrderItem() {
+                const item = {
+                    id: Utils.generateId(),
+                    flavor: '',
+                    size: '750',
+                    quantity: 1
+                };
+                AppState.currentOrder.items.push(item);
+                this.renderOrderItems();
+            },
+            
+            renderOrderItems() {
+                const container = document.getElementById('order-items-list');
+                if (!container) return;
+                
+                container.innerHTML = '';
+                
+                AppState.currentOrder.items.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'order-item';
+                    div.innerHTML = `
+                        <select class="form-select order-flavor" data-index="${index}">
+                            <option value="">Sorte wählen...</option>
+                        </select>
+                        <select class="form-select order-size" data-index="${index}">
+                            <option value="170">170 g</option>
+                            <option value="750" selected>750 g</option>
+                            <option value="1000">1000 g</option>
+                        </select>
+                        <input type="number" class="form-input order-quantity" 
+                               data-index="${index}" value="${item.quantity}" min="1" max="100">
+                        <button class="btn btn-danger btn-sm remove-item" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    
+                    const flavorSelect = div.querySelector('.order-flavor');
+                    const flavors = Flavors.getActiveFlavors();
+                    flavors.forEach(flavor => {
+                        const option = document.createElement('option');
+                        option.value = flavor.name;
+                        option.textContent = flavor.name;
+                        flavorSelect.appendChild(option);
+                    });
+                    
+                    flavorSelect.value = item.flavor;
+                    div.querySelector('.order-size').value = item.size;
+                    
+                    container.appendChild(div);
+                });
+                
+                this.addItemEventListeners();
+                this.updateOrderSummary();
+            },
+            
+            addItemEventListeners() {
+                document.querySelectorAll('.order-flavor').forEach(select => {
+                    select.addEventListener('change', (e) => {
+                        const index = parseInt(e.target.getAttribute('data-index'));
+                        AppState.currentOrder.items[index].flavor = e.target.value;
+                        this.updateOrderSummary();
+                    });
+                });
+                
+                document.querySelectorAll('.order-size').forEach(select => {
+                    select.addEventListener('change', (e) => {
+                        const index = parseInt(e.target.getAttribute('data-index'));
+                        AppState.currentOrder.items[index].size = e.target.value;
+                        this.updateOrderSummary();
+                    });
+                });
+                
+                document.querySelectorAll('.order-quantity').forEach(input => {
+                    input.addEventListener('change', (e) => {
+                        const index = parseInt(e.target.getAttribute('data-index'));
+                        AppState.currentOrder.items[index].quantity = parseInt(e.target.value) || 1;
+                        this.updateOrderSummary();
+                    });
+                });
+                
+                document.querySelectorAll('.remove-item').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const index = parseInt(e.target.closest('button').getAttribute('data-index'));
+                        AppState.currentOrder.items.splice(index, 1);
+                        this.renderOrderItems();
+                    });
+                });
+            },
+            
+            updateOrderSummary() {
+                let totalItems = 0;
+                let total750g = 0;
+                let total170g = 0;
+                let totalKg = 0;
+                
+                AppState.currentOrder.items.forEach(item => {
+                    totalItems += item.quantity;
+                    if (item.size === '750') total750g += item.quantity;
+                    if (item.size === '170') total170g += item.quantity;
+                    totalKg += Utils.calculateWeight(item.size, item.quantity);
+                });
+                
+                const bucketSize = DB.getSettings().bucket_size || 6;
+                const totalBuckets = Utils.calculateBuckets(totalKg, bucketSize);
+                const totalEuros = Utils.calculatePrice(AppState.currentOrder.items);
+                
+                document.getElementById('total-items').textContent = totalItems;
+                document.getElementById('total-750g').textContent = total750g;
+                document.getElementById('total-170g').textContent = total170g;
+                document.getElementById('total-kg').textContent = totalKg.toFixed(1);
+                document.getElementById('total-buckets').textContent = totalBuckets;
+                document.getElementById('total-euros').textContent = totalEuros + ' €';
+            },
+            
+            saveOrder() {
+                const customerId = document.getElementById('order-customer').value;
+                const date = document.getElementById('order-date').value;
+                const priority = document.getElementById('order-priority').value;
+                const notes = document.getElementById('order-notes').value;
+                
+                if (!customerId) {
+                    Utils.showNotification('Bitte einen Kunden auswählen', 'warning');
+                    return;
+                }
+                
+                if (!date) {
+                    Utils.showNotification('Bitte ein Lieferdatum auswählen', 'warning');
+                    return;
+                }
+                
+                if (AppState.currentOrder.items.length === 0) {
+                    Utils.showNotification('Bitte mindestens eine Position hinzufügen', 'warning');
+                    return;
+                }
+                
+                const order = {
+                    customerId,
+                    date,
+                    priority,
+                    notes,
+                    items: [...AppState.currentOrder.items],
+                    status: 'pending',
+                    created: new Date().toISOString()
+                };
+                
+                const orders = DB.getOrders();
+                order.id = order.id || 'order_' + Date.now();
+                orders.push(order);
+                
+                if (DB.saveOrders(orders)) {
+                    Utils.showNotification('Bestellung erfolgreich gespeichert', 'success');
+                    
+                    AppState.currentOrder = {
+                        customerId: '',
+                        date: '',
+                        priority: 'normal',
+                        notes: '',
+                        items: []
+                    };
+                    this.renderOrderItems();
+                    this.updateOrderSummary();
+                    
+                    const notesTextarea = document.getElementById('order-notes');
+                    if (notesTextarea) notesTextarea.value = '';
+                    
+                    this.loadRecentOrders();
+                    Dashboard.updateStatistics();
+                } else {
+                    Utils.showNotification('Fehler beim Speichern der Bestellung', 'danger');
+                }
+            },
+            
+            loadRecentOrders() {
+                const orders = DB.getOrders();
+                const customers = DB.getCustomers();
+                
+                orders.sort((a, b) => new Date(b.created) - new Date(a.created));
+                
+                const tbody = document.getElementById('recent-orders');
+                if (!tbody) return;
+                
+                tbody.innerHTML = '';
+                
+                orders.slice(0, 5).forEach(order => {
+                    const customer = customers.find(c => c.id === order.customerId);
+                    const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${Utils.formatDate(order.date)}</td>
+                        <td>${customer ? customer.name : 'Unbekannt'}</td>
+                        <td>${totalQuantity} Stk.</td>
+                        <td>${parseFloat(order.totalPrice || 0).toFixed(2)} €</td>
+                        <td>
+                            <span class="badge ${order.status === 'completed' ? 'badge-success' : order.status === 'pending' ? 'badge-warning' : 'badge-primary'}">
+                                ${order.status === 'completed' ? 'Erledigt' : order.status === 'pending' ? 'Ausstehend' : 'In Bearbeitung'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn-icon view-order" data-id="${order.id}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon delete-order" data-id="${order.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(tr);
+                });
+                
+                this.addOrderActionListeners();
+            },
+            
+            addOrderActionListeners() {
+                document.querySelectorAll('.view-order').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const orderId = e.target.closest('button').getAttribute('data-id');
+                        this.viewOrder(orderId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-order').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const orderId = e.target.closest('button').getAttribute('data-id');
+                        this.deleteOrder(orderId);
+                    });
+                });
+            },
+            
+            viewOrder(orderId) {
+                const orders = DB.getOrders();
+                const order = orders.find(o => o.id === orderId);
+                
+                if (!order) return;
+                
+                const customers = DB.getCustomers();
+                const customer = customers.find(c => c.id === order.customerId);
+                
+                let content = `
+                    <h3>Bestelldetails</h3>
+                    <p><strong>Datum:</strong> ${Utils.formatDate(order.date)}</p>
+                    <p><strong>Kunde:</strong> ${customer ? customer.name : 'Unbekannt'}</p>
+                    <p><strong>Status:</strong> ${order.status}</p>
+                    <p><strong>Priorität:</strong> ${order.priority}</p>
+                    <p><strong>Gesamtpreis:</strong> ${parseFloat(order.totalPrice || 0).toFixed(2)} €</p>
+                    <p><strong>Notizen:</strong> ${order.notes || 'Keine'}</p>
+                    <h4>Positionen:</h4>
+                    <ul>
+                `;
+                
+                order.items.forEach(item => {
+                    content += `<li>${item.quantity}x ${item.flavor} (${item.size}g)</li>`;
+                });
+                
+                content += '</ul>';
+                
+                Utils.showModal('Bestelldetails', content, [
+                    {
+                        id: 'close',
+                        label: 'Schließen',
+                        type: 'primary',
+                        onClick: () => {}
+                    }
+                ]);
+            },
+            
+            deleteOrder(orderId) {
+                Utils.showModal('Bestellung löschen', 
+                    'Sind Sie sicher, dass Sie diese Bestellung löschen möchten? Dieser Vorgang kann nicht rückgängig gemacht werden.',
+                    [
+                        {
+                            id: 'cancel',
+                            label: 'Abbrechen',
+                            type: 'outline',
+                            onClick: () => {}
+                        },
+                        {
+                            id: 'delete',
+                            label: 'Löschen',
+                            type: 'danger',
+                            onClick: () => {
+                                const orders = DB.getOrders();
+                                const filtered = orders.filter(o => o.id !== orderId);
+                                DB.saveOrders(filtered);
+                                this.loadRecentOrders();
+                                Utils.showNotification('Bestellung gelöscht', 'success');
+                            }
+                        }
+                    ]);
+            },
+            
+            printOrder() {
+                if (AppState.currentOrder.items.length === 0) {
+                    Utils.showNotification('Keine Bestellung zum Drucken vorhanden', 'warning');
+                    return;
+                }
+                
+                const customerSelect = document.getElementById('order-customer');
+                const customerText = customerSelect.selectedOptions[0]?.text || 'Nicht ausgewählt';
+                
+                let printContent = `
+                    <div style="font-family: Arial, sans-serif; padding: 20px;">
+                        <h1 style="text-align: center; color: #2563eb;">Bestellbestätigung</h1>
+                        <hr style="border: 2px solid #2563eb; margin: 20px 0;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                            <div>
+                                <h3>Bestelldetails</h3>
+                                <p><strong>Datum:</strong> ${new Date().toLocaleDateString('de-DE')}</p>
+                                <p><strong>Bestellnummer:</strong> ${Utils.generateId().substr(0, 8)}</p>
+                            </div>
+                            <div>
+                                <h3>Kunde</h3>
+                                <p><strong>Name:</strong> ${customerText}</p>
+                            </div>
+                        </div>
+                        
+                        <h3>Bestellpositionen</h3>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #000;">
+                            <thead>
+                                <tr style="background: #f3f4f6;">
+                                    <th style="border: 1px solid #000; padding: 10px;">Sorte</th>
+                                    <th style="border: 1px solid #000; padding: 10px;">Größe</th>
+                                    <th style="border: 1px solid #000; padding: 10px;">Menge</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                AppState.currentOrder.items.forEach(item => {
+                    printContent += `
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 10px;">${item.flavor}</td>
+                            <td style="border: 1px solid #000; padding: 10px;">${item.size}g</td>
+                            <td style="border: 1px solid #000; padding: 10px;">${item.quantity}</td>
+                        </tr>
+                    `;
+                });
+                
+                printContent += `
+                            </tbody>
+                        </table>
+                        
+                        <div style="background: #f8fafc; padding: 20px; border-radius: 10px;">
+                            <h3>Zusammenfassung</h3>
+                            <p><strong>Gesamtmenge:</strong> ${document.getElementById('total-items').textContent}</p>
+                            <p><strong>Gesamtgewicht:</strong> ${document.getElementById('total-kg').textContent} kg</p>
+                            <p><strong>Gesamtpreis:</strong> ${document.getElementById('total-euros').textContent}</p>
+                        </div>
+                    </div>
+                `;
+                
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>Bestellbestätigung</title>
+                            <style>
+                                @media print {
+                                    @page { margin: 10mm; }
+                                    body { margin: 0; font-family: Arial, sans-serif; }
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            ${printContent}
+                            <script>
+                                window.onload = function() {
+                                    window.print();
+                                    setTimeout(function() { window.close(); }, 1000);
+                                };
+                            <\/script>
+                        </body>
+                    </html>
+                `);
+                printWindow.document.close();
+            },
+            
+            clearOrder() {
+                AppState.currentOrder = {
+                    customerId: '',
+                    date: '',
+                    priority: 'normal',
+                    notes: '',
+                    items: []
+                };
+                this.renderOrderItems();
+                this.updateOrderSummary();
+                Utils.showNotification('Bestellung geleert', 'info');
+            },
+            
+            exportOrder() {
+                if (AppState.currentOrder.items.length === 0) {
+                    Utils.showNotification('Keine Bestellung zum Exportieren', 'warning');
+                    return;
+                }
+                
+                const exportData = {
+                    order: AppState.currentOrder,
+                    summary: {
+                        totalItems: document.getElementById('total-items').textContent,
+                        totalKg: document.getElementById('total-kg').textContent,
+                        totalEuros: document.getElementById('total-euros').textContent
+                    },
+                    exportDate: new Date().toISOString()
+                };
+                
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = `bestellung_${new Date().toISOString().split('T')[0]}.json`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                Utils.showNotification('Bestellung exportiert', 'success');
+            }
+        };
+
+        // ===== CUSTOMERS MODULE =====
+        const Customers = {
+            init() {
+                this.setupEventListeners();
+                this.loadCustomers();
+            },
+            
+            setupEventListeners() {
+                const saveBtn = document.getElementById('save-customer');
+                const clearBtn = document.getElementById('clear-customer-form');
+                
+                if (saveBtn) saveBtn.addEventListener('click', () => this.saveCustomer());
+                if (clearBtn) clearBtn.addEventListener('click', () => this.clearForm());
+            },
+            
+            saveCustomer() {
+                const name = document.getElementById('customer-name').value.trim();
+                const location = document.getElementById('customer-location').value.trim();
+                const contact = document.getElementById('customer-contact').value.trim();
+                const phone = document.getElementById('customer-phone').value.trim();
+                const email = document.getElementById('customer-email').value.trim();
+                const type = document.getElementById('customer-type').value;
+                const notes = document.getElementById('customer-notes').value.trim();
+                
+                if (!name) {
+                    Utils.showNotification('Bitte geben Sie einen Kundennamen ein', 'warning');
+                    return;
+                }
+                
+                if (!location) {
+                    Utils.showNotification('Bitte geben Sie einen Standort ein', 'warning');
+                    return;
+                }
+                
+                const customer = {
+                    id: Utils.generateId(),
+                    name,
+                    location,
+                    contact: contact || 'Nicht angegeben',
+                    phone: phone || 'Nicht angegeben',
+                    email: email || 'Nicht angegeben',
+                    type,
+                    notes: notes || 'Keine Notizen',
+                    totalOrders: 0,
+                    totalRevenue: 0,
+                    lastOrder: null,
+                    created: new Date().toISOString()
+                };
+                
+                const customers = DB.getCustomers();
+                customers.push(customer);
+                
+                if (DB.saveCustomers(customers)) {
+                    Utils.showNotification('Kunde erfolgreich gespeichert', 'success');
+                    this.clearForm();
+                    this.loadCustomers();
+                    Orders.loadCustomers();
+                } else {
+                    Utils.showNotification('Fehler beim Speichern des Kunden', 'danger');
+                }
+            },
+            
+            clearForm() {
+                document.getElementById('customer-name').value = '';
+                document.getElementById('customer-location').value = '';
+                document.getElementById('customer-contact').value = '';
+                document.getElementById('customer-phone').value = '';
+                document.getElementById('customer-email').value = '';
+                document.getElementById('customer-type').value = 'supermarkt';
+                document.getElementById('customer-notes').value = '';
+            },
+            
+            loadCustomers() {
+                const customers = DB.getCustomers();
+                const orders = DB.getOrders();
+                
+                customers.forEach(customer => {
+                    const customerOrders = orders.filter(o => o.customerId === customer.id);
+                    customer.totalOrders = customerOrders.length;
+                    customer.totalRevenue = customerOrders.reduce((sum, order) => sum + (parseFloat(order.totalPrice) || 0), 0);
+                    
+                    if (customerOrders.length > 0) {
+                        const lastOrder = customerOrders.sort((a, b) => new Date(b.created) - new Date(a.created))[0];
+                        customer.lastOrder = Utils.formatDate(lastOrder.created);
+                    } else {
+                        customer.lastOrder = 'Keine Bestellungen';
+                    }
+                });
+                
+                DB.saveCustomers(customers);
+                
+                const tbody = document.getElementById('customers-list');
+                if (!tbody) return;
+                
+                tbody.innerHTML = '';
+                
+                customers.forEach(customer => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-user-circle" style="color: #6b7280;"></i>
+                                <strong>${customer.name}</strong>
+                            </div>
+                        </td>
+                        <td>${customer.location}</td>
+                        <td>
+                            <div class="fs-sm">
+                                <div>${customer.contact}</div>
+                                <div class="text-muted">${customer.phone}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge ${this.getCustomerTypeClass(customer.type)}">
+                                ${this.getCustomerTypeName(customer.type)}
+                            </span>
+                        </td>
+                        <td>${customer.lastOrder}</td>
+                        <td>${customer.totalRevenue.toFixed(2)} €</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn-icon edit-customer" data-id="${customer.id}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon delete-customer" data-id="${customer.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(tr);
+                });
+                
+                this.addCustomerEventListeners();
+            },
+            
+            addCustomerEventListeners() {
+                document.querySelectorAll('.edit-customer').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const customerId = e.target.closest('button').getAttribute('data-id');
+                        this.editCustomer(customerId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-customer').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const customerId = e.target.closest('button').getAttribute('data-id');
+                        this.deleteCustomer(customerId);
+                    });
+                });
+            },
+            
+            editCustomer(customerId) {
+                const customers = DB.getCustomers();
+                const customer = customers.find(c => c.id === customerId);
+                
+                if (!customer) return;
+                
+                const content = `
+                    <div class="form-group">
+                        <label class="form-label">Kundenname</label>
+                        <input type="text" class="form-input" id="edit-customer-name" value="${customer.name}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Standort</label>
+                        <input type="text" class="form-input" id="edit-customer-location" value="${customer.location}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Kontaktperson</label>
+                        <input type="text" class="form-input" id="edit-customer-contact" value="${customer.contact}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Telefon</label>
+                        <input type="tel" class="form-input" id="edit-customer-phone" value="${customer.phone}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">E-Mail</label>
+                        <input type="email" class="form-input" id="edit-customer-email" value="${customer.email}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Kundentyp</label>
+                        <select class="form-select" id="edit-customer-type">
+                            <option value="supermarkt" ${customer.type === 'supermarkt' ? 'selected' : ''}>Supermarkt</option>
+                            <option value="restaurant" ${customer.type === 'restaurant' ? 'selected' : ''}>Restaurant</option>
+                            <option value="cafe" ${customer.type === 'cafe' ? 'selected' : ''}>Café</option>
+                            <option value="grosshandel" ${customer.type === 'grosshandel' ? 'selected' : ''}>Großhandel</option>
+                            <option value="privat" ${customer.type === 'privat' ? 'selected' : ''}>Privatkunde</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Notizen</label>
+                        <textarea class="form-textarea" id="edit-customer-notes">${customer.notes || ''}</textarea>
+                    </div>
+                `;
+                
+                Utils.showModal('Kunde bearbeiten', content, [
+                    {
+                        id: 'cancel',
+                        label: 'Abbrechen',
+                        type: 'outline',
+                        onClick: () => {}
+                    },
+                    {
+                        id: 'save',
+                        label: 'Änderungen speichern',
+                        type: 'success',
+                        onClick: () => {
+                            const updatedName = document.getElementById('edit-customer-name').value.trim();
+                            const updatedLocation = document.getElementById('edit-customer-location').value.trim();
+                            const updatedContact = document.getElementById('edit-customer-contact').value.trim();
+                            const updatedPhone = document.getElementById('edit-customer-phone').value.trim();
+                            const updatedEmail = document.getElementById('edit-customer-email').value.trim();
+                            const updatedType = document.getElementById('edit-customer-type').value;
+                            const updatedNotes = document.getElementById('edit-customer-notes').value.trim();
+                            
+                            if (!updatedName) {
+                                Utils.showNotification('Name darf nicht leer sein', 'warning');
+                                return;
+                            }
+                            
+                            if (!updatedLocation) {
+                                Utils.showNotification('Standort darf nicht leer sein', 'warning');
+                                return;
+                            }
+                            
+                            customer.name = updatedName;
+                            customer.location = updatedLocation;
+                            customer.contact = updatedContact || 'Nicht angegeben';
+                            customer.phone = updatedPhone || 'Nicht angegeben';
+                            customer.email = updatedEmail || 'Nicht angegeben';
+                            customer.type = updatedType;
+                            customer.notes = updatedNotes || 'Keine Notizen';
+                            customer.updated = new Date().toISOString();
+                            
+                            if (DB.saveCustomers(customers)) {
+                                Utils.showNotification('Kunde aktualisiert', 'success');
+                                this.loadCustomers();
+                                Orders.loadCustomers();
+                            }
+                        }
+                    }
+                ]);
+            },
+            
+            deleteCustomer(customerId) {
+                const customers = DB.getCustomers();
+                const customer = customers.find(c => c.id === customerId);
+                
+                if (!customer) return;
+                
+                Utils.showModal('Kunde löschen',
+                    `Sind Sie sicher, dass Sie den Kunden "${customer.name}" löschen möchten?`,
+                    [
+                        {
+                            id: 'cancel',
+                            label: 'Abbrechen',
+                            type: 'outline',
+                            onClick: () => {}
+                        },
+                        {
+                            id: 'delete',
+                            label: 'Löschen',
+                            type: 'danger',
+                            onClick: () => {
+                                const filtered = customers.filter(c => c.id !== customerId);
+                                if (DB.saveCustomers(filtered)) {
+                                    Utils.showNotification('Kunde gelöscht', 'success');
+                                    this.loadCustomers();
+                                    Orders.loadCustomers();
+                                }
+                            }
+                        }
+                    ]);
+            },
+            
+            getCustomerTypeName(type) {
+                const names = {
+                    'supermarkt': 'Supermarkt',
+                    'restaurant': 'Restaurant',
+                    'cafe': 'Café',
+                    'grosshandel': 'Großhandel',
+                    'privat': 'Privatkunde'
+                };
+                return names[type] || 'Unbekannt';
+            },
+            
+            getCustomerTypeClass(type) {
+                const classes = {
+                    'supermarkt': 'badge-primary',
+                    'restaurant': 'badge-success',
+                    'cafe': 'badge-warning',
+                    'grosshandel': 'badge-danger',
+                    'privat': 'badge-info'
+                };
+                return classes[type] || 'badge-secondary';
             }
         };
 
@@ -2333,43 +3014,19 @@
                 this.updateAllFlavorSelects();
             },
             
-            // Sabores padrão
-            defaultFlavors: [
-                { id: '1', name: 'Stracciatella', category: 'milcheis', description: 'Milcheis mit Schokostückchen', active: true },
-                { id: '2', name: 'Amarena Kirsch', category: 'sorbet', description: 'Sauerkirsch-Sorbet mit Amarena', active: true },
-                { id: '3', name: 'Vanille', category: 'milcheis', description: 'Klassische Vanille', active: true },
-                { id: '4', name: 'Spaghetti', category: 'speiseeis', description: 'Eis mit Spaghetti-Optik', active: true },
-                { id: '5', name: 'Toffifee', category: 'milcheis', description: 'Mit Toffifee-Stückchen', active: true },
-                { id: '6', name: 'Cookies', category: 'milcheis', description: 'Mit Cookie-Stückchen', active: true },
-                { id: '7', name: 'Weiß Schokolade Pistazien', category: 'milcheis', description: 'Weiße Schokolade mit Pistazien', active: true },
-                { id: '8', name: 'Erdbeer', category: 'fruchteis', description: 'Frisches Erdbeereis', active: true },
-                { id: '9', name: 'Joghurt Orange', category: 'fruchteis', description: 'Joghurt-Eis mit Orangen', active: true },
-                { id: '10', name: 'Kinder Buenos', category: 'milcheis', description: 'Mit Kinder Buenos', active: true },
-                { id: '11', name: 'Kinder Riegel', category: 'milcheis', description: 'Mit Kinder Riegel', active: true },
-                { id: '12', name: 'Joghurete Schokolade', category: 'milcheis', description: 'Joghurt-Eis mit Schokolade', active: true },
-                { id: '13', name: 'Mango', category: 'sorbet', description: 'Mango-Sorbet', active: true },
-                { id: '14', name: 'Hanutta', category: 'spezial', description: 'Spezialität', active: true }
-            ],
-            
             setupEventListeners() {
-                // Add flavor button
-                document.getElementById('add-flavor-btn')?.addEventListener('click', () => {
-                    this.handleAddFlavor();
-                });
+                const addBtn = document.getElementById('add-flavor-btn');
+                const resetBtn = document.getElementById('reset-flavors-btn');
                 
-                // Reset flavors button
-                document.getElementById('reset-flavors-btn')?.addEventListener('click', () => {
-                    this.resetToDefaults();
-                });
+                if (addBtn) addBtn.addEventListener('click', () => this.handleAddFlavor());
+                if (resetBtn) resetBtn.addEventListener('click', () => this.resetToDefaults());
             },
             
-            // Get all active flavors
             getActiveFlavors() {
                 const flavors = DB.getFlavors();
                 return flavors.filter(f => f.active !== false);
             },
             
-            // Add new flavor
             handleAddFlavor() {
                 const nameInput = document.getElementById('new-flavor-name');
                 const categoryInput = document.getElementById('new-flavor-category');
@@ -2392,7 +3049,6 @@
                 };
                 
                 if (this.addFlavor(flavorData)) {
-                    // Clear form
                     nameInput.value = '';
                     descriptionInput.value = '';
                     nameInput.focus();
@@ -2402,7 +3058,6 @@
             addFlavor(flavorData) {
                 const flavors = DB.getFlavors();
                 
-                // Check if already exists
                 const exists = flavors.some(f => 
                     f.name.toLowerCase() === flavorData.name.toLowerCase()
                 );
@@ -2412,7 +3067,6 @@
                     return false;
                 }
                 
-                // Add ID and timestamp
                 const newFlavor = {
                     id: Utils.generateId(),
                     ...flavorData,
@@ -2480,12 +3134,10 @@
                     tbody.appendChild(tr);
                 });
                 
-                // Add event listeners
                 this.addFlavorEventListeners();
             },
             
             addFlavorEventListeners() {
-                // Edit flavor
                 document.querySelectorAll('.edit-flavor').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const flavorId = e.target.closest('button').getAttribute('data-id');
@@ -2493,7 +3145,6 @@
                     });
                 });
                 
-                // Toggle flavor active status
                 document.querySelectorAll('.toggle-flavor').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const flavorId = e.target.closest('button').getAttribute('data-id');
@@ -2502,7 +3153,6 @@
                     });
                 });
                 
-                // Delete flavor
                 document.querySelectorAll('.delete-flavor').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const flavorId = e.target.closest('button').getAttribute('data-id');
@@ -2517,7 +3167,6 @@
                 
                 if (!flavor) return;
                 
-                // Create edit modal
                 const content = `
                     <div class="form-group">
                         <label class="form-label">Name der Sorte</label>
@@ -2572,7 +3221,6 @@
                                 return;
                             }
                             
-                            // Update flavor
                             flavor.name = updatedName;
                             flavor.category = updatedCategory;
                             flavor.description = updatedDescription;
@@ -2655,7 +3303,24 @@
                             label: 'Wiederherstellen',
                             type: 'danger',
                             onClick: () => {
-                                if (DB.saveFlavors(this.defaultFlavors)) {
+                                const defaultFlavors = [
+                                    { id: '1', name: 'Stracciatella', category: 'milcheis', description: 'Milcheis mit Schokostückchen', active: true },
+                                    { id: '2', name: 'Amarena Kirsch', category: 'sorbet', description: 'Sauerkirsch-Sorbet mit Amarena', active: true },
+                                    { id: '3', name: 'Vanille', category: 'milcheis', description: 'Klassische Vanille', active: true },
+                                    { id: '4', name: 'Spaghetti', category: 'speiseeis', description: 'Eis mit Spaghetti-Optik', active: true },
+                                    { id: '5', name: 'Toffifee', category: 'milcheis', description: 'Mit Toffifee-Stückchen', active: true },
+                                    { id: '6', name: 'Cookies', category: 'milcheis', description: 'Mit Cookie-Stückchen', active: true },
+                                    { id: '7', name: 'Weiß Schokolade Pistazien', category: 'milcheis', description: 'Weiße Schokolade mit Pistazien', active: true },
+                                    { id: '8', name: 'Erdbeer', category: 'fruchteis', description: 'Frisches Erdbeereis', active: true },
+                                    { id: '9', name: 'Joghurt Orange', category: 'fruchteis', description: 'Joghurt-Eis mit Orangen', active: true },
+                                    { id: '10', name: 'Kinder Buenos', category: 'milcheis', description: 'Mit Kinder Buenos', active: true },
+                                    { id: '11', name: 'Kinder Riegel', category: 'milcheis', description: 'Mit Kinder Riegel', active: true },
+                                    { id: '12', name: 'Joghurete Schokolade', category: 'milcheis', description: 'Joghurt-Eis mit Schokolade', active: true },
+                                    { id: '13', name: 'Mango', category: 'sorbet', description: 'Mango-Sorbet', active: true },
+                                    { id: '14', name: 'Hanutta', category: 'spezial', description: 'Spezialität', active: true }
+                                ];
+                                
+                                if (DB.saveFlavors(defaultFlavors)) {
                                     Utils.showNotification('Standard-Sorten wiederhergestellt', 'success');
                                     this.loadFlavors();
                                     this.updateAllFlavorSelects();
@@ -2665,20 +3330,13 @@
                     ]);
             },
             
-            // Update all flavor selects in the system
             updateAllFlavorSelects() {
                 const flavors = this.getActiveFlavors();
                 
-                // Update in orders module
                 this.updateFlavorSelect('order-flavor', flavors);
-                
-                // Update in recipes module
                 this.updateFlavorSelect('recipe-flavor', flavors);
-                
-                // Update in labels module
                 this.updateFlavorSelect('label-flavor', flavors);
                 
-                // Update dynamic selects in order items
                 document.querySelectorAll('.order-flavor-select').forEach(select => {
                     this.updateFlavorSelectElement(select, flavors);
                 });
@@ -2693,11 +3351,8 @@
             
             updateFlavorSelectElement(selectElement, flavors) {
                 const currentValue = selectElement.value;
-                
-                // Clear and rebuild
                 selectElement.innerHTML = '<option value="">Sorte auswählen...</option>';
                 
-                // Group by category
                 const grouped = {};
                 flavors.forEach(flavor => {
                     if (!grouped[flavor.category]) {
@@ -2706,7 +3361,6 @@
                     grouped[flavor.category].push(flavor);
                 });
                 
-                // Add by category
                 Object.keys(grouped).forEach(category => {
                     const optgroup = document.createElement('optgroup');
                     optgroup.label = this.getCategoryName(category);
@@ -2721,7 +3375,6 @@
                     selectElement.appendChild(optgroup);
                 });
                 
-                // Restore selected value if still exists
                 if (currentValue && Array.from(selectElement.options).some(opt => opt.value === currentValue)) {
                     selectElement.value = currentValue;
                 }
@@ -2761,361 +3414,237 @@
             }
         };
 
-        // ===== ORDERS MODULE =====
-        const Orders = {
+        // ===== LABELS MODULE =====
+        const Labels = {
             init() {
-                this.loadCustomers();
-                this.setDefaultDate();
                 this.setupEventListeners();
-                this.loadRecentOrders();
-            },
-            
-            loadCustomers() {
-                const customers = DB.getCustomers();
-                const select = document.getElementById('order-customer');
-                select.innerHTML = '<option value="">Kunde auswählen...</option>';
-                
-                customers.forEach(customer => {
-                    const option = document.createElement('option');
-                    option.value = customer.id;
-                    option.textContent = `${customer.name} - ${customer.location}`;
-                    select.appendChild(option);
-                });
-            },
-            
-            setDefaultDate() {
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('order-date').value = today;
+                this.loadFlavors();
+                this.setDefaultDates();
+                this.generatePreview();
             },
             
             setupEventListeners() {
-                // Add order item
-                document.getElementById('add-order-item').addEventListener('click', () => {
-                    this.addOrderItem();
+                const generateBtn = document.getElementById('generate-label');
+                const printBtn = document.getElementById('print-label');
+                const batchBtn = document.getElementById('print-batch');
+                
+                if (generateBtn) generateBtn.addEventListener('click', () => this.generatePreview());
+                if (printBtn) printBtn.addEventListener('click', () => this.printLabel());
+                if (batchBtn) batchBtn.addEventListener('click', () => this.printBatch());
+                
+                const flavorSelect = document.getElementById('label-flavor');
+                const sizeSelect = document.getElementById('label-size');
+                const batchInput = document.getElementById('label-batch');
+                const expiryInput = document.getElementById('label-expiry');
+                
+                if (flavorSelect) flavorSelect.addEventListener('change', () => {
+                    this.generatePreview();
+                    this.checkWarnings();
                 });
                 
-                // Clear order
-                document.getElementById('clear-order').addEventListener('click', () => {
-                    AppState.currentOrder = {
-                        customerId: '',
-                        date: '',
-                        priority: 'normal',
-                        notes: '',
-                        items: []
-                    };
-                    this.renderOrderItems();
-                    this.updateOrderSummary();
+                if (sizeSelect) sizeSelect.addEventListener('change', () => this.generatePreview());
+                if (batchInput) batchInput.addEventListener('input', () => {
+                    this.generatePreview();
+                    this.checkWarnings();
                 });
-                
-                // Save order
-                document.getElementById('save-order').addEventListener('click', () => {
-                    this.saveOrder();
-                });
-                
-                // Print order
-                document.getElementById('print-order').addEventListener('click', () => {
-                    Printing.printOrder();
-                });
-                
-                // Export order
-                document.getElementById('export-order').addEventListener('click', () => {
-                    this.exportOrder();
+                if (expiryInput) expiryInput.addEventListener('change', () => {
+                    this.generatePreview();
+                    this.checkWarnings();
                 });
             },
             
-            addOrderItem() {
-                const item = {
-                    id: Utils.generateId(),
-                    flavor: '',
-                    size: '750',
-                    quantity: 1
-                };
-                AppState.currentOrder.items.push(item);
-                this.renderOrderItems();
-            },
-            
-            renderOrderItems() {
-                const container = document.getElementById('order-items-list');
-                container.innerHTML = '';
-                
-                AppState.currentOrder.items.forEach((item, index) => {
-                    const div = document.createElement('div');
-                    div.className = 'order-item';
-                    div.innerHTML = `
-                        <select class="form-select order-flavor" data-index="${index}">
-                            <option value="">Sorte wählen...</option>
-                        </select>
-                        <select class="form-select order-size" data-index="${index}">
-                            <option value="170">170 g</option>
-                            <option value="750" selected>750 g</option>
-                            <option value="1000">1000 g</option>
-                        </select>
-                        <input type="number" class="form-input order-quantity" 
-                               data-index="${index}" value="${item.quantity}" min="1" max="100">
-                        <button class="btn btn-danger btn-sm remove-item" data-index="${index}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    `;
-                    
-                    // Populate flavor options
-                    const flavorSelect = div.querySelector('.order-flavor');
-                    const flavors = Flavors.getActiveFlavors();
+            loadFlavors() {
+                const flavors = Flavors.getActiveFlavors();
+                const select = document.getElementById('label-flavor');
+                if (select) {
+                    select.innerHTML = '<option value="">Sorte auswählen...</option>';
                     flavors.forEach(flavor => {
                         const option = document.createElement('option');
                         option.value = flavor.name;
                         option.textContent = flavor.name;
-                        flavorSelect.appendChild(option);
+                        select.appendChild(option);
                     });
-                    
-                    // Set selected values
-                    flavorSelect.value = item.flavor;
-                    div.querySelector('.order-size').value = item.size;
-                    
-                    container.appendChild(div);
-                });
-                
-                // Add event listeners to new elements
-                this.addItemEventListeners();
-                this.updateOrderSummary();
+                }
             },
             
-            addItemEventListeners() {
-                // Flavor change
-                document.querySelectorAll('.order-flavor').forEach(select => {
-                    select.addEventListener('change', (e) => {
-                        const index = parseInt(e.target.getAttribute('data-index'));
-                        AppState.currentOrder.items[index].flavor = e.target.value;
-                        this.updateOrderSummary();
-                    });
-                });
+            setDefaultDates() {
+                const today = new Date();
+                const expiryDate = new Date();
+                expiryDate.setDate(today.getDate() + 180);
                 
-                // Size change
-                document.querySelectorAll('.order-size').forEach(select => {
-                    select.addEventListener('change', (e) => {
-                        const index = parseInt(e.target.getAttribute('data-index'));
-                        AppState.currentOrder.items[index].size = e.target.value;
-                        this.updateOrderSummary();
-                    });
-                });
+                const expiryInput = document.getElementById('label-expiry');
+                if (expiryInput) {
+                    expiryInput.value = expiryDate.toISOString().split('T')[0];
+                }
                 
-                // Quantity change
-                document.querySelectorAll('.order-quantity').forEach(input => {
-                    input.addEventListener('change', (e) => {
-                        const index = parseInt(e.target.getAttribute('data-index'));
-                        AppState.currentOrder.items[index].quantity = parseInt(e.target.value) || 1;
-                        this.updateOrderSummary();
-                    });
-                });
-                
-                // Remove item
-                document.querySelectorAll('.remove-item').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const index = parseInt(e.target.closest('button').getAttribute('data-index'));
-                        AppState.currentOrder.items.splice(index, 1);
-                        this.renderOrderItems();
-                    });
-                });
+                const batchInput = document.getElementById('label-batch');
+                if (batchInput) {
+                    const batchNumber = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}-001`;
+                    batchInput.value = batchNumber;
+                }
             },
             
-            updateOrderSummary() {
-                let totalItems = 0;
-                let total750g = 0;
-                let total170g = 0;
-                let totalKg = 0;
+            generatePreview() {
+                const flavor = document.getElementById('label-flavor')?.value;
+                const size = document.getElementById('label-size')?.value || '170';
+                const batch = document.getElementById('label-batch')?.value || '';
+                const expiry = document.getElementById('label-expiry')?.value;
                 
-                AppState.currentOrder.items.forEach(item => {
-                    totalItems += item.quantity;
-                    if (item.size === '750') total750g += item.quantity;
-                    if (item.size === '170') total170g += item.quantity;
-                    totalKg += Utils.calculateWeight(item.size, item.quantity);
-                });
+                const previewDiv = document.getElementById('label-preview');
+                if (!previewDiv) return;
                 
-                const bucketSize = DB.getSettings().bucket_size || 6;
-                const totalBuckets = Utils.calculateBuckets(totalKg, bucketSize);
-                const totalEuros = Utils.calculatePrice(AppState.currentOrder.items);
-                
-                document.getElementById('total-items').textContent = totalItems;
-                document.getElementById('total-750g').textContent = total750g;
-                document.getElementById('total-170g').textContent = total170g;
-                document.getElementById('total-kg').textContent = totalKg.toFixed(1);
-                document.getElementById('total-buckets').textContent = totalBuckets;
-                document.getElementById('total-euros').textContent = totalEuros + ' €';
-            },
-            
-            saveOrder() {
-                // Get form values
-                const customerId = document.getElementById('order-customer').value;
-                const date = document.getElementById('order-date').value;
-                const priority = document.getElementById('order-priority').value;
-                const notes = document.getElementById('order-notes').value;
-                
-                // Validate
-                if (!customerId) {
-                    Utils.showNotification('Bitte einen Kunden auswählen', 'warning');
+                if (!flavor) {
+                    previewDiv.innerHTML = `
+                        <div class="text-center text-muted" style="padding: 40px;">
+                            <i class="fas fa-tag fa-3x" style="opacity: 0.3; margin-bottom: 20px;"></i>
+                            <p>Bitte wählen Sie eine Sorte aus, um eine Vorschau zu sehen</p>
+                        </div>
+                    `;
                     return;
                 }
                 
-                if (!date) {
-                    Utils.showNotification('Bitte ein Lieferdatum auswählen', 'warning');
-                    return;
-                }
+                const expiryDate = expiry ? new Date(expiry).toLocaleDateString('de-DE') : 'Kein MHD';
+                const now = new Date();
+                const expiryDays = expiry ? Math.ceil((new Date(expiry) - now) / (1000 * 60 * 60 * 24)) : null;
                 
-                if (AppState.currentOrder.items.length === 0) {
-                    Utils.showNotification('Bitte mindestens eine Position hinzufügen', 'warning');
-                    return;
-                }
-                
-                // Create order object
-                const order = {
-                    customerId,
-                    date,
-                    priority,
-                    notes,
-                    items: [...AppState.currentOrder.items],
-                    status: 'pending',
-                    created: new Date().toISOString()
-                };
-                
-                // Save to database
-                if (DB.saveOrder(order)) {
-                    Utils.showNotification('Bestellung erfolgreich gespeichert', 'success');
+                const previewHTML = `
+                    <div class="label-header">
+                        <div class="label-title">Eiscafé Sanremo</div>
+                        <div style="font-size: 14px; color: var(--muted); margin-top: 5px;">Premium-Eis aus Bad Berleburg</div>
+                    </div>
                     
-                    // Reset form
-                    AppState.currentOrder = {
-                        customerId: '',
-                        date: '',
-                        priority: 'normal',
-                        notes: '',
-                        items: []
-                    };
-                    this.renderOrderItems();
-                    this.updateOrderSummary();
-                    document.getElementById('order-notes').value = '';
+                    <div class="label-flavor">
+                        ${flavor}
+                    </div>
                     
-                    // Reload recent orders
-                    this.loadRecentOrders();
-                    
-                    // Update dashboard
-                    Dashboard.updateStatistics();
-                } else {
-                    Utils.showNotification('Fehler beim Speichern der Bestellung', 'danger');
-                }
-            },
-            
-            loadRecentOrders() {
-                const orders = DB.getOrders();
-                const customers = DB.getCustomers();
-                
-                // Sort by date (newest first)
-                orders.sort((a, b) => new Date(b.created) - new Date(a.created));
-                
-                const tbody = document.getElementById('recent-orders');
-                tbody.innerHTML = '';
-                
-                // Show last 5 orders
-                orders.slice(0, 5).forEach(order => {
-                    const customer = customers.find(c => c.id === order.customerId);
-                    const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
-                    
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${Utils.formatDate(order.date)}</td>
-                        <td>${customer ? customer.name : 'Unbekannt'}</td>
-                        <td>${totalQuantity} Stk.</td>
-                        <td>${parseFloat(order.totalPrice || 0).toFixed(2)} €</td>
-                        <td>
-                            <span class="badge ${order.status === 'completed' ? 'badge-success' : order.status === 'pending' ? 'badge-warning' : 'badge-primary'}">
-                                ${order.status === 'completed' ? 'Erledigt' : order.status === 'pending' ? 'Ausstehend' : 'In Bearbeitung'}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="btn-icon view-order" data-id="${order.id}">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn-icon edit-order" data-id="${order.id}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn-icon delete-order" data-id="${order.id}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                    <div class="label-details">
+                        <div class="label-info">
+                            <div class="nutrition-label">Nettogewicht</div>
+                            <div class="nutrition-value">${size} g</div>
+                        </div>
+                        <div class="label-info">
+                            <div class="nutrition-label">Charge</div>
+                            <div class="nutrition-value">${batch}</div>
+                        </div>
+                        <div class="label-info" style="grid-column: span 2;">
+                            <div class="nutrition-label">Mindesthaltbarkeitsdatum</div>
+                            <div class="nutrition-value ${expiryDays && expiryDays < 30 ? 'text-danger' : ''}">
+                                ${expiryDate}
                             </div>
-                        </td>
-                    `;
+                        </div>
+                    </div>
                     
-                    tbody.appendChild(tr);
-                });
+                    <div class="label-barcode">
+                        <div style="font-family: monospace; font-size: 20px; letter-spacing: 3px; margin-bottom: 5px;">
+                            ${batch.replace(/-/g, '')}
+                        </div>
+                        <div style="font-size: 12px; color: var(--muted);">Barcode: ${batch}</div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted);">
+                        <div>Bei -18°C lagern</div>
+                        <div>Nach dem Auftauen nicht wieder einfrieren</div>
+                    </div>
+                `;
                 
-                // Add event listeners
-                this.addOrderActionListeners();
+                previewDiv.innerHTML = previewHTML;
             },
             
-            addOrderActionListeners() {
-                // View order
-                document.querySelectorAll('.view-order').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const orderId = e.target.closest('button').getAttribute('data-id');
-                        this.viewOrder(orderId);
-                    });
-                });
+            checkWarnings() {
+                const flavor = document.getElementById('label-flavor')?.value;
+                const expiry = document.getElementById('label-expiry')?.value;
+                const warnings = [];
                 
-                // Edit order
-                document.querySelectorAll('.edit-order').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const orderId = e.target.closest('button').getAttribute('data-id');
-                        this.editOrder(orderId);
-                    });
-                });
+                if (!flavor) {
+                    warnings.push('Keine Sorte ausgewählt');
+                }
                 
-                // Delete order
-                document.querySelectorAll('.delete-order').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const orderId = e.target.closest('button').getAttribute('data-id');
-                        this.deleteOrder(orderId);
-                    });
-                });
-            },
-            
-            viewOrder(orderId) {
-                const orders = DB.getOrders();
-                const order = orders.find(o => o.id === orderId);
+                if (expiry) {
+                    const expiryDate = new Date(expiry);
+                    const today = new Date();
+                    const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysUntilExpiry < 0) {
+                        warnings.push('MHD ist bereits abgelaufen!');
+                    } else if (daysUntilExpiry < 30) {
+                        warnings.push(`MHD endet in ${daysUntilExpiry} Tagen`);
+                    }
+                }
                 
-                if (order) {
-                    let content = `
-                        <h3>Bestelldetails</h3>
-                        <p><strong>Datum:</strong> ${Utils.formatDate(order.date)}</p>
-                        <p><strong>Status:</strong> ${order.status}</p>
-                        <p><strong>Priorität:</strong> ${order.priority}</p>
-                        <p><strong>Gesamtpreis:</strong> ${parseFloat(order.totalPrice || 0).toFixed(2)} €</p>
-                        <p><strong>Notizen:</strong> ${order.notes || 'Keine'}</p>
-                        <h4>Positionen:</h4>
-                        <ul>
-                    `;
-                    
-                    order.items.forEach(item => {
-                        content += `<li>${item.quantity}x ${item.flavor} (${item.size}g)</li>`;
-                    });
-                    
-                    content += '</ul>';
-                    
-                    Utils.showModal('Bestelldetails', content, [
-                        {
-                            id: 'close',
-                            label: 'Schließen',
-                            type: 'primary',
-                            onClick: () => {}
-                        }
-                    ]);
+                const warningDiv = document.getElementById('label-warnings');
+                const warningContent = document.getElementById('warning-content');
+                
+                if (warningDiv && warningContent) {
+                    if (warnings.length > 0) {
+                        warningDiv.style.display = 'block';
+                        warningContent.innerHTML = warnings.map(w => `<p>⚠️ ${w}</p>`).join('');
+                    } else {
+                        warningDiv.style.display = 'none';
+                    }
                 }
             },
             
-            editOrder(orderId) {
-                Utils.showNotification('Bearbeitungsfunktion in Entwicklung', 'info');
+            printLabel() {
+                const flavor = document.getElementById('label-flavor')?.value;
+                const batch = document.getElementById('label-batch')?.value;
+                
+                if (!flavor || !batch) {
+                    Utils.showNotification('Bitte Sorte und Chargen-Nummer ausfüllen', 'warning');
+                    return;
+                }
+                
+                const printContent = document.getElementById('label-preview').innerHTML;
+                
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>Etikett Drucken</title>
+                            <style>
+                                @media print {
+                                    @page { margin: 0; size: 400px 300px; }
+                                    body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+                                }
+                                .label-preview { 
+                                    width: 400px; 
+                                    height: 300px; 
+                                    margin: 20px auto; 
+                                    padding: 20px;
+                                    border: 2px solid #000;
+                                    border-radius: 15px;
+                                    text-align: center;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="label-preview">
+                                ${printContent}
+                            </div>
+                            <script>
+                                window.onload = function() {
+                                    window.print();
+                                    setTimeout(function() { window.close(); }, 1000);
+                                };
+                            <\/script>
+                        </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                
+                this.saveLabelRecord(flavor, 1);
             },
             
-            deleteOrder(orderId) {
-                Utils.showModal('Bestellung löschen', 
-                    'Sind Sie sicher, dass Sie diese Bestellung löschen möchten? Dieser Vorgang kann nicht rückgängig gemacht werden.',
+            printBatch() {
+                const flavor = document.getElementById('label-flavor')?.value;
+                const batch = document.getElementById('label-batch')?.value;
+                
+                if (!flavor || !batch) {
+                    Utils.showNotification('Bitte Sorte und Chargen-Nummer ausfüllen', 'warning');
+                    return;
+                }
+                
+                Utils.showModal('Charge drucken',
+                    `Möchten Sie 10 Etiketten für "${flavor}" (Charge: ${batch}) drucken?`,
                     [
                         {
                             id: 'cancel',
@@ -3124,22 +3653,137 @@
                             onClick: () => {}
                         },
                         {
-                            id: 'delete',
-                            label: 'Löschen',
-                            type: 'danger',
+                            id: 'print',
+                            label: '10x Drucken',
+                            type: 'primary',
                             onClick: () => {
-                                const orders = DB.getOrders();
-                                const filtered = orders.filter(o => o.id !== orderId);
-                                DB.set(DB.KEYS.ORDERS, filtered);
-                                this.loadRecentOrders();
-                                Utils.showNotification('Bestellung gelöscht', 'success');
+                                const printContent = document.getElementById('label-preview').innerHTML;
+                                let batchContent = '';
+                                
+                                for (let i = 0; i < 10; i++) {
+                                    batchContent += `<div class="label-preview">${printContent}</div>`;
+                                    if (i < 9) batchContent += '<div style="page-break-after: always;"></div>';
+                                }
+                                
+                                const printWindow = window.open('', '_blank');
+                                printWindow.document.write(`
+                                    <html>
+                                        <head>
+                                            <title>Etiketten Charge ${batch}</title>
+                                            <style>
+                                                @media print {
+                                                    @page { margin: 10mm; }
+                                                    body { margin: 0; }
+                                                }
+                                                .label-preview { 
+                                                    width: 400px; 
+                                                    height: 300px; 
+                                                    margin: 20px auto; 
+                                                    padding: 20px;
+                                                    border: 1px solid #ccc;
+                                                    border-radius: 10px;
+                                                    text-align: center;
+                                                    page-break-inside: avoid;
+                                                }
+                                            </style>
+                                        </head>
+                                        <body>
+                                            ${batchContent}
+                                            <script>
+                                                window.onload = function() {
+                                                    window.print();
+                                                    setTimeout(function() { window.close(); }, 1000);
+                                                };
+                                            <\/script>
+                                        </body>
+                                    </html>
+                                `);
+                                printWindow.document.close();
+                                
+                                this.saveLabelRecord(flavor, 10);
                             }
                         }
                     ]);
             },
             
-            exportOrder() {
-                Utils.showNotification('Exportfunktion in Entwicklung', 'info');
+            saveLabelRecord(flavor, quantity) {
+                const labels = DB.getLabels();
+                const today = new Date().toISOString().split('T')[0];
+                
+                labels.push({
+                    id: Utils.generateId(),
+                    date: today,
+                    flavor: flavor,
+                    size: document.getElementById('label-size')?.value || '170',
+                    batch: document.getElementById('label-batch')?.value || '',
+                    quantity: quantity,
+                    created: new Date().toISOString()
+                });
+                
+                DB.saveLabels(labels);
+                this.loadRecentLabels();
+                Dashboard.updateStatistics();
+            },
+            
+            loadRecentLabels() {
+                const labels = DB.getLabels();
+                const tbody = document.getElementById('recent-labels');
+                
+                if (!tbody) return;
+                
+                tbody.innerHTML = '';
+                
+                labels.sort((a, b) => new Date(b.created) - new Date(a.created))
+                    .slice(0, 10)
+                    .forEach(label => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${Utils.formatDate(label.date)}</td>
+                            <td>${label.flavor}</td>
+                            <td>${label.size}g</td>
+                            <td>${label.batch}</td>
+                            <td>${label.quantity}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline reprint-label" data-id="${label.id}">
+                                    <i class="fas fa-print"></i> Nachdruck
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                
+                this.addLabelEventListeners();
+            },
+            
+            addLabelEventListeners() {
+                document.querySelectorAll('.reprint-label').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const labelId = e.target.closest('button').getAttribute('data-id');
+                        this.reprintLabel(labelId);
+                    });
+                });
+            },
+            
+            reprintLabel(labelId) {
+                const labels = DB.getLabels();
+                const label = labels.find(l => l.id === labelId);
+                
+                if (!label) return;
+                
+                Utils.showNotification(`Nachdruck von ${label.flavor} (${label.quantity}x) gestartet`, 'info');
+                
+                // Set form values
+                document.getElementById('label-flavor').value = label.flavor;
+                document.getElementById('label-size').value = label.size;
+                document.getElementById('label-batch').value = label.batch;
+                
+                // Generate preview
+                this.generatePreview();
+                
+                // Print
+                setTimeout(() => {
+                    this.printLabel();
+                }, 500);
             }
         };
 
@@ -3153,40 +3797,35 @@
             
             setDefaultDate() {
                 const today = new Date().toISOString().split('T')[0];
-                document.getElementById('production-date').value = today;
+                const dateInput = document.getElementById('production-date');
+                if (dateInput) {
+                    dateInput.value = today;
+                    AppState.currentProductionDate = today;
+                }
             },
             
             setupEventListeners() {
-                // Generate production plan
-                document.getElementById('generate-production-plan').addEventListener('click', () => {
-                    this.generateProductionPlan();
-                });
+                const generateBtn = document.getElementById('generate-production-plan');
+                const startBtn = document.getElementById('start-production');
+                const printBtn = document.getElementById('print-production-plan');
+                const dateInput = document.getElementById('production-date');
                 
-                // Start production
-                document.getElementById('start-production').addEventListener('click', () => {
-                    this.startProduction();
-                });
-                
-                // Print production plan
-                document.getElementById('print-production-plan').addEventListener('click', () => {
-                    Printing.printProductionPlan();
-                });
-                
-                // Date change
-                document.getElementById('production-date').addEventListener('change', () => {
+                if (generateBtn) generateBtn.addEventListener('click', () => this.generateProductionPlan());
+                if (startBtn) startBtn.addEventListener('click', () => this.startProduction());
+                if (printBtn) printBtn.addEventListener('click', () => this.printProductionPlan());
+                if (dateInput) dateInput.addEventListener('change', () => {
+                    AppState.currentProductionDate = dateInput.value;
                     this.updateProductionStats();
                     this.loadProductionProgress();
                 });
             },
             
             updateProductionStats() {
-                const date = document.getElementById('production-date').value;
+                const date = AppState.currentProductionDate;
                 const orders = DB.getOrders();
                 
-                // Filter orders for selected date
                 const dateOrders = orders.filter(o => o.date === date);
                 
-                // Calculate totals
                 let totalKg = 0;
                 let total750g = 0;
                 let total170g = 0;
@@ -3207,7 +3846,6 @@
                 const completedPercent = dateOrders.length > 0 ? 
                     Math.round((dateOrders.filter(o => o.status === 'completed').length / dateOrders.length) * 100) : 0;
                 
-                // Update display
                 document.getElementById('prod-today-kg').textContent = totalKg.toFixed(1) + ' kg';
                 document.getElementById('prod-buckets-needed').textContent = bucketsNeeded;
                 document.getElementById('prod-completed').textContent = completedPercent + '%';
@@ -3215,14 +3853,11 @@
             },
             
             generateProductionPlan() {
-                const date = document.getElementById('production-date').value;
+                const date = AppState.currentProductionDate;
                 const orders = DB.getOrders();
                 const production = DB.getProduction();
                 
-                // Clear existing production for this date
                 const filteredProduction = production.filter(p => p.date !== date);
-                
-                // Filter and aggregate by flavor
                 const flavorMap = {};
                 
                 orders
@@ -3236,7 +3871,7 @@
                                     size170: 0,
                                     kg: 0,
                                     producedKg: 0,
-                                    status: 0 // 0 = geplant, 1 = in produktion, 2 = fertiggestellt
+                                    status: 0
                                 };
                             }
                             
@@ -3246,11 +3881,9 @@
                         });
                     });
                 
-                // Convert to array and sort by kg
                 const flavors = Object.values(flavorMap)
                     .sort((a, b) => b.kg - a.kg);
                 
-                // Add to production database
                 flavors.forEach(flavor => {
                     const productionItem = {
                         id: Utils.generateId(),
@@ -3266,25 +3899,21 @@
                     filteredProduction.push(productionItem);
                 });
                 
-                // Save to database
                 DB.saveProduction(filteredProduction);
-                
-                // Render table
                 this.renderProductionPlan();
-                
-                // Load production progress
                 this.loadProductionProgress();
                 
                 Utils.showNotification('Produktionsplan generiert', 'success');
             },
             
             renderProductionPlan() {
-                const date = document.getElementById('production-date').value;
+                const date = AppState.currentProductionDate;
                 const production = DB.getProduction();
                 const dateProduction = production.filter(p => p.date === date);
                 
-                // Render table
                 const tbody = document.getElementById('production-plan');
+                if (!tbody) return;
+                
                 tbody.innerHTML = '';
                 
                 dateProduction.forEach(item => {
@@ -3334,12 +3963,10 @@
                     tbody.appendChild(tr);
                 });
                 
-                // Add event listeners
                 this.addProductionActionListeners();
             },
             
             addProductionActionListeners() {
-                // Start production
                 document.querySelectorAll('.start-production').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const itemId = e.target.closest('button').getAttribute('data-id');
@@ -3347,7 +3974,6 @@
                     });
                 });
                 
-                // Add produced quantity
                 document.querySelectorAll('.add-production').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const itemId = e.target.closest('button').getAttribute('data-id');
@@ -3355,7 +3981,6 @@
                     });
                 });
                 
-                // Remove produced quantity
                 document.querySelectorAll('.remove-production').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const itemId = e.target.closest('button').getAttribute('data-id');
@@ -3363,7 +3988,6 @@
                     });
                 });
                 
-                // Complete production
                 document.querySelectorAll('.complete-production').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const itemId = e.target.closest('button').getAttribute('data-id');
@@ -3377,14 +4001,13 @@
                 const item = production.find(p => p.id === itemId);
                 
                 if (item) {
-                    item.status = 1; // In Produktion
+                    item.status = 1;
                     item.updated = new Date().toISOString();
                     
                     DB.saveProduction(production);
                     this.renderProductionPlan();
                     this.loadProductionProgress();
                     
-                    // Add to history
                     DB.addProductionHistory({
                         productionId: itemId,
                         action: 'start',
@@ -3435,16 +4058,14 @@
                                 item.producedKg += quantity;
                                 item.updated = new Date().toISOString();
                                 
-                                // Update status if fully produced
                                 if (item.producedKg >= item.plannedKg) {
-                                    item.status = 2; // Fertiggestellt
+                                    item.status = 2;
                                 }
                                 
                                 DB.saveProduction(production);
                                 this.renderProductionPlan();
                                 this.loadProductionProgress();
                                 
-                                // Add to history
                                 DB.addProductionHistory({
                                     productionId: itemId,
                                     action: 'add',
@@ -3501,16 +4122,14 @@
                                 item.producedKg -= quantity;
                                 item.updated = new Date().toISOString();
                                 
-                                // Update status if not fully produced anymore
                                 if (item.producedKg < item.plannedKg && item.status === 2) {
-                                    item.status = 1; // Zurück zu "In Produktion"
+                                    item.status = 1;
                                 }
                                 
                                 DB.saveProduction(production);
                                 this.renderProductionPlan();
                                 this.loadProductionProgress();
                                 
-                                // Add to history
                                 DB.addProductionHistory({
                                     productionId: itemId,
                                     action: 'remove',
@@ -3530,15 +4149,13 @@
                 const item = production.find(p => p.id === itemId);
                 
                 if (item) {
-                    // Mark as completed (even if not fully produced)
-                    item.status = 2; // Fertiggestellt
+                    item.status = 2;
                     item.updated = new Date().toISOString();
                     
                     DB.saveProduction(production);
                     this.renderProductionPlan();
                     this.loadProductionProgress();
                     
-                    // Add to history
                     DB.addProductionHistory({
                         productionId: itemId,
                         action: 'complete',
@@ -3551,11 +4168,13 @@
             },
             
             loadProductionProgress() {
-                const date = document.getElementById('production-date').value;
+                const date = AppState.currentProductionDate;
                 const production = DB.getProduction();
                 const dateProduction = production.filter(p => p.date === date);
                 
                 const tbody = document.getElementById('production-progress');
+                if (!tbody) return;
+                
                 tbody.innerHTML = '';
                 
                 dateProduction.forEach(item => {
@@ -3594,7 +4213,6 @@
                     tbody.appendChild(tr);
                 });
                 
-                // Add history view listeners
                 this.addHistoryViewListeners();
             },
             
@@ -3684,6 +4302,85 @@
                             }
                         }
                     ]);
+            },
+            
+            printProductionPlan() {
+                const date = AppState.currentProductionDate;
+                const production = DB.getProduction();
+                const dateProduction = production.filter(p => p.date === date);
+                
+                if (dateProduction.length === 0) {
+                    Utils.showNotification('Kein Produktionsplan zum Drucken', 'warning');
+                    return;
+                }
+                
+                let printContent = `
+                    <div style="font-family: Arial, sans-serif; padding: 20px;">
+                        <h1 style="text-align: center; color: #2563eb;">Produktionsplan</h1>
+                        <h2 style="text-align: center;">${date}</h2>
+                        <hr style="border: 2px solid #2563eb; margin: 20px 0;">
+                        
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #000;">
+                            <thead>
+                                <tr style="background: #f3f4f6;">
+                                    <th style="border: 1px solid #000; padding: 10px;">Sorte</th>
+                                    <th style="border: 1px solid #000; padding: 10px;">750g</th>
+                                    <th style="border: 1px solid #000; padding: 10px;">170g</th>
+                                    <th style="border: 1px solid #000; padding: 10px;">KG</th>
+                                    <th style="border: 1px solid #000; padding: 10px;">Eimer</th>
+                                    <th style="border: 1px solid #000; padding: 10px;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                dateProduction.forEach(item => {
+                    const bucketSize = DB.getSettings().bucket_size || 6;
+                    const buckets = Utils.calculateBuckets(item.plannedKg, bucketSize);
+                    const status = Utils.getStatusText(item.status);
+                    
+                    printContent += `
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 10px;">${item.flavor}</td>
+                            <td style="border: 1px solid #000; padding: 10px;">${item.size750}</td>
+                            <td style="border: 1px solid #000; padding: 10px;">${item.size170}</td>
+                            <td style="border: 1px solid #000; padding: 10px;">${item.plannedKg.toFixed(2)} kg</td>
+                            <td style="border: 1px solid #000; padding: 10px;">${buckets}</td>
+                            <td style="border: 1px solid #000; padding: 10px;">${status.text}</td>
+                        </tr>
+                    `;
+                });
+                
+                printContent += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>Produktionsplan ${date}</title>
+                            <style>
+                                @media print {
+                                    @page { margin: 10mm; }
+                                    body { margin: 0; font-family: Arial, sans-serif; }
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            ${printContent}
+                            <script>
+                                window.onload = function() {
+                                    window.print();
+                                    setTimeout(function() { window.close(); }, 1000);
+                                };
+                            <\/script>
+                        </body>
+                    </html>
+                `);
+                printWindow.document.close();
             }
         };
 
@@ -3696,35 +4393,30 @@
             },
             
             setupEventListeners() {
-                // Period selection
-                document.getElementById('stat-period').addEventListener('change', (e) => {
-                    if (e.target.value === 'custom') {
-                        document.getElementById('custom-date-range').style.display = 'block';
-                    } else {
-                        document.getElementById('custom-date-range').style.display = 'none';
+                const periodSelect = document.getElementById('stat-period');
+                const generateBtn = document.getElementById('generate-report');
+                const printBtn = document.getElementById('print-report');
+                const savePricesBtn = document.getElementById('save-prices');
+                
+                if (periodSelect) periodSelect.addEventListener('change', (e) => {
+                    const customRange = document.getElementById('custom-date-range');
+                    if (customRange) {
+                        customRange.style.display = e.target.value === 'custom' ? 'block' : 'none';
                     }
                 });
                 
-                // Generate report
-                document.getElementById('generate-report').addEventListener('click', () => {
-                    this.generateReport();
-                });
-                
-                // Print report
-                document.getElementById('print-report').addEventListener('click', () => {
-                    Printing.printReport();
-                });
-                
-                // Save prices
-                document.getElementById('save-prices').addEventListener('click', () => {
-                    this.savePrices();
-                });
+                if (generateBtn) generateBtn.addEventListener('click', () => this.generateReport());
+                if (printBtn) printBtn.addEventListener('click', () => this.printReport());
+                if (savePricesBtn) savePricesBtn.addEventListener('click', () => this.savePrices());
             },
             
             loadPrices() {
                 const prices = DB.getPrices();
-                document.getElementById('price-small').value = prices.small || 2.26;
-                document.getElementById('price-large').value = prices.large || 5.90;
+                const smallPriceInput = document.getElementById('price-small');
+                const largePriceInput = document.getElementById('price-large');
+                
+                if (smallPriceInput) smallPriceInput.value = prices.small || 2.26;
+                if (largePriceInput) largePriceInput.value = prices.large || 5.90;
             },
             
             savePrices() {
@@ -3749,7 +4441,6 @@
             },
             
             loadStatistics() {
-                // Load flavor statistics with real data
                 this.loadFlavorStatistics();
             },
             
@@ -3758,10 +4449,8 @@
                 const flavors = Flavors.getActiveFlavors();
                 const prices = DB.getPrices();
                 
-                // Aggregate data by flavor
                 const flavorStats = {};
                 
-                // Initialize all flavors
                 flavors.forEach(flavor => {
                     flavorStats[flavor.name] = {
                         name: flavor.name,
@@ -3771,7 +4460,6 @@
                     };
                 });
                 
-                // Aggregate from orders
                 orders.forEach(order => {
                     order.items?.forEach(item => {
                         if (flavorStats[item.flavor]) {
@@ -3786,16 +4474,15 @@
                     });
                 });
                 
-                // Convert to array and sort by revenue
                 const statsArray = Object.values(flavorStats)
                     .filter(stat => stat.small > 0 || stat.large > 0)
                     .sort((a, b) => b.revenue - a.revenue);
                 
-                // Calculate total revenue
                 const totalRevenue = statsArray.reduce((sum, stat) => sum + stat.revenue, 0);
                 
-                // Render table
                 const tbody = document.getElementById('flavor-stats');
+                if (!tbody) return;
+                
                 tbody.innerHTML = '';
                 
                 statsArray.forEach(stat => {
@@ -3819,7 +4506,6 @@
                     tbody.appendChild(tr);
                 });
                 
-                // Add total row
                 if (statsArray.length > 0) {
                     const tr = document.createElement('tr');
                     tr.style.fontWeight = 'bold';
@@ -3846,7 +4532,6 @@
                 const orders = DB.getOrders();
                 const prices = DB.getPrices();
                 
-                // Calculate real statistics
                 let totalRevenue = 0;
                 let totalOrders = 0;
                 let totalSmall = 0;
@@ -3926,8 +4611,9 @@
                         break;
                 }
                 
-                // Render statistics
                 const tbody = document.getElementById('statistics-data');
+                if (!tbody) return;
+                
                 tbody.innerHTML = '';
                 
                 data.forEach(item => {
@@ -3983,6 +4669,44 @@
                 }
                 
                 return 'Keine Daten';
+            },
+            
+            printReport() {
+                const reportContent = document.getElementById('statistics-view').innerHTML;
+                
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>Statistik Bericht</title>
+                            <style>
+                                @media print {
+                                    @page { margin: 10mm; }
+                                    body { margin: 0; font-family: Arial, sans-serif; }
+                                    .no-print { display: none !important; }
+                                    .btn { display: none !important; }
+                                }
+                                table { width: 100%; border-collapse: collapse; }
+                                th, td { border: 1px solid #000; padding: 8px; }
+                            </style>
+                        </head>
+                        <body>
+                            <div style="padding: 20px;">
+                                <h1 style="text-align: center;">Statistik Bericht</h1>
+                                <p style="text-align: center;">Erstellt am: ${new Date().toLocaleDateString('de-DE')}</p>
+                                <hr>
+                                ${reportContent}
+                            </div>
+                            <script>
+                                window.onload = function() {
+                                    window.print();
+                                    setTimeout(function() { window.close(); }, 1000);
+                                };
+                            <\/script>
+                        </body>
+                    </html>
+                `);
+                printWindow.document.close();
             }
         };
 
@@ -3996,7 +4720,6 @@
             loadSettings() {
                 const settings = DB.getSettings();
                 
-                // Populate form
                 document.getElementById('company-name').value = settings.company_name || '';
                 document.getElementById('company-address').value = settings.company_address || '';
                 document.getElementById('company-phone').value = settings.company_phone || '';
@@ -4015,30 +4738,17 @@
             },
             
             setupEventListeners() {
-                // Save settings
-                document.getElementById('save-settings').addEventListener('click', () => {
-                    this.saveSettings();
-                });
+                const saveBtn = document.getElementById('save-settings');
+                const backupBtn = document.getElementById('backup-data');
+                const restoreBtn = document.getElementById('restore-data');
+                const resetBtn = document.getElementById('reset-data');
+                const themeSelect = document.getElementById('theme-select');
                 
-                // Backup data
-                document.getElementById('backup-data').addEventListener('click', () => {
-                    this.backupData();
-                });
-                
-                // Restore data
-                document.getElementById('restore-data').addEventListener('click', () => {
-                    this.restoreData();
-                });
-                
-                // Reset data
-                document.getElementById('reset-data').addEventListener('click', () => {
-                    this.resetData();
-                });
-                
-                // Theme change
-                document.getElementById('theme-select').addEventListener('change', (e) => {
-                    this.applyTheme(e.target.value);
-                });
+                if (saveBtn) saveBtn.addEventListener('click', () => this.saveSettings());
+                if (backupBtn) backupBtn.addEventListener('click', () => this.backupData());
+                if (restoreBtn) restoreBtn.addEventListener('click', () => this.restoreData());
+                if (resetBtn) resetBtn.addEventListener('click', () => this.resetData());
+                if (themeSelect) themeSelect.addEventListener('change', (e) => this.applyTheme(e.target.value));
             },
             
             saveSettings() {
@@ -4060,8 +4770,6 @@
                 
                 if (DB.saveSettings(settings)) {
                     Utils.showNotification('Einstellungen erfolgreich gespeichert', 'success');
-                    
-                    // Apply theme immediately
                     this.applyTheme(settings.theme);
                 } else {
                     Utils.showNotification('Fehler beim Speichern der Einstellungen', 'danger');
@@ -4087,8 +4795,23 @@
             },
             
             backupData() {
-                const backup = DB.backup();
-                const blob = new Blob([backup], { type: 'application/json' });
+                const backup = {
+                    version: DB.VERSION,
+                    timestamp: new Date().toISOString(),
+                    orders: DB.getOrders(),
+                    customers: DB.getCustomers(),
+                    recipes: DB.getRecipes(),
+                    flavors: DB.getFlavors(),
+                    ingredients: DB.get(DB.KEYS.INGREDIENTS),
+                    production: DB.getProduction(),
+                    production_history: DB.getProductionHistory(),
+                    settings: DB.getSettings(),
+                    statistics: DB.get(DB.KEYS.STATISTICS),
+                    prices: DB.getPrices(),
+                    labels: DB.getLabels()
+                };
+                
+                const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 
                 const a = document.createElement('a');
@@ -4128,10 +4851,19 @@
                                     label: 'Wiederherstellen',
                                     type: 'danger',
                                     onClick: () => {
-                                        if (DB.restore(backupData)) {
+                                        try {
+                                            const backup = JSON.parse(backupData);
+                                            localStorage.clear();
+                                            
+                                            Object.keys(backup).forEach(key => {
+                                                if (key !== 'version' && key !== 'timestamp') {
+                                                    localStorage.setItem(`sanremo_${key}`, JSON.stringify(backup[key]));
+                                                }
+                                            });
+                                            
                                             Utils.showNotification('Backup erfolgreich wiederhergestellt', 'success');
-                                            location.reload(); // Reload to apply changes
-                                        } else {
+                                            setTimeout(() => location.reload(), 2000);
+                                        } catch (e) {
                                             Utils.showNotification('Fehler beim Wiederherstellen des Backups', 'danger');
                                         }
                                     }
@@ -4160,15 +4892,9 @@
                             label: 'Alle Daten zurücksetzen',
                             type: 'danger',
                             onClick: () => {
-                                // Clear all data
                                 localStorage.clear();
-                                
-                                // Reinitialize
                                 DB.init();
-                                
                                 Utils.showNotification('Alle Daten wurden zurückgesetzt', 'success');
-                                
-                                // Reload page
                                 setTimeout(() => location.reload(), 2000);
                             }
                         }
@@ -4178,43 +4904,44 @@
 
         // ===== INITIALIZATION =====
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize database
             DB.init();
-            
-            // Initialize view manager
             ViewManager.init();
             
-            // Set initial theme
             const settings = DB.getSettings();
             Settings.applyTheme(settings.theme || 'light');
             
-            // Initialize flavors module
             Flavors.init();
+            Orders.init();
+            Customers.init();
+            Labels.init();
+            Production.init();
+            Statistics.init();
+            Settings.init();
             
-            // Auto-save indicator
+            console.log('Sanremo Eisproduktionssystem gestartet - Version 1.3.0');
+            
             let saveTimeout;
             document.addEventListener('input', () => {
                 clearTimeout(saveTimeout);
                 const status = document.getElementById('data-status');
-                status.textContent = 'Änderungen...';
-                status.className = 'badge badge-warning';
-                
-                saveTimeout = setTimeout(() => {
-                    status.textContent = 'Daten gespeichert';
-                    status.className = 'badge badge-success';
-                }, 1000);
+                if (status) {
+                    status.textContent = 'Änderungen...';
+                    status.className = 'badge badge-warning';
+                    
+                    saveTimeout = setTimeout(() => {
+                        status.textContent = 'Daten gespeichert';
+                        status.className = 'badge badge-success';
+                    }, 1000);
+                }
             });
             
-            // Initialize date inputs with today's date
             const today = new Date().toISOString().split('T')[0];
             document.querySelectorAll('input[type="date"]').forEach(input => {
                 if (!input.value) {
                     input.value = today;
                 }
             });
-            
-            console.log('Sanremo Eisproduktionssystem gestartet - Version 1.1.0');
         });
     </script>
 </body>
-                                </html>
+</html>
