@@ -1841,15 +1841,20 @@
             },
             
             init() {
+                console.log('Initializing database...');
                 // Initialize all databases with default data if they don't exist
                 Object.keys(this.KEYS).forEach(keyName => {
                     const key = this.KEYS[keyName];
                     const defaultValue = this.DEFAULT_DATA[keyName] || (keyName.endsWith('S') ? [] : {});
                     
                     if (!localStorage.getItem(key)) {
+                        console.log(`Initializing ${key} with default data`);
                         localStorage.setItem(key, JSON.stringify(defaultValue));
+                    } else {
+                        console.log(`${key} already exists`);
                     }
                 });
+                console.log('Database initialization complete');
             },
             
             // Generic get method
@@ -1860,6 +1865,7 @@
                         // Get default value based on key name
                         const keyName = Object.keys(this.KEYS).find(k => this.KEYS[k] === key);
                         const defaultValue = this.DEFAULT_DATA[keyName] || (key.includes('_') ? [] : {});
+                        console.log(`No data found for ${key}, returning default`);
                         return defaultValue;
                     }
                     return JSON.parse(data);
@@ -1881,7 +1887,11 @@
             },
             
             // Get specific database
-            getOrders() { return this.get(this.KEYS.ORDERS); }
+            getOrders() { 
+                const orders = this.get(this.KEYS.ORDERS);
+                console.log(`Retrieved ${orders.length} orders`);
+                return orders;
+            }
             getCustomers() { return this.get(this.KEYS.CUSTOMERS); }
             getFlavors() { return this.get(this.KEYS.FLAVORS); }
             getRecipes() { return this.get(this.KEYS.RECIPES); }
@@ -1908,6 +1918,7 @@
                 order.id = 'order_' + Date.now();
                 order.created = new Date().toISOString();
                 orders.push(order);
+                console.log(`Adding order: ${order.id}`);
                 return this.saveOrders(orders);
             },
             
@@ -2120,11 +2131,13 @@
         // ===== VIEW MANAGER =====
         const ViewManager = {
             init() {
+                console.log('Initializing ViewManager...');
                 // Setup navigation
                 document.querySelectorAll('.nav-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         e.preventDefault();
                         const view = btn.getAttribute('data-view');
+                        console.log(`Switching to view: ${view}`);
                         this.switchView(view);
                     });
                 });
@@ -2134,6 +2147,7 @@
             },
             
             switchView(viewName) {
+                console.log(`Switching to ${viewName} view`);
                 // Update active nav button
                 document.querySelectorAll('.nav-btn').forEach(btn => {
                     btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
@@ -2154,16 +2168,35 @@
             },
             
             initView(viewName) {
+                console.log(`Initializing view: ${viewName}`);
                 switch(viewName) {
-                    case 'dashboard': Dashboard.init(); break;
-                    case 'orders': Orders.init(); break;
-                    case 'production': Production.init(); break;
-                    case 'recipes': Recipes.init(); break;
-                    case 'flavors': Flavors.init(); break;
-                    case 'labels': Labels.init(); break;
-                    case 'customers': Customers.init(); break;
-                    case 'statistics': Statistics.init(); break;
-                    case 'settings': Settings.init(); break;
+                    case 'dashboard': 
+                        Dashboard.init(); 
+                        break;
+                    case 'orders': 
+                        Orders.init(); 
+                        break;
+                    case 'production': 
+                        Production.init(); 
+                        break;
+                    case 'recipes': 
+                        Recipes.init(); 
+                        break;
+                    case 'flavors': 
+                        Flavors.init(); 
+                        break;
+                    case 'labels': 
+                        Labels.init(); 
+                        break;
+                    case 'customers': 
+                        Customers.init(); 
+                        break;
+                    case 'statistics': 
+                        Statistics.init(); 
+                        break;
+                    case 'settings': 
+                        Settings.init(); 
+                        break;
                 }
             }
         };
@@ -2171,18 +2204,25 @@
         // ===== DASHBOARD MODULE =====
         const Dashboard = {
             init() {
+                console.log('Initializing Dashboard...');
                 this.updateStatistics();
                 this.loadTodayActivities();
                 this.updateTime();
                 setInterval(() => this.updateTime(), 60000);
+                console.log('Dashboard initialized');
             },
             
             updateStatistics() {
+                console.log('Updating dashboard statistics...');
                 const orders = DB.getOrders();
                 const today = new Date().toISOString().split('T')[0];
                 
+                console.log(`Total orders: ${orders.length}`);
+                console.log(`Today's date: ${today}`);
+                
                 // Today's orders
                 const todayOrders = orders.filter(o => o.date === today);
+                console.log(`Today's orders: ${todayOrders.length}`);
                 document.getElementById('stat-today-orders').textContent = todayOrders.length;
                 
                 // Today's production
@@ -2192,6 +2232,7 @@
                         todayProduction += Utils.calculateWeight(item.size, item.quantity);
                     });
                 });
+                console.log(`Today's production: ${todayProduction} kg`);
                 document.getElementById('stat-production-today').textContent = todayProduction.toFixed(1) + ' kg';
                 
                 // Recipe count
@@ -2202,6 +2243,8 @@
                 const labels = DB.getLabels();
                 const todayLabels = labels.filter(l => l.date === today);
                 document.getElementById('stat-labels-today').textContent = todayLabels.reduce((sum, label) => sum + label.quantity, 0);
+                
+                console.log('Dashboard statistics updated');
             },
             
             loadTodayActivities() {
@@ -2265,12 +2308,14 @@
         // ===== ORDERS MODULE =====
         const Orders = {
             init() {
+                console.log('Initializing Orders module...');
                 this.loadCustomers();
                 this.loadFlavors();
                 this.setDefaultDate();
                 this.setupEventListeners();
                 this.loadRecentOrders();
                 this.renderOrderItems(); // Initialize empty order items list
+                console.log('Orders module initialized');
             },
             
             loadCustomers() {
@@ -2300,31 +2345,54 @@
             },
             
             setupEventListeners() {
+                console.log('Setting up order event listeners...');
                 // Order buttons
-                document.getElementById('add-order-item')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.addOrderItem();
-                });
+                const addBtn = document.getElementById('add-order-item');
+                const clearBtn = document.getElementById('clear-order');
+                const saveBtn = document.getElementById('save-order');
+                const printBtn = document.getElementById('print-order');
+                const exportBtn = document.getElementById('export-order');
                 
-                document.getElementById('clear-order')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.clearOrder();
-                });
+                if (addBtn) {
+                    addBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        console.log('Adding order item');
+                        this.addOrderItem();
+                    });
+                }
                 
-                document.getElementById('save-order')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.saveOrder();
-                });
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        console.log('Clearing order');
+                        this.clearOrder();
+                    });
+                }
                 
-                document.getElementById('print-order')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.printOrder();
-                });
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        console.log('Saving order');
+                        this.saveOrder();
+                    });
+                }
                 
-                document.getElementById('export-order')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.exportOrder();
-                });
+                if (printBtn) {
+                    printBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        console.log('Printing order');
+                        this.printOrder();
+                    });
+                }
+                
+                if (exportBtn) {
+                    exportBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        console.log('Exporting order');
+                        this.exportOrder();
+                    });
+                }
+                console.log('Order event listeners setup complete');
             },
             
             addOrderItem() {
@@ -2485,6 +2553,8 @@
                     created: new Date().toISOString()
                 };
                 
+                console.log('Saving order:', order);
+                
                 // Save to database
                 if (DB.addOrder(order)) {
                     Utils.showNotification('Bestellung erfolgreich gespeichert', 'success');
@@ -2641,6 +2711,7 @@
                                 const filtered = orders.filter(o => o.id !== orderId);
                                 DB.saveOrders(filtered);
                                 this.loadRecentOrders();
+                                Dashboard.updateStatistics();
                                 Utils.showNotification('Bestellung gelöscht', 'success');
                             }
                         }
@@ -2766,20 +2837,31 @@
         // ===== CUSTOMERS MODULE =====
         const Customers = {
             init() {
+                console.log('Initializing Customers module...');
                 this.setupEventListeners();
                 this.loadCustomers();
+                console.log('Customers module initialized');
             },
             
             setupEventListeners() {
-                document.getElementById('save-customer')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.saveCustomer();
-                });
+                const saveBtn = document.getElementById('save-customer');
+                const clearBtn = document.getElementById('clear-customer-form');
                 
-                document.getElementById('clear-customer-form')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.clearForm();
-                });
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        console.log('Saving customer');
+                        this.saveCustomer();
+                    });
+                }
+                
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        console.log('Clearing customer form');
+                        this.clearForm();
+                    });
+                }
             },
             
             saveCustomer() {
@@ -3085,21 +3167,32 @@
             },
             
             init() {
+                console.log('Initializing Flavors module...');
                 this.setupEventListeners();
                 this.loadFlavors();
                 this.updateAllFlavorSelects();
+                console.log('Flavors module initialized');
             },
             
             setupEventListeners() {
-                document.getElementById('add-flavor-btn')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.handleAddFlavor();
-                });
+                const addBtn = document.getElementById('add-flavor-btn');
+                const resetBtn = document.getElementById('reset-flavors-btn');
                 
-                document.getElementById('reset-flavors-btn')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.resetToDefaults();
-                });
+                if (addBtn) {
+                    addBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        console.log('Adding flavor');
+                        this.handleAddFlavor();
+                    });
+                }
+                
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        console.log('Resetting flavors');
+                        this.resetToDefaults();
+                    });
+                }
             },
             
             handleAddFlavor() {
@@ -3442,15 +3535,20 @@
         // ===== RECIPES MODULE =====
         const Recipes = {
             init() {
+                console.log('Initializing Recipes module...');
                 this.setupEventListeners();
                 this.loadFlavors();
+                console.log('Recipes module initialized');
             },
             
             setupEventListeners() {
-                document.getElementById('new-recipe')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    Utils.showNotification('Rezept-Modul in Entwicklung', 'info');
-                });
+                const newRecipeBtn = document.getElementById('new-recipe');
+                if (newRecipeBtn) {
+                    newRecipeBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        Utils.showNotification('Rezept-Modul in Entwicklung', 'info');
+                    });
+                }
             },
             
             loadFlavors() {
@@ -3465,28 +3563,40 @@
         // ===== LABELS MODULE =====
         const Labels = {
             init() {
+                console.log('Initializing Labels module...');
                 this.setupEventListeners();
                 this.loadFlavors();
                 this.setDefaultDates();
                 this.generatePreview();
                 this.loadRecentLabels();
+                console.log('Labels module initialized');
             },
             
             setupEventListeners() {
-                document.getElementById('generate-label')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.generatePreview();
-                });
+                const generateBtn = document.getElementById('generate-label');
+                const printBtn = document.getElementById('print-label');
+                const batchBtn = document.getElementById('print-batch');
                 
-                document.getElementById('print-label')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.printLabel();
-                });
+                if (generateBtn) {
+                    generateBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.generatePreview();
+                    });
+                }
                 
-                document.getElementById('print-batch')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.printBatch();
-                });
+                if (printBtn) {
+                    printBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.printLabel();
+                    });
+                }
+                
+                if (batchBtn) {
+                    batchBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.printBatch();
+                    });
+                }
                 
                 // Add change listeners for auto-update
                 document.getElementById('label-flavor')?.addEventListener('change', () => {
@@ -3836,10 +3946,12 @@
         // ===== PRODUCTION MODULE =====
         const Production = {
             init() {
+                console.log('Initializing Production module...');
                 this.setDefaultDate();
                 this.setupEventListeners();
                 this.updateProductionStats();
                 this.loadProductionProgress();
+                console.log('Production module initialized');
             },
             
             setDefaultDate() {
@@ -3852,20 +3964,30 @@
             },
             
             setupEventListeners() {
-                document.getElementById('generate-production-plan')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.generateProductionPlan();
-                });
+                const generateBtn = document.getElementById('generate-production-plan');
+                const startBtn = document.getElementById('start-production');
+                const printBtn = document.getElementById('print-production-plan');
                 
-                document.getElementById('start-production')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.startProduction();
-                });
+                if (generateBtn) {
+                    generateBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.generateProductionPlan();
+                    });
+                }
                 
-                document.getElementById('print-production-plan')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.printProductionPlan();
-                });
+                if (startBtn) {
+                    startBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.startProduction();
+                    });
+                }
+                
+                if (printBtn) {
+                    printBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.printProductionPlan();
+                    });
+                }
                 
                 document.getElementById('production-date')?.addEventListener('change', (e) => {
                     AppState.currentProductionDate = e.target.value;
@@ -4448,10 +4570,12 @@
         // ===== STATISTICS MODULE =====
         const Statistics = {
             init() {
+                console.log('Initializing Statistics module...');
                 this.setupEventListeners();
                 this.loadPrices();
                 this.loadStatistics();
                 this.loadFlavorStatistics();
+                console.log('Statistics module initialized');
             },
             
             setupEventListeners() {
@@ -4462,20 +4586,30 @@
                     }
                 });
                 
-                document.getElementById('generate-report')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.generateReport();
-                });
+                const generateBtn = document.getElementById('generate-report');
+                const printBtn = document.getElementById('print-report');
+                const savePricesBtn = document.getElementById('save-prices');
                 
-                document.getElementById('print-report')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.printReport();
-                });
+                if (generateBtn) {
+                    generateBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.generateReport();
+                    });
+                }
                 
-                document.getElementById('save-prices')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.savePrices();
-                });
+                if (printBtn) {
+                    printBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.printReport();
+                    });
+                }
+                
+                if (savePricesBtn) {
+                    savePricesBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.savePrices();
+                    });
+                }
             },
             
             loadPrices() {
@@ -4735,8 +4869,10 @@
         // ===== SETTINGS MODULE =====
         const Settings = {
             init() {
+                console.log('Initializing Settings module...');
                 this.loadSettings();
                 this.setupEventListeners();
+                console.log('Settings module initialized');
             },
             
             loadSettings() {
@@ -4763,25 +4899,38 @@
             },
             
             setupEventListeners() {
-                document.getElementById('save-settings')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.saveSettings();
-                });
+                const saveBtn = document.getElementById('save-settings');
+                const backupBtn = document.getElementById('backup-data');
+                const restoreBtn = document.getElementById('restore-data');
+                const resetBtn = document.getElementById('reset-data');
                 
-                document.getElementById('backup-data')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.backupData();
-                });
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.saveSettings();
+                    });
+                }
                 
-                document.getElementById('restore-data')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.restoreData();
-                });
+                if (backupBtn) {
+                    backupBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.backupData();
+                    });
+                }
                 
-                document.getElementById('reset-data')?.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.resetData();
-                });
+                if (restoreBtn) {
+                    restoreBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.restoreData();
+                    });
+                }
+                
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.resetData();
+                    });
+                }
                 
                 document.getElementById('theme-select')?.addEventListener('change', (e) => this.applyTheme(e.target.value));
             },
@@ -4941,6 +5090,8 @@
 
         // ===== INITIALIZATION =====
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing application...');
+            
             // Initialize database
             DB.init();
             
@@ -4952,6 +5103,7 @@
             Settings.applyTheme(settings.theme || 'light');
             
             // Initialize all modules
+            console.log('Initializing all modules...');
             Flavors.init();
             Orders.init();
             Customers.init();
@@ -4989,6 +5141,12 @@
             });
             
             console.log('Sanremo Eisproduktionssystem gestartet - Version 1.5.0');
+            console.log('Application initialization complete');
+            
+            // Force update dashboard statistics
+            setTimeout(() => {
+                Dashboard.updateStatistics();
+            }, 500);
         });
     </script>
 </body>
