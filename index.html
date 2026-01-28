@@ -1852,7 +1852,7 @@
                 });
             },
             
-            // Generic get method - CORRIGIDO
+            // Generic get method
             get(key) {
                 try {
                     const data = localStorage.getItem(key);
@@ -2057,9 +2057,12 @@
                 const currentValue = selectElement.value;
                 selectElement.innerHTML = '<option value="">Sorte auswählen...</option>';
                 
+                // Filter active flavors
+                const activeFlavors = flavors.filter(f => f.active !== false);
+                
                 // Group by category
                 const grouped = {};
-                flavors.forEach(flavor => {
+                activeFlavors.forEach(flavor => {
                     if (!grouped[flavor.category]) {
                         grouped[flavor.category] = [];
                     }
@@ -2119,7 +2122,8 @@
             init() {
                 // Setup navigation
                 document.querySelectorAll('.nav-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const view = btn.getAttribute('data-view');
                         this.switchView(view);
                     });
@@ -2266,6 +2270,7 @@
                 this.setDefaultDate();
                 this.setupEventListeners();
                 this.loadRecentOrders();
+                this.renderOrderItems(); // Initialize empty order items list
             },
             
             loadCustomers() {
@@ -2283,11 +2288,7 @@
             },
             
             loadFlavors() {
-                const flavors = Flavors.getActiveFlavors();
-                const selects = document.querySelectorAll('.order-flavor-select');
-                selects.forEach(select => {
-                    Utils.updateFlavorSelect(select, flavors);
-                });
+                // This will be called when flavors are updated
             },
             
             setDefaultDate() {
@@ -2300,11 +2301,30 @@
             
             setupEventListeners() {
                 // Order buttons
-                document.getElementById('add-order-item')?.addEventListener('click', () => this.addOrderItem());
-                document.getElementById('clear-order')?.addEventListener('click', () => this.clearOrder());
-                document.getElementById('save-order')?.addEventListener('click', () => this.saveOrder());
-                document.getElementById('print-order')?.addEventListener('click', () => this.printOrder());
-                document.getElementById('export-order')?.addEventListener('click', () => this.exportOrder());
+                document.getElementById('add-order-item')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.addOrderItem();
+                });
+                
+                document.getElementById('clear-order')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.clearOrder();
+                });
+                
+                document.getElementById('save-order')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.saveOrder();
+                });
+                
+                document.getElementById('print-order')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.printOrder();
+                });
+                
+                document.getElementById('export-order')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.exportOrder();
+                });
             },
             
             addOrderItem() {
@@ -2345,7 +2365,7 @@
                     
                     // Populate flavor select
                     const flavorSelect = div.querySelector('.order-flavor-select');
-                    const flavors = Flavors.getActiveFlavors();
+                    const flavors = DB.getFlavors().filter(f => f.active !== false);
                     Utils.updateFlavorSelect(flavorSelect, flavors);
                     
                     // Set values
@@ -2390,6 +2410,7 @@
                 // Remove item
                 document.querySelectorAll('.remove-item').forEach(button => {
                     button.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const index = parseInt(e.target.closest('button').getAttribute('data-index'));
                         AppState.currentOrder.items.splice(index, 1);
                         this.renderOrderItems();
@@ -2492,6 +2513,9 @@
                 this.renderOrderItems();
                 this.updateOrderSummary();
                 document.getElementById('order-notes').value = '';
+                document.getElementById('order-customer').value = '';
+                document.getElementById('order-priority').value = 'normal';
+                this.setDefaultDate();
                 Utils.showNotification('Bestellung geleert', 'info');
             },
             
@@ -2545,6 +2569,7 @@
             addOrderActionListeners() {
                 document.querySelectorAll('.view-order').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const orderId = e.target.closest('button').getAttribute('data-id');
                         this.viewOrder(orderId);
                     });
@@ -2552,6 +2577,7 @@
                 
                 document.querySelectorAll('.delete-order').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const orderId = e.target.closest('button').getAttribute('data-id');
                         this.deleteOrder(orderId);
                     });
@@ -2745,8 +2771,15 @@
             },
             
             setupEventListeners() {
-                document.getElementById('save-customer')?.addEventListener('click', () => this.saveCustomer());
-                document.getElementById('clear-customer-form')?.addEventListener('click', () => this.clearForm());
+                document.getElementById('save-customer')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.saveCustomer();
+                });
+                
+                document.getElementById('clear-customer-form')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.clearForm();
+                });
             },
             
             saveCustomer() {
@@ -2877,6 +2910,7 @@
             addCustomerEventListeners() {
                 document.querySelectorAll('.edit-customer').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const customerId = e.target.closest('button').getAttribute('data-id');
                         this.editCustomer(customerId);
                     });
@@ -2884,6 +2918,7 @@
                 
                 document.querySelectorAll('.delete-customer').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const customerId = e.target.closest('button').getAttribute('data-id');
                         this.deleteCustomer(customerId);
                     });
@@ -3056,8 +3091,15 @@
             },
             
             setupEventListeners() {
-                document.getElementById('add-flavor-btn')?.addEventListener('click', () => this.handleAddFlavor());
-                document.getElementById('reset-flavors-btn')?.addEventListener('click', () => this.resetToDefaults());
+                document.getElementById('add-flavor-btn')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.handleAddFlavor();
+                });
+                
+                document.getElementById('reset-flavors-btn')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.resetToDefaults();
+                });
             },
             
             handleAddFlavor() {
@@ -3174,6 +3216,7 @@
             addFlavorEventListeners() {
                 document.querySelectorAll('.edit-flavor').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const flavorId = e.target.closest('button').getAttribute('data-id');
                         this.editFlavor(flavorId);
                     });
@@ -3181,6 +3224,7 @@
                 
                 document.querySelectorAll('.toggle-flavor').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const flavorId = e.target.closest('button').getAttribute('data-id');
                         const currentActive = e.target.closest('button').getAttribute('data-active') === 'true';
                         this.toggleFlavorActive(flavorId, !currentActive);
@@ -3189,6 +3233,7 @@
                 
                 document.querySelectorAll('.delete-flavor').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const flavorId = e.target.closest('button').getAttribute('data-id');
                         this.deleteFlavor(flavorId);
                     });
@@ -3352,16 +3397,15 @@
             updateAllFlavorSelects() {
                 const flavors = this.getActiveFlavors();
                 
-                // Update all flavor selects in the application
+                // Update flavor selects in the application
                 const flavorSelects = [
-                    'order-customer', // Este é para clientes, não sabores
                     'recipe-flavor',
                     'label-flavor'
                 ];
                 
                 flavorSelects.forEach(selectId => {
                     const select = document.getElementById(selectId);
-                    if (select && selectId !== 'order-customer') {
+                    if (select) {
                         Utils.updateFlavorSelect(select, flavors);
                     }
                 });
@@ -3403,7 +3447,8 @@
             },
             
             setupEventListeners() {
-                document.getElementById('new-recipe')?.addEventListener('click', () => {
+                document.getElementById('new-recipe')?.addEventListener('click', (e) => {
+                    e.preventDefault();
                     Utils.showNotification('Rezept-Modul in Entwicklung', 'info');
                 });
             },
@@ -3428,9 +3473,20 @@
             },
             
             setupEventListeners() {
-                document.getElementById('generate-label')?.addEventListener('click', () => this.generatePreview());
-                document.getElementById('print-label')?.addEventListener('click', () => this.printLabel());
-                document.getElementById('print-batch')?.addEventListener('click', () => this.printBatch());
+                document.getElementById('generate-label')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.generatePreview();
+                });
+                
+                document.getElementById('print-label')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.printLabel();
+                });
+                
+                document.getElementById('print-batch')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.printBatch();
+                });
                 
                 // Add change listeners for auto-update
                 document.getElementById('label-flavor')?.addEventListener('change', () => {
@@ -3748,6 +3804,7 @@
             addLabelEventListeners() {
                 document.querySelectorAll('.reprint-label').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const labelId = e.target.closest('button').getAttribute('data-id');
                         this.reprintLabel(labelId);
                     });
@@ -3795,9 +3852,20 @@
             },
             
             setupEventListeners() {
-                document.getElementById('generate-production-plan')?.addEventListener('click', () => this.generateProductionPlan());
-                document.getElementById('start-production')?.addEventListener('click', () => this.startProduction());
-                document.getElementById('print-production-plan')?.addEventListener('click', () => this.printProductionPlan());
+                document.getElementById('generate-production-plan')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.generateProductionPlan();
+                });
+                
+                document.getElementById('start-production')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.startProduction();
+                });
+                
+                document.getElementById('print-production-plan')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.printProductionPlan();
+                });
                 
                 document.getElementById('production-date')?.addEventListener('change', (e) => {
                     AppState.currentProductionDate = e.target.value;
@@ -3955,6 +4023,7 @@
             addProductionActionListeners() {
                 document.querySelectorAll('.start-production').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const itemId = e.target.closest('button').getAttribute('data-id');
                         this.startProductionItem(itemId);
                     });
@@ -3962,6 +4031,7 @@
                 
                 document.querySelectorAll('.add-production').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const itemId = e.target.closest('button').getAttribute('data-id');
                         this.addProductionQuantity(itemId);
                     });
@@ -3969,6 +4039,7 @@
                 
                 document.querySelectorAll('.remove-production').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const itemId = e.target.closest('button').getAttribute('data-id');
                         this.removeProductionQuantity(itemId);
                     });
@@ -3976,6 +4047,7 @@
                 
                 document.querySelectorAll('.complete-production').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const itemId = e.target.closest('button').getAttribute('data-id');
                         this.completeProductionItem(itemId);
                     });
@@ -4207,6 +4279,7 @@
             addHistoryViewListeners() {
                 document.querySelectorAll('.view-production-history').forEach(btn => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const itemId = e.target.closest('button').getAttribute('data-id');
                         this.viewProductionHistory(itemId);
                     });
@@ -4389,9 +4462,20 @@
                     }
                 });
                 
-                document.getElementById('generate-report')?.addEventListener('click', () => this.generateReport());
-                document.getElementById('print-report')?.addEventListener('click', () => this.printReport());
-                document.getElementById('save-prices')?.addEventListener('click', () => this.savePrices());
+                document.getElementById('generate-report')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.generateReport();
+                });
+                
+                document.getElementById('print-report')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.printReport();
+                });
+                
+                document.getElementById('save-prices')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.savePrices();
+                });
             },
             
             loadPrices() {
@@ -4679,10 +4763,26 @@
             },
             
             setupEventListeners() {
-                document.getElementById('save-settings')?.addEventListener('click', () => this.saveSettings());
-                document.getElementById('backup-data')?.addEventListener('click', () => this.backupData());
-                document.getElementById('restore-data')?.addEventListener('click', () => this.restoreData());
-                document.getElementById('reset-data')?.addEventListener('click', () => this.resetData());
+                document.getElementById('save-settings')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.saveSettings();
+                });
+                
+                document.getElementById('backup-data')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.backupData();
+                });
+                
+                document.getElementById('restore-data')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.restoreData();
+                });
+                
+                document.getElementById('reset-data')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.resetData();
+                });
+                
                 document.getElementById('theme-select')?.addEventListener('change', (e) => this.applyTheme(e.target.value));
             },
             
