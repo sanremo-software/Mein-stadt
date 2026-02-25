@@ -224,7 +224,6 @@
         .stat-icon.order { background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); color: white; }
         .stat-icon.production { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; }
         .stat-icon.recipe { background: linear-gradient(135deg, #34d399 0%, #10b981 100%); color: white; }
-        .stat-icon.label { background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); color: white; }
         
         .stat-value {
             font-size: var(--font-size-2xl);
@@ -852,15 +851,6 @@
                             <div class="stat-label">Aktive Rezepte</div>
                             <div class="stat-change negative">-2%</div>
                         </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon label">
-                                <i class="fas fa-tag"></i>
-                            </div>
-                            <div class="stat-value" id="stat-labels-today">0</div>
-                            <div class="stat-label">Etiketten heute</div>
-                            <div class="stat-change positive">+15%</div>
-                        </div>
                     </div>
                     
                     <div class="alert alert-info">
@@ -870,27 +860,6 @@
                         <div class="alert-content">
                             <strong>Willkommen!</strong> Heute haben Sie 3 offene Bestellungen und 45kg Produktion geplant.
                         </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-title">
-                        <i class="fas fa-calendar-alt"></i> Heutige Aktivitäten
-                    </div>
-                    <div class="table-container">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Zeit</th>
-                                    <th>Aktivität</th>
-                                    <th>Status</th>
-                                    <th>Aktion</th>
-                                </tr>
-                            </thead>
-                            <tbody id="today-activities">
-                                <!-- Will be populated by JavaScript -->
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </section>
@@ -967,10 +936,6 @@
                         <div class="summary-item">
                             <div class="summary-value" id="total-kg">0.0</div>
                             <div class="summary-label">KG</div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-value" id="total-buckets">0</div>
-                            <div class="summary-label">Eimer</div>
                         </div>
                     </div>
                     
@@ -2001,7 +1966,6 @@
         const Dashboard = {
             init() {
                 this.updateStatistics();
-                this.loadTodayActivities();
                 
                 // Update time every minute
                 setInterval(() => this.updateTime(), 60000);
@@ -2028,52 +1992,6 @@
                 // Recipe count
                 const recipes = DB.getRecipes();
                 document.getElementById('stat-recipes').textContent = recipes.length;
-                
-                // Labels printed today (placeholder)
-                document.getElementById('stat-labels-today').textContent = todayOrders.length * 3; // Estimate
-            },
-            
-            loadTodayActivities() {
-                const activities = [
-                    {
-                        time: '08:00',
-                        activity: 'Tagesproduktion starten',
-                        status: 'In Bearbeitung',
-                        action: 'Fortsetzen'
-                    },
-                    {
-                        time: '09:30',
-                        activity: 'Lieferung an REWE',
-                        status: 'Erledigt',
-                        action: 'Details'
-                    },
-                    {
-                        time: '11:00',
-                        activity: 'Neue Bestellung: EDEKA',
-                        status: 'Ausstehend',
-                        action: 'Bearbeiten'
-                    },
-                    {
-                        time: '14:00',
-                        activity: 'Qualitätskontrolle',
-                        status: 'Geplant',
-                        action: 'Planen'
-                    }
-                ];
-                
-                const tbody = document.getElementById('today-activities');
-                tbody.innerHTML = '';
-                
-                activities.forEach(activity => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${activity.time}</td>
-                        <td>${activity.activity}</td>
-                        <td><span class="badge ${activity.status === 'Erledigt' ? 'badge-success' : activity.status === 'In Bearbeitung' ? 'badge-warning' : 'badge-primary'}">${activity.status}</span></td>
-                        <td><button class="btn btn-sm btn-outline">${activity.action}</button></td>
-                    `;
-                    tbody.appendChild(tr);
-                });
             },
             
             updateTime() {
@@ -2699,7 +2617,6 @@
                 document.getElementById('total-750g').textContent = total750g;
                 document.getElementById('total-170g').textContent = total170g;
                 document.getElementById('total-kg').textContent = totalKg.toFixed(1);
-                document.getElementById('total-buckets').textContent = totalBuckets;
             },
             
             saveOrder() {
@@ -4146,7 +4063,6 @@
                                     <th>Sorte</th>
                                     <th>Größe</th>
                                     <th>Menge</th>
-                                    <th>Gewicht (kg)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -4156,7 +4072,6 @@
                                         <td>${item.flavor}</td>
                                         <td>${item.size} g</td>
                                         <td>${item.quantity} Stk.</td>
-                                        <td>${Utils.calculateWeight(item.size, item.quantity).toFixed(2)}</td>
                                     </tr>
                                 `).join('') || ''}
                             </tbody>
@@ -4164,7 +4079,6 @@
                         
                         <div class="summary">
                             <p><strong>Gesamtmenge:</strong> ${totalKg.toFixed(1)} kg</p>
-                            <p><strong>Benötigte Eimer (${bucketSize}kg):</strong> ${bucketsNeeded}</p>
                             ${order.notes ? `<p><strong>Notizen:</strong> ${order.notes}</p>` : ''}
                         </div>
                         
@@ -4317,7 +4231,6 @@
                                     <th>Sorte</th>
                                     <th>Größe</th>
                                     <th>Menge</th>
-                                    <th>Gewicht (kg)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -4327,15 +4240,13 @@
                                         <td>${item.flavor}</td>
                                         <td>${item.size} g</td>
                                         <td>${item.quantity} Stk.</td>
-                                        <td>${Utils.calculateWeight(item.size, item.quantity).toFixed(2)}</td>
                                     </tr>
                                 `).join('') || ''}
                             </tbody>
                         </table>
                         
                         <div class="summary">
-                            <p><strong>Gesamtgewicht:</strong> ${totalKg.toFixed(1)} kg</p>
-                            <p><strong>Eimer (${bucketSize}kg):</strong> ${bucketsNeeded}</p>
+                            <p><strong>Gesamtmenge:</strong> ${totalKg.toFixed(1)} kg</p>
                             ${order.notes ? `<p><strong>Hinweise:</strong> ${order.notes}</p>` : ''}
                         </div>
                         
