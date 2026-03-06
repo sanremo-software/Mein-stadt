@@ -713,6 +713,47 @@
         .fs-lg { font-size: var(--font-size-lg); }
         .w-100 { width: 100%; }
         
+        /* ===== EIMER (BUCKET) SELECTION STYLES ===== */
+        .bucket-size-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--space-md);
+            margin-top: var(--space-sm);
+            margin-bottom: var(--space-md);
+        }
+        
+        .bucket-size-option {
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .bucket-size-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .bucket-size-option.selected {
+            border-color: var(--success);
+            background: #f0fdf4;
+        }
+        
+        .bucket-size-value {
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            color: var(--dark);
+        }
+        
+        .bucket-size-label {
+            font-size: var(--font-size-xs);
+            color: var(--muted);
+            margin-top: var(--space-xs);
+        }
+        
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .app-container {
@@ -995,7 +1036,7 @@
                         <div class="production-tile">
                             <div class="production-label">Eimer benötigt</div>
                             <div class="production-value" id="prod-buckets-needed">0</div>
-                            <div class="badge badge-primary">6kg/Eimer</div>
+                            <div class="badge badge-primary">Nach Größe</div>
                         </div>
                         
                         <div class="production-tile">
@@ -1014,6 +1055,29 @@
                     <div class="form-group">
                         <label class="form-label">Datum für Produktionsplan</label>
                         <input type="date" class="form-input" id="production-date" value="">
+                    </div>
+                    
+                    <div class="card-title mt-4">
+                        <i class="fas fa-box"></i> Eimer-Größe auswählen
+                    </div>
+                    
+                    <div class="bucket-size-grid" id="bucket-size-selector">
+                        <div class="bucket-size-option" data-size="3">
+                            <div class="bucket-size-value">3 kg</div>
+                            <div class="bucket-size-label">Klein</div>
+                        </div>
+                        <div class="bucket-size-option" data-size="4">
+                            <div class="bucket-size-value">4 kg</div>
+                            <div class="bucket-size-label">Standard</div>
+                        </div>
+                        <div class="bucket-size-option" data-size="5">
+                            <div class="bucket-size-value">5 kg</div>
+                            <div class="bucket-size-label">Groß</div>
+                        </div>
+                        <div class="bucket-size-option" data-size="6">
+                            <div class="bucket-size-value">6 kg</div>
+                            <div class="bucket-size-label">Extra Groß</div>
+                        </div>
                     </div>
                     
                     <div class="table-container">
@@ -1442,8 +1506,18 @@
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">Eimer-Größe (kg)</label>
-                        <input type="number" class="form-input" id="bucket-size" value="6" min="1" step="0.5">
+                        <label class="form-label">Eimer-Größen (kg) - Mehrere mit Komma trennen</label>
+                        <input type="text" class="form-input" id="bucket-sizes" value="3,4,5,6" placeholder="z.B. 3,4,5,6">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Standard-Eimer-Größe (kg)</label>
+                        <select class="form-select" id="default-bucket-size">
+                            <option value="3">3 kg</option>
+                            <option value="4">4 kg</option>
+                            <option value="5">5 kg</option>
+                            <option value="6" selected>6 kg</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
@@ -1606,7 +1680,8 @@
                         company_address: 'Bad Berleburg',
                         company_phone: '0176 72809926',
                         sizes: [170, 500, 750, 1000],
-                        bucket_size: 6,
+                        bucket_sizes: [3, 4, 5, 6],
+                        default_bucket_size: 6,
                         default_expiry_days: 180,
                         theme: 'light',
                         language: 'de'
@@ -1702,7 +1777,14 @@
             
             // Get settings
             getSettings() {
-                return this.get(this.KEYS.SETTINGS);
+                const settings = this.get(this.KEYS.SETTINGS);
+                if (settings && !settings.bucket_sizes) {
+                    settings.bucket_sizes = [3, 4, 5, 6];
+                }
+                if (settings && !settings.default_bucket_size) {
+                    settings.default_bucket_size = 6;
+                }
+                return settings;
             },
             
             // Save settings
@@ -1784,9 +1866,19 @@
                 return (sizeMap[size] || 0) * quantity;
             },
             
-            // Calculate number of buckets needed
-            calculateBuckets(totalKg, bucketSize = 6) {
+            // Calculate number of buckets needed with custom bucket sizes
+            calculateBuckets(totalKg, bucketSize) {
                 return Math.ceil(totalKg / bucketSize);
+            },
+            
+            // Get current bucket size from selector
+            getCurrentBucketSize() {
+                const selected = document.querySelector('.bucket-size-option.selected');
+                if (selected) {
+                    return parseFloat(selected.getAttribute('data-size'));
+                }
+                const settings = DB.getSettings();
+                return settings.default_bucket_size || 6;
             },
             
             // Show notification
@@ -1892,7 +1984,8 @@
                 items: []
             },
             currentRecipe: null,
-            currentCustomer: null
+            currentCustomer: null,
+            currentBucketSize: 6 // Default bucket size
         };
 
         // ===== VIEW MANAGER =====
@@ -2610,9 +2703,6 @@
                     totalKg += Utils.calculateWeight(item.size, item.quantity);
                 });
                 
-                const bucketSize = DB.getSettings().bucket_size || 6;
-                const totalBuckets = Utils.calculateBuckets(totalKg, bucketSize);
-                
                 document.getElementById('total-items').textContent = totalItems;
                 document.getElementById('total-750g').textContent = total750g;
                 document.getElementById('total-170g').textContent = total170g;
@@ -2845,12 +2935,39 @@
             init() {
                 this.setDefaultDate();
                 this.setupEventListeners();
+                this.initBucketSelector();
                 this.updateProductionStats();
             },
             
             setDefaultDate() {
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('production-date').value = today;
+            },
+            
+            initBucketSelector() {
+                const selector = document.getElementById('bucket-size-selector');
+                const settings = DB.getSettings();
+                const defaultSize = settings.default_bucket_size || 6;
+                
+                // Mark default as selected
+                selector.querySelectorAll('.bucket-size-option').forEach(option => {
+                    const size = parseFloat(option.getAttribute('data-size'));
+                    if (size === defaultSize) {
+                        option.classList.add('selected');
+                        AppState.currentBucketSize = size;
+                    }
+                    
+                    option.addEventListener('click', (e) => {
+                        selector.querySelectorAll('.bucket-size-option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        option.classList.add('selected');
+                        AppState.currentBucketSize = size;
+                        
+                        // Regenerate production plan if it exists
+                        this.generateProductionPlan();
+                    });
+                });
             },
             
             setupEventListeners() {
@@ -2898,7 +3015,7 @@
                     });
                 });
                 
-                const bucketSize = DB.getSettings().bucket_size || 6;
+                const bucketSize = AppState.currentBucketSize;
                 const bucketsNeeded = Utils.calculateBuckets(totalKg, bucketSize);
                 const completedPercent = dateOrders.length > 0 ? 
                     Math.round((dateOrders.filter(o => o.status === 'completed').length / dateOrders.length) * 100) : 0;
@@ -2946,7 +3063,7 @@
                 
                 let totalKg = 0;
                 let totalBuckets = 0;
-                const bucketSize = DB.getSettings().bucket_size || 6;
+                const bucketSize = AppState.currentBucketSize;
                 
                 flavors.forEach(flavor => {
                     const buckets = Utils.calculateBuckets(flavor.kg, bucketSize);
@@ -2959,7 +3076,7 @@
                         <td>${flavor.size750}</td>
                         <td>${flavor.size170}</td>
                         <td>${flavor.kg.toFixed(2)} kg</td>
-                        <td>${buckets} Eimer</td>
+                        <td><strong>${buckets}</strong> (${bucketSize}kg)</td>
                         <td>
                             <span class="badge badge-warning">Geplant</span>
                         </td>
@@ -2983,7 +3100,7 @@
                 tfoot.innerHTML = `
                     <tr>
                         <td colspan="4" style="text-align: right;"><strong>Gesamt:</strong></td>
-                        <td><strong>${totalBuckets} Eimer</strong></td>
+                        <td><strong>${totalBuckets} Eimer (${bucketSize}kg)</strong></td>
                         <td></td>
                         <td></td>
                     </tr>
@@ -2992,7 +3109,7 @@
                 // Add event listeners
                 this.addFlavorActionListeners();
                 
-                Utils.showNotification('Produktionsplan generiert', 'success');
+                Utils.showNotification(`Produktionsplan generiert mit ${bucketSize}kg Eimern`, 'success');
             },
             
             addFlavorActionListeners() {
@@ -3740,7 +3857,12 @@
                     document.getElementById('size-1000').value = settings.sizes[3] || 1000;
                 }
                 
-                document.getElementById('bucket-size').value = settings.bucket_size || 6;
+                // Load bucket sizes
+                if (settings.bucket_sizes) {
+                    document.getElementById('bucket-sizes').value = settings.bucket_sizes.join(',');
+                }
+                
+                document.getElementById('default-bucket-size').value = settings.default_bucket_size || 6;
                 document.getElementById('default-expiry').value = settings.default_expiry_days || 180;
                 document.getElementById('theme-select').value = settings.theme || 'light';
                 document.getElementById('language-select').value = settings.language || 'de';
@@ -3774,6 +3896,9 @@
             },
             
             saveSettings() {
+                const bucketSizesInput = document.getElementById('bucket-sizes').value;
+                const bucketSizes = bucketSizesInput.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n > 0);
+                
                 const settings = {
                     company_name: document.getElementById('company-name').value.trim(),
                     company_address: document.getElementById('company-address').value.trim(),
@@ -3784,7 +3909,8 @@
                         parseInt(document.getElementById('size-750').value) || 750,
                         parseInt(document.getElementById('size-1000').value) || 1000
                     ],
-                    bucket_size: parseFloat(document.getElementById('bucket-size').value) || 6,
+                    bucket_sizes: bucketSizes.length > 0 ? bucketSizes : [3, 4, 5, 6],
+                    default_bucket_size: parseFloat(document.getElementById('default-bucket-size').value) || 6,
                     default_expiry_days: parseInt(document.getElementById('default-expiry').value) || 180,
                     theme: document.getElementById('theme-select').value,
                     language: document.getElementById('language-select').value
@@ -3795,6 +3921,11 @@
                     
                     // Apply theme immediately
                     this.applyTheme(settings.theme);
+                    
+                    // Update bucket selector in production view
+                    if (AppState.currentView === 'production') {
+                        Production.initBucketSelector();
+                    }
                 } else {
                     Utils.showNotification('Fehler beim Speichern der Einstellungen', 'danger');
                 }
@@ -4008,7 +4139,7 @@
                     return sum + Utils.calculateWeight(item.size, item.quantity);
                 }, 0) || 0;
                 
-                const bucketSize = DB.getSettings().bucket_size || 6;
+                const bucketSize = AppState.currentBucketSize;
                 const bucketsNeeded = Utils.calculateBuckets(totalKg, bucketSize);
                 
                 return `
@@ -4099,7 +4230,7 @@
             
             generateProductionHTML(productionData, date) {
                 const totalKg = productionData.reduce((sum, item) => sum + item.kg, 0);
-                const bucketSize = DB.getSettings().bucket_size || 6;
+                const bucketSize = AppState.currentBucketSize;
                 const totalBuckets = Utils.calculateBuckets(totalKg, bucketSize);
                 
                 return `
@@ -4126,7 +4257,7 @@
                         <div class="header">
                             <h1>PRODUKTIONSPLAN</h1>
                             <div>Datum: ${Utils.formatDate(date)} • Eiscafé Sanremo</div>
-                            <div>Gesamtmenge: ${totalKg.toFixed(1)} kg • Benötigte Eimer: ${totalBuckets}</div>
+                            <div>Gesamtmenge: ${totalKg.toFixed(1)} kg • Benötigte Eimer: ${totalBuckets} (${bucketSize}kg)</div>
                         </div>
                         
                         <table class="table">
@@ -4136,7 +4267,7 @@
                                     <th>750g</th>
                                     <th>170g</th>
                                     <th>KG</th>
-                                    <th>Eimer</th>
+                                    <th>Eimer (${bucketSize}kg)</th>
                                     <th>Kontrolle</th>
                                 </tr>
                             </thead>
@@ -4177,7 +4308,7 @@
                     return sum + Utils.calculateWeight(item.size, item.quantity);
                 }, 0) || 0;
                 
-                const bucketSize = DB.getSettings().bucket_size || 6;
+                const bucketSize = AppState.currentBucketSize;
                 const bucketsNeeded = Utils.calculateBuckets(totalKg, bucketSize);
                 
                 return `
